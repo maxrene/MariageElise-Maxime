@@ -247,25 +247,33 @@ body {
   font-weight: 500;
 }
 
-/* Le formulaire qui est caché par défaut */
+//* Fichier : style.css (à ajouter à la fin) */
+
+/* Le conteneur du formulaire qui sera caché par défaut */
 .offer-form {
   display: none; /* Caché par défaut */
-  margin-top: 12px;
-  padding: 16px;
-  background-color: #f9fafb;
-  border-radius: 8px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb; /* Un petit séparateur visuel */
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* Quand l'utilisateur coche la case, on affiche le formulaire */
-/* On utilisera JS pour ajouter/retirer la classe 'is-offering' */
+/*
+ * Cette règle magique dit : "Quand un élément .gift-item a AUSSI la classe .is-offering,
+ * alors l'élément .offer-form à l'intérieur doit devenir visible."
+ * Le JavaScript se chargera d'ajouter/retirer la classe .is-offering.
+*/
 .gift-item.is-offering .offer-form {
-  display: flex; 
+  display: flex;
 }
 
-/* Styles pour le champ de nom et le bouton valider */
+.offer-form label {
+  font-weight: 500;
+  font-size: 0.875rem; /* 14px */
+}
+
 .offer-form input[type="text"] {
   padding: 10px;
   border: 1px solid #d1d5db;
@@ -274,7 +282,7 @@ body {
 }
 
 .offer-form .button {
-  align-self: flex-start; /* Pour que le bouton ne prenne pas toute la largeur */
+  align-self: flex-start; /* Le bouton ne prend pas toute la largeur */
 }
 
 /* Pour afficher le statut "Offert par..." */
