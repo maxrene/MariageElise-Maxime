@@ -14,20 +14,19 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================================
 
 
-   const giftListContainer = document.getElementById('gift-list-container');
+  const giftListContainer = document.getElementById('gift-list-container');
   const tabs = document.querySelectorAll('.tab-item');
 
   // Fonction principale pour récupérer et afficher les cadeaux
   async function fetchAndDisplayGifts() {
     try {
-      // CORRECTION 3: Ajout d'un paramètre anti-cache à l'URL
       const urlWithCacheBuster = `${sheetURL_CSV}&t=${Date.now()}`;
       
       const response = await fetch(urlWithCacheBuster);
       const csvText = await response.text();
       const gifts = parseCSV(csvText);
 
-      giftListContainer.innerHTML = ''; // Vide le conteneur
+      giftListContainer.innerHTML = ''; 
 
       gifts.forEach(gift => {
         const giftCard = document.createElement('div');
@@ -36,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const isOffered = gift['Offert par'] && gift['Offert par'].trim() !== '';
 
-        // CORRECTION 1: Nouvelle structure HTML pour le prix en badge
         giftCard.innerHTML = `
           <div class="gift-details">
             <div class="gift-info">
@@ -60,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="checkbox" class="gift-offer-checkbox">
                 J'offre ce cadeau
               </label>
+
               <div class="offer-form">
                 <form>
                   <input type="hidden" name="id" value="${gift.ID}">
@@ -75,8 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
         giftListContainer.appendChild(giftCard);
       });
       
-      attachFormEventListeners();
-      initializeTabs(); // CORRECTION 2: On initialise les onglets
+      attachEventListeners();
+      initializeTabs(); 
 
     } catch (error) {
       console.error('Erreur lors de la récupération des cadeaux:', error);
@@ -84,37 +83,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // CORRECTION 2: Logique de gestion des onglets
-  function filterTabs(selectedTab) {
-    const category = selectedTab.dataset.tab;
-
-    tabs.forEach(tab => {
-      tab.classList.toggle('active', tab === selectedTab);
-    });
-
-    document.querySelectorAll('.gift-item').forEach(item => {
-      item.style.display = item.dataset.category === category ? 'block' : 'none';
-    });
-  }
-
   function initializeTabs() {
+    const tabs = document.querySelectorAll('.tab-item');
+    
+    function filterTabs(selectedTab) {
+        const category = selectedTab.dataset.tab;
+        tabs.forEach(tab => {
+            tab.classList.toggle('active', tab === selectedTab);
+        });
+        document.querySelectorAll('.gift-item').forEach(item => {
+            item.style.display = item.dataset.category === category ? 'block' : 'none';
+        });
+    }
+
     tabs.forEach(tab => {
       tab.addEventListener('click', function(event) {
         event.preventDefault(); 
         filterTabs(this); 
       });
     });
-    // Active le premier onglet par défaut
+    
     if (tabs.length > 0) {
       filterTabs(tabs[0]);
     }
   }
 
-  // Logique pour les formulaires (inchangée mais renommée pour la clarté)
-  function attachFormEventListeners() {
+  function attachEventListeners() {
+    // MODIFICATION ICI : C'est cette fonction qui gère l'affichage du formulaire
     document.querySelectorAll('.gift-offer-checkbox').forEach(checkbox => {
       checkbox.addEventListener('change', function() {
-        this.closest('.gift-item').classList.toggle('is-offering', this.checked);
+        // On trouve l'élément parent ".gift-item" le plus proche
+        const giftItem = this.closest('.gift-item');
+        // On ajoute ou on retire la classe 'is-offering' si la case est cochée ou non
+        // Le CSS s'occupe du reste (afficher/cacher le .offer-form)
+        giftItem.classList.toggle('is-offering', this.checked);
       });
     });
 
@@ -127,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         
         try {
+          // La soumission vers l'API reste la même
           await fetch(webAppURL_API, { method: 'POST', body: new FormData(this) });
           statusMessage.textContent = 'Merci ! Votre offre a été enregistrée. La liste va se rafraîchir...';
           statusMessage.style.color = 'green';
@@ -141,19 +144,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Fonction pour parser le CSV (inchangée)
   function parseCSV(text) {
     const lines = text.split(/\r?\n/);
     const headers = lines[0].split(',');
     return lines.slice(1).map(line => {
-      const data = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Gère les virgules dans les descriptions
+      const data = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+      if (data.length !== headers.length) { return null; }
       return headers.reduce((obj, nextKey, index) => {
-        obj[nextKey.trim()] = data[index] ? data[index].trim().replace(/^"|"$/g, '') : "";
+        const value = data[index] ? data[index].trim() : "";
+        obj[nextKey.trim()] = value.replace(/^"|"$/g, '');
         return obj;
       }, {});
-    }).filter(gift => gift.ID && gift.ID.trim() !== '');
+    }).filter(gift => gift && gift.ID && gift.ID.trim() !== '');
   }
 
-  // Lancement initial
   fetchAndDisplayGifts();
 });
