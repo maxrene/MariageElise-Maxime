@@ -217,7 +217,7 @@ body {
 .gift-image {
   position: relative; /* Nécessaire pour positionner un enfant à l'intérieur */
 }
-.gift-price.option-2 {
+.gift-price-badge {
   position: absolute; /* Positionné par rapport au parent .gift-image */
   bottom: 10px;
   right: 10px;
