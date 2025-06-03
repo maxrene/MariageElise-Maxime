@@ -231,7 +231,7 @@ body {
 
 /* Fichier style.css (à ajouter à la fin) */
 
-/* --- Styles pour le formulaire d'offre --- */
+/* --- Styles pour le formulaire d'offre (CORRIGÉ) --- */
 
 .gift-offer {
   margin-top: 16px;
@@ -247,24 +247,17 @@ body {
   font-weight: 500;
 }
 
-//* Fichier : style.css (à ajouter à la fin) */
-
-/* Le conteneur du formulaire qui sera caché par défaut */
+/* Le conteneur du formulaire est maintenant bien caché par défaut */
 .offer-form {
-  display: none; /* Caché par défaut */
+  display: none; /* Caché par défaut, c'est la seule instruction display ici */
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid #e5e7eb; /* Un petit séparateur visuel */
-  display: flex;
-  flex-direction: column;
+  border-top: 1px solid #e5e7eb;
+  flex-direction: column; /* On peut laisser les propriétés flex ici */
   gap: 10px;
 }
 
-/*
- * Cette règle magique dit : "Quand un élément .gift-item a AUSSI la classe .is-offering,
- * alors l'élément .offer-form à l'intérieur doit devenir visible."
- * Le JavaScript se chargera d'ajouter/retirer la classe .is-offering.
-*/
+/* On applique 'display: flex' UNIQUEMENT quand la classe .is-offering est présente */
 .gift-item.is-offering .offer-form {
   display: flex;
 }
@@ -282,7 +275,7 @@ body {
 }
 
 .offer-form .button {
-  align-self: flex-start; /* Le bouton ne prend pas toute la largeur */
+  align-self: flex-start;
 }
 
 /* Pour afficher le statut "Offert par..." */
