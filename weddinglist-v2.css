@@ -1,0 +1,290 @@
+/* Réinitialisation de base et styles globaux */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", "Noto Sans", sans-serif;
+  background-color: #ffffff;
+  color: #111418;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* --- En-tête (Header) --- */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 40px;
+  border-bottom: 1px solid #f0f2f5;
+  white-space: nowrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.logo h2 {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.main-nav a {
+  text-decoration: none;
+  color: #111418;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+}
+
+/* --- Contenu Principal --- */
+.main-content {
+  display: flex;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 20px 0;
+}
+
+.content-container {
+  max-width: 960px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title {
+  font-size: 2rem; /* 32px */
+  font-weight: 700;
+  padding: 16px;
+}
+
+/* --- Onglets (Tabs) --- */
+.tabs-container {
+  display: flex;
+  gap: 32px;
+  padding: 0 16px;
+  border-bottom: 1px solid #dbe0e6;
+  margin-bottom: 12px;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0 13px 0;
+  text-decoration: none;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  color: #60758a;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-item.active {
+  color: #111418;
+  border-bottom-color: #111418;
+}
+
+/* --- Liste de Cadeaux (Gift List) --- */
+.gift-list {
+  padding: 16px;
+}
+
+.gift-item {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.gift-item:last-child {
+  border-bottom: none;
+}
+
+.gift-details {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.gift-info {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gift-name {
+  font-size: 1rem; /* 16px */
+  font-weight: 700;
+}
+
+.gift-brand {
+  font-size: 0.875rem; /* 14px */
+  color: #60758a;
+}
+
+.gift-image {
+  flex: 1;
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+}
+
+.gift-description {
+  font-size: 1rem; /* 16px */
+  padding: 4px 0 12px 0;
+}
+
+.gift-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+}
+
+.gift-status {
+  font-size: 0.875rem; /* 14px */
+  padding-top: 4px;
+}
+
+.gift-status.offered {
+    color: #16a34a; /* Vert */
+    font-weight: 700;
+}
+
+
+/* --- Styles des Boutons --- */
+.button {
+  display: flex;
+  min-width: 84px;
+  height: 40px;
+  padding: 0 16px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px; /* Effet "rounded-full" */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  border: none;
+  overflow: hidden;
+}
+
+.button.primary {
+  background-color: #3490f3;
+  color: white;
+}
+
+.button.secondary {
+  background-color: #f0f2f5;
+  color: #111418;
+}
+
+/* --- Pied de page (Footer) --- */
+.site-footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: #60758a;
+  font-size: 1rem; /* 16px */
+}
+
+/* Pour l'option 2 */
+.gift-image {
+  position: relative; /* Nécessaire pour positionner un enfant à l'intérieur */
+}
+.gift-price.option-2 {
+  position: absolute; /* Positionné par rapport au parent .gift-image */
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(17, 20, 24, 0.7); /* Fond noir semi-transparent */
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px; /* Pour un badge arrondi */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 700;
+}
+
+/* Fichier style.css (à ajouter à la fin) */
+
+/* --- Styles pour le formulaire d'offre --- */
+
+.gift-offer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.offer-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Le formulaire qui est caché par défaut */
+.offer-form {
+  display: none; /* Caché par défaut */
+  margin-top: 12px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Quand l'utilisateur coche la case, on affiche le formulaire */
+/* On utilisera JS pour ajouter/retirer la classe 'is-offering' */
+.gift-item.is-offering .offer-form {
+  display: flex; 
+}
+
+/* Styles pour le champ de nom et le bouton valider */
+.offer-form input[type="text"] {
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.offer-form .button {
+  align-self: flex-start; /* Pour que le bouton ne prenne pas toute la largeur */
+}
+
+/* Pour afficher le statut "Offert par..." */
+.gift-status.final {
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 12px;
+  text-align: center;
+  background-color: #e0f2fe;
+  color: #0c4a6e;
+  border-radius: 8px;
+  margin-top: 16px;
+}
