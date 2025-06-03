@@ -14,12 +14,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================================
 
 
-  const giftListContainer = document.getElementById('gift-list-container');
+   const giftListContainer = document.getElementById('gift-list-container');
+  const tabs = document.querySelectorAll('.tab-item');
 
   // Fonction principale pour récupérer et afficher les cadeaux
   async function fetchAndDisplayGifts() {
     try {
-      const response = await fetch(sheetURL_CSV);
+      // CORRECTION 3: Ajout d'un paramètre anti-cache à l'URL
+      const urlWithCacheBuster = `${sheetURL_CSV}&t=${Date.now()}`;
+      
+      const response = await fetch(urlWithCacheBuster);
       const csvText = await response.text();
       const gifts = parseCSV(csvText);
 
@@ -28,33 +32,26 @@ document.addEventListener('DOMContentLoaded', function() {
       gifts.forEach(gift => {
         const giftCard = document.createElement('div');
         giftCard.className = 'gift-item';
-        giftCard.dataset.category = gift.Categorie.toLowerCase(); // Pour les onglets
+        giftCard.dataset.category = gift.Categorie.toLowerCase().trim();
         
-        // On vérifie si le cadeau est déjà offert
-        if (gift['Offert par'] && gift['Offert par'].trim() !== '') {
-          // --- AFFICHE L'ÉTAT "OFFERT" ---
-          giftCard.innerHTML = `
-            <div class="gift-details">
-              <div class="gift-info">
-                <p class="gift-name">${gift.Nom}</p>
-                <p class="gift-brand">Brand: ${gift.Brand}</p>
-              </div>
-              <div class="gift-image" style="background-image: url('${gift.ImageURL}');"></div>
+        const isOffered = gift['Offert par'] && gift['Offert par'].trim() !== '';
+
+        // CORRECTION 1: Nouvelle structure HTML pour le prix en badge
+        giftCard.innerHTML = `
+          <div class="gift-details">
+            <div class="gift-info">
+              <p class="gift-name">${gift.Nom}</p>
+              <p class="gift-brand">Brand: ${gift.Brand}</p>
             </div>
-            <p class="gift-description">${gift.Description}</p>
+            <div class="gift-image" style="background-image: url('${gift.ImageURL}');">
+              ${!isOffered ? `<span class="gift-price-badge">${gift.Prix}€</span>` : ''}
+            </div>
+          </div>
+          <p class="gift-description">${gift.Description}</p>
+          
+          ${isOffered ? `
             <p class="gift-status final">✨ Offert par ${gift['Offert par']} !</p>
-          `;
-        } else {
-          // --- AFFICHE LA CARTE INTERACTIVE ---
-          giftCard.innerHTML = `
-            <div class="gift-details">
-              <div class="gift-info">
-                <p class="gift-name">${gift.Nom}</p>
-                <p class="gift-brand">Brand: ${gift.Brand} · ${gift.Prix}€</p>
-              </div>
-              <div class="gift-image" style="background-image: url('${gift.ImageURL}');"></div>
-            </div>
-            <p class="gift-description">${gift.Description}</p>
+          ` : `
             <div class="gift-actions">
                 <a href="${gift.ProductLink}" target="_blank" class="button secondary">Voir le produit</a>
             </div>
@@ -73,13 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 </form>
               </div>
             </div>
-          `;
-        }
+          `}
+        `;
         giftListContainer.appendChild(giftCard);
       });
       
-      // Une fois les cartes créées, on attache les écouteurs d'événements
-      attachEventListeners();
+      attachFormEventListeners();
+      initializeTabs(); // CORRECTION 2: On initialise les onglets
 
     } catch (error) {
       console.error('Erreur lors de la récupération des cadeaux:', error);
@@ -87,64 +84,74 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Fonction pour attacher les écouteurs d'événements aux éléments interactifs
-  function attachEventListeners() {
-    // Pour les cases à cocher
+  // CORRECTION 2: Logique de gestion des onglets
+  function filterTabs(selectedTab) {
+    const category = selectedTab.dataset.tab;
+
+    tabs.forEach(tab => {
+      tab.classList.toggle('active', tab === selectedTab);
+    });
+
+    document.querySelectorAll('.gift-item').forEach(item => {
+      item.style.display = item.dataset.category === category ? 'block' : 'none';
+    });
+  }
+
+  function initializeTabs() {
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function(event) {
+        event.preventDefault(); 
+        filterTabs(this); 
+      });
+    });
+    // Active le premier onglet par défaut
+    if (tabs.length > 0) {
+      filterTabs(tabs[0]);
+    }
+  }
+
+  // Logique pour les formulaires (inchangée mais renommée pour la clarté)
+  function attachFormEventListeners() {
     document.querySelectorAll('.gift-offer-checkbox').forEach(checkbox => {
       checkbox.addEventListener('change', function() {
-        const giftItem = this.closest('.gift-item');
-        if (this.checked) {
-          giftItem.classList.add('is-offering');
-        } else {
-          giftItem.classList.remove('is-offering');
-        }
+        this.closest('.gift-item').classList.toggle('is-offering', this.checked);
       });
     });
 
-    // Pour la soumission des formulaires
     document.querySelectorAll('.offer-form form').forEach(form => {
       form.addEventListener('submit', async function(event) {
         event.preventDefault();
         const statusMessage = this.querySelector('.form-status-message');
+        const submitButton = this.querySelector('button[type="submit"]');
         statusMessage.textContent = 'Envoi en cours...';
-        
-        const formData = new FormData(this);
+        submitButton.disabled = true;
         
         try {
-          const response = await fetch(webAppURL_API, {
-            method: 'POST',
-            body: formData
-          });
-          const result = await response.json();
-
-          if (result.status === 'success') {
-            statusMessage.textContent = 'Merci ! Votre offre a bien été enregistrée. La liste va se rafraîchir...';
-            statusMessage.style.color = 'green';
-            // On attend 2 secondes et on rafraîchit la liste pour tout le monde
-            setTimeout(fetchAndDisplayGifts, 2000);
-          } else {
-            throw new Error(result.message);
-          }
+          await fetch(webAppURL_API, { method: 'POST', body: new FormData(this) });
+          statusMessage.textContent = 'Merci ! Votre offre a été enregistrée. La liste va se rafraîchir...';
+          statusMessage.style.color = 'green';
+          setTimeout(fetchAndDisplayGifts, 2000);
         } catch (error) {
           console.error('Erreur lors de la soumission :', error);
           statusMessage.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer.';
           statusMessage.style.color = 'red';
+          submitButton.disabled = false;
         }
       });
     });
   }
-
-  // Fonction simple pour parser le CSV
+  
+  // Fonction pour parser le CSV (inchangée)
   function parseCSV(text) {
     const lines = text.split(/\r?\n/);
     const headers = lines[0].split(',');
     return lines.slice(1).map(line => {
-      const data = line.split(',');
+      const data = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Gère les virgules dans les descriptions
       return headers.reduce((obj, nextKey, index) => {
-        obj[nextKey.trim()] = data[index] ? data[index].trim() : "";
+        obj[nextKey.trim()] = data[index] ? data[index].trim().replace(/^"|"$/g, '') : "";
         return obj;
       }, {});
-    }).filter(gift => gift.ID); // Filtre les lignes vides
+    }).filter(gift => gift.ID && gift.ID.trim() !== '');
   }
 
   // Lancement initial
