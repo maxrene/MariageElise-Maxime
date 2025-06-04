@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="checkbox" class="gift-offer-checkbox">
                 J'offre ce cadeau
               </label>
-
               <div class="offer-form">
                 <form>
                   <input type="hidden" name="id" value="${gift.ID}">
