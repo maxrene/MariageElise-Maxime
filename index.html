@@ -55,21 +55,29 @@
       <button id="modal-close-btn" class="modal-close-btn">&times;</button>
       <h2 id="modal-title">Offrir le cadeau</h2>
       <div class="modal-content">
-        <p>Pour finaliser votre généreux cadeau, veuillez transférer le montant indiqué à notre compte Revolut.</p>
+        <p>Pour finaliser votre généreux cadeau, veuillez suivre les étapes ci-dessous.</p>
         
         <div class="info-line">
-          <strong>Montant :</strong>
+          <strong>1. Transférer le montant :</strong>
           <strong id="modal-amount" class="modal-highlight"></strong>
         </div>
 
         <div class="info-line">
-          <strong>Note à ajouter au virement :</strong>
+          <strong>2. Ajouter la note au virement :</strong>
           <code id="modal-note" class="modal-highlight"></code>
         </div>
         
-        <p class="modal-instruction">Utilisez les boutons "Copier" pour éviter les erreurs, puis cliquez sur le lien ci-dessous.</p>
+        <a id="modal-revolut-link" href="#" target="_blank" class="button secondary full-width">Ouvrir Revolut</a>
         
-        <a id="modal-revolut-link" href="#" target="_blank" class="button primary full-width">Ouvrir Revolut pour finaliser</a>
+        <hr class="modal-divider">
+
+        <form id="modal-offer-form">
+            <input type="hidden" name="id" id="modal-gift-id">
+            <label for="modal-guest-name"><strong>3. Confirmez votre offre ici :</strong></label>
+            <input type="text" id="modal-guest-name" name="name" placeholder="De la part de : Jean Dupont" required>
+            <button type="submit" class="button primary full-width">Valider mon offre</button>
+            <p id="modal-form-status" class="form-status-message"></p>
+        </form>
       </div>
     </div>
 
