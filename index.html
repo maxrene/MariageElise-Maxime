@@ -50,6 +50,28 @@
         <p>© 2025 Sophia & Ethan. All rights reserved.</p>
       </footer>
     </div>
+<div id="modal-overlay" class="modal-overlay"></div>
+    <div id="revolut-modal" class="modal">
+      <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+      <h2 id="modal-title">Offrir le cadeau</h2>
+      <div class="modal-content">
+        <p>Pour finaliser votre généreux cadeau, veuillez transférer le montant indiqué à notre compte Revolut.</p>
+        
+        <div class="info-line">
+          <strong>Montant :</strong>
+          <strong id="modal-amount" class="modal-highlight"></strong>
+        </div>
+
+        <div class="info-line">
+          <strong>Note à ajouter au virement :</strong>
+          <code id="modal-note" class="modal-highlight"></code>
+        </div>
+        
+        <p class="modal-instruction">Utilisez les boutons "Copier" pour éviter les erreurs, puis cliquez sur le lien ci-dessous.</p>
+        
+        <a id="modal-revolut-link" href="#" target="_blank" class="button primary full-width">Ouvrir Revolut pour finaliser</a>
+      </div>
+    </div>
 
     <script src="script.js" defer></script>
   </body>
