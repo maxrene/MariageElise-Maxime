@@ -155,8 +155,10 @@ body {
 }
 
 .gift-description {
-  font-size: 1rem; /* 16px */
-  padding: 4px 0 12px 0;
+  font-style: italic;     /* Met le texte en italique */
+  color: #60758a;           /* Une couleur un peu plus douce pour la description */
+  margin-top: 12px;        /* Crée un espace contrôlé sous la marque */
+  line-height: 1.5;        /* Améliore la lisibilité pour les textes longs */
 }
 
 .gift-actions {
