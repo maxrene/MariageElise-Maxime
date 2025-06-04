@@ -18,41 +18,64 @@ document.addEventListener('DOMContentLoaded', function() {
 
  const giftListContainer = document.getElementById('gift-list-container');
   const cagnotteContainer = document.getElementById('cagnotte-container');
+  
   const modalOverlay = document.getElementById('modal-overlay');
   const revolutModal = document.getElementById('revolut-modal');
   const modalCloseBtn = document.getElementById('modal-close-btn');
   const modalTitle = document.getElementById('modal-title');
-  const modalAmountElement = document.getElementById('modal-amount'); // Renommé pour clarté
-  const modalNoteElement = document.getElementById('modal-note');     // Renommé pour clarté
+  const modalAmountElement = document.getElementById('modal-amount');
+  const modalNoteElement = document.getElementById('modal-note');
   const modalRevolutLink = document.getElementById('modal-revolut-link');
   const modalOfferForm = document.getElementById('modal-offer-form');
   const modalGiftIdInput = document.getElementById('modal-gift-id');
+  const modalGuestNameLabel = document.querySelector('label[for="modal-guest-name"]'); // Sélection du label
+  const modalGuestNameInput = document.getElementById('modal-guest-name');           // Sélection de l'input nom
+  const modalSubmitButton = modalOfferForm ? modalOfferForm.querySelector('button[type="submit"]') : null; // Sélection du bouton submit
   const modalFormStatus = document.getElementById('modal-form-status');
-  // NOUVEAU: Champ caché pour le montant dans la modale (pour la cagnotte)
+  
   const modalGiftAmountInput = document.createElement('input');
   modalGiftAmountInput.type = 'hidden';
   modalGiftAmountInput.name = 'amount';
   if(modalOfferForm) modalOfferForm.appendChild(modalGiftAmountInput);
 
-
   // --- Fonctions pour la modale Revolut ---
-  // MODIFIÉ: La fonction accepte un paramètre optionnel 'amountForCagnotte'
-  function openRevolutModal(id, name, priceOrAmount, brandOrType, isCagnotte = false) {
-    modalTitle.textContent = isCagnotte ? `Contribuer à : ${name}` : `Offrir : ${name}`;
+  function openRevolutModal(id, giftName, priceOrAmount, brandOrType, isCagnotte = false, guestNameFromCard = null) {
+    modalTitle.textContent = isCagnotte ? `Confirmer votre contribution à : ${giftName}` : `Offrir : ${giftName}`;
     modalAmountElement.textContent = `${priceOrAmount}€`;
-    
-    if (isCagnotte) {
-      modalNoteElement.textContent = `Participation libre : ${name} (De la part de : ...)`; // Le nom sera rempli par l'invité
-      modalGiftAmountInput.value = priceOrAmount; // On stocke le montant pour la soumission
-    } else {
-      modalNoteElement.textContent = `Cadeau mariage : ${name} (${brandOrType})`;
-      modalGiftAmountInput.value = ''; // Pas de montant spécifique pour les cadeaux normaux ici
-    }
     
     modalGiftIdInput.value = id;
     modalRevolutLink.href = `https://revolut.me/${revolutUsername}`;
-    modalOfferForm.reset(); // Réinitialise le champ "De la part de"
+    modalOfferForm.reset(); // Réinitialise le formulaire (utile si le nom était déjà là)
     modalFormStatus.textContent = '';
+
+    if (isCagnotte) {
+      // Pour la cagnotte, la note est personnalisée avec le nom déjà saisi
+      modalNoteElement.textContent = `${giftName} (De la part de : ${guestNameFromCard})`;
+      modalGiftAmountInput.value = priceOrAmount; // On stocke le montant pour la soumission
+      
+      // On cache le champ de nom dans la modale et on change le texte du bouton
+      if(modalGuestNameLabel) modalGuestNameLabel.classList.add('hidden');
+      if(modalGuestNameInput) {
+        modalGuestNameInput.classList.add('hidden');
+        modalGuestNameInput.value = guestNameFromCard; // On met quand même la valeur pour la soumission
+        modalGuestNameInput.required = false; // Plus requis car caché et pré-rempli
+      }
+      if(modalSubmitButton) modalSubmitButton.textContent = 'Confirmer ma participation';
+
+    } else {
+      // Pour un cadeau normal
+      modalNoteElement.textContent = `Cadeau mariage : ${giftName} (${brandOrType})`;
+      modalGiftAmountInput.value = ''; // Pas de montant spécifique pour les cadeaux normaux ici
+      
+      // On affiche le champ de nom dans la modale et on remet le texte du bouton
+      if(modalGuestNameLabel) modalGuestNameLabel.classList.remove('hidden');
+      if(modalGuestNameInput) {
+        modalGuestNameInput.classList.remove('hidden');
+        modalGuestNameInput.value = ''; // On s'assure qu'il est vide
+        modalGuestNameInput.required = true;
+      }
+      if(modalSubmitButton) modalSubmitButton.textContent = 'Valider mon offre';
+    }
     
     modalOverlay.classList.add('active');
     revolutModal.classList.add('active');
@@ -73,20 +96,21 @@ document.addEventListener('DOMContentLoaded', function() {
       const allItems = parseCSV(csvText);
 
       giftListContainer.innerHTML = ''; 
-      cagnotteContainer.innerHTML = '';
+      if(cagnotteContainer) cagnotteContainer.innerHTML = '';
 
       const cagnotteItem = allItems.find(item => item.Categorie.toLowerCase().trim() === 'cagnotte');
       const regularGifts = allItems.filter(item => item.Categorie.toLowerCase().trim() !== 'cagnotte');
 
-      if (cagnotteItem) {
+      if (cagnotteItem && cagnotteContainer) {
         const cagnotteCard = document.createElement('div');
         cagnotteCard.className = 'cagnotte-item';
         cagnotteContainer.appendChild(cagnotteCard);
         
         cagnotteCard.innerHTML = `
           <h3>${cagnotteItem.Nom}</h3>
-          <p>${cagnotteItem.Description || 'Contribuez du montant de votre choix.'}</p>
-          <form class="cagnotte-form-display"> <input type="hidden" name="id" value="${cagnotteItem.ID}">
+          <p>${cagnotteItem.Description || 'Contribuez du montant de votre choix pour nous aider dans nos projets.'}</p>
+          <form class="cagnotte-form-display">
+            <input type="hidden" name="id" value="${cagnotteItem.ID}">
             <div class="input-group">
               <label for="cagnotte-amount-${cagnotteItem.ID}">Montant de votre participation (€)</label>
               <input type="number" id="cagnotte-amount-${cagnotteItem.ID}" name="amount-display" placeholder="Ex: 50" min="1" required>
@@ -97,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <button type="submit" class="button primary">Préparer ma contribution</button>
           </form>
-          <p class="form-status-message"></p> 
+          <p class="form-status-message"></p>
         `;
       }
 
@@ -141,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
       initializeTabs(categoryToSelect);
     } catch (error) {
       console.error('Erreur fetch/display:', error);
-      giftListContainer.innerHTML = '<p>Erreur chargement. Vérifiez la console.</p>';
+      if(giftListContainer) giftListContainer.innerHTML = '<p>Erreur chargement. Vérifiez la console.</p>';
     }
   }
 
@@ -165,13 +189,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const foundTab = document.querySelector(`.tab-item[data-tab="${categoryToSelect}"]`);
         if (foundTab) tabToActivate = foundTab;
     }
-    filterTabs(tabToActivate);
+    if (tabs.length > 0) filterTabs(tabToActivate);
   }
 
   function attachEventListeners() {
     document.querySelectorAll('.open-revolut-modal-btn').forEach(button => {
       button.addEventListener('click', function() {
-        openRevolutModal(this.dataset.giftId, this.dataset.giftName, this.dataset.giftPrice, this.dataset.giftBrand, false);
+        openRevolutModal(this.dataset.giftId, this.dataset.giftName, this.dataset.giftPrice, this.dataset.giftBrand, false, null);
       });
     });
 
@@ -189,11 +213,11 @@ document.addEventListener('DOMContentLoaded', function() {
           const activeCategory = activeTab ? activeTab.dataset.tab : null;
           
           try {
-            // On s'assure que FormData inclut bien l'ID et le nom du champ de la modale, et le montant caché
             const formData = new FormData(this);
-            formData.set('id', modalGiftIdInput.value); // Assure que l'ID est celui du cadeau / de la cagnotte
-            // Le champ 'name' est déjà dans le formulaire de la modale : modal-guest-name
-            // Le champ 'amount' (pour la cagnotte) est dans modalGiftAmountInput, qui est ajouté au form.
+            // Pour la cagnotte, le nom est déjà dans modalGuestNameInput.value (pré-rempli)
+            // et le montant dans modalGiftAmountInput.value
+            // L'ID est dans modalGiftIdInput.value
+            // La FormData prendra automatiquement ces valeurs si les champs ont des 'name'.
 
             const response = await fetch(webAppURL_API, { method: 'POST', body: formData });
             if (!response.ok) throw new Error(`API Error: ${response.status}`);
@@ -209,41 +233,32 @@ document.addEventListener('DOMContentLoaded', function() {
           } catch (error) {
             console.error('Erreur soumission modale:', error);
             modalFormStatus.textContent = `Erreur: ${error.message}. Réessayez.`;
+            modalFormStatus.style.color = 'red';
             if(submitButton) submitButton.disabled = false;
           }
       });
     }
       
-    // MODIFIÉ : Logique pour le formulaire de la cagnotte sur la carte
     const cagnotteDisplayForm = document.querySelector('.cagnotte-form-display');
     if (cagnotteDisplayForm) {
       cagnotteDisplayForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        const statusMessage = this.nextElementSibling; // Le <p class="form-status-message">
-        const submitButton = this.querySelector('button[type="submit"]');
-        
+        // On ne soumet plus à l'API directement d'ici.
+        // On récupère les valeurs et on ouvre la modale.
         const giftId = this.querySelector('input[name="id"]').value;
         const amount = this.querySelector('input[name="amount-display"]').value;
-        const name = this.querySelector('input[name="name-display"]').value;
+        const name = this.querySelector('input[name="name-display"]').value; // Le nom saisi par l'invité
 
         if (!amount || !name) {
+            const statusMessage = this.nextElementSibling;
             statusMessage.textContent = "Veuillez remplir le montant et votre nom.";
             statusMessage.style.color = 'red';
             return;
         }
         
-        // Ouvre la modale avec les infos de la cagnotte et le montant saisi
-        openRevolutModal(giftId, 'Participation libre', amount, 'Cagnotte', true);
-        
-        // Le formulaire de la modale (`modalOfferForm`) prendra le relais pour la soumission à l'API
-        // On peut pré-remplir le nom dans la modale si on veut
-        const modalGuestNameInput = document.getElementById('modal-guest-name');
-        if(modalGuestNameInput) modalGuestNameInput.value = name;
-
-        // On ne soumet plus rien directement à l'API depuis CE formulaire.
-        // On réinitialise le bouton pour une future interaction si la modale est fermée sans soumettre.
-        if(submitButton) submitButton.disabled = false; 
-        statusMessage.textContent = ''; // Efface le message "Envoi en cours..."
+        // Ouvre la modale avec les infos de la cagnotte, le montant saisi,
+        // et le nom de l'invité pour pré-remplir la note et le champ caché.
+        openRevolutModal(giftId, "Participation libre", amount, "Cagnotte", true, name);
       });
     }
   }
