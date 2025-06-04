@@ -368,3 +368,18 @@ body {
     width: 100%;
     padding: 15px;
 }
+.modal-divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 25px 0;
+}
+
+#modal-offer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#modal-offer-form label {
+  font-size: 1.1rem;
+}
