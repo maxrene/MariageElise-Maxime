@@ -383,3 +383,51 @@ body {
 #modal-offer-form label {
   font-size: 1.1rem;
 }
+/* --- Style pour la carte Cagnotte / Participation Libre --- */
+
+.cagnotte-item {
+  background-color: #f9fafb; /* Un fond légèrement différent */
+  border: 2px dashed #d1d5db; /* Une bordure en pointillés pour la distinguer */
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.cagnotte-item h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.cagnotte-item p {
+  font-size: 1rem;
+  color: #60758a;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.cagnotte-form {
+  display: flex;
+  flex-wrap: wrap; /* Permet aux éléments de passer à la ligne sur mobile */
+  gap: 15px;
+  align-items: flex-end; /* Aligne le bas des champs et du bouton */
+}
+
+.cagnotte-form .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-grow: 1; /* Permet aux champs de prendre de la place */
+}
+
+.cagnotte-form label {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.cagnotte-form input {
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
