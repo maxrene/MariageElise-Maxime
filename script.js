@@ -11,13 +11,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 2. COLLEZ L'URL DE VOTRE APPLICATION WEB (APPS SCRIPT)
   const webAppURL_API = 'https://script.google.com/macros/s/AKfycby0dsby-8ZYDogigfdlEqAl7XAFHdYq9L0IspMlxn5DZe0ZqUeED4RKb91zff06sSEPRQ/exec';
+
+  const revolutUsername = 'maxbook';
   // =========================================================================
 
 
-  const giftListContainer = document.getElementById('gift-list-container');
-  
-  // MODIFICATION : La fonction accepte maintenant un paramètre pour savoir quel onglet activer
-  async function fetchAndDisplayGifts(categoryToSelect = null) {
+ const giftListContainer = document.getElementById('gift-list-container');
+  // NOUVEAU : On sélectionne les éléments de la modale
+  const modalOverlay = document.getElementById('modal-overlay');
+  const revolutModal = document.getElementById('revolut-modal');
+  const modalCloseBtn = document.getElementById('modal-close-btn');
+  const modalTitle = document.getElementById('modal-title');
+  const modalAmount = document.getElementById('modal-amount');
+  const modalNote = document.getElementById('modal-note');
+  const modalRevolutLink = document.getElementById('modal-revolut-link');
+
+  // --- Fonctions pour la modale ---
+  function openRevolutModal(name, price, brand) {
+    modalTitle.textContent = `Offrir : ${name}`;
+    modalAmount.textContent = `${price}€`;
+    modalNote.textContent = `Cadeau mariage : ${name} (${brand})`;
+    modalRevolutLink.href = `https://revolut.me/${revolutUsername}`;
+    
+    modalOverlay.classList.add('active');
+    revolutModal.classList.add('active');
+  }
+
+  function closeRevolutModal() {
+    modalOverlay.classList.remove('active');
+    revolutModal.classList.remove('active');
+  }
+
+  // --- Logique principale ---
+  async function fetchAndDisplayGifts() {
     try {
       const urlWithCacheBuster = `${sheetURL_CSV}&t=${Date.now()}`;
       const response = await fetch(urlWithCacheBuster);
@@ -33,131 +59,82 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const isOffered = gift['Offert par'] && gift['Offert par'].trim() !== '';
 
+        let cardContent = `
+          <div class="gift-details">
+            <div class="gift-info">
+              <p class="gift-name">${gift.Nom}</p>
+              <p class="gift-brand">Brand: ${gift.Brand}</p>
+              <p class="gift-description">${gift.Description}</p>
+            </div>
+            <div class="gift-image" style="background-image: url('${gift.ImageURL}');">
+              ${!isOffered ? `<span class="gift-price-badge">${gift.Prix}€</span>` : ''}
+            </div>
+          </div>
+        `;
+
         if (isOffered) {
-          giftCard.innerHTML = `
-            <div class="gift-details">
-              <div class="gift-info">
-                <p class="gift-name">${gift.Nom}</p>
-                <p class="gift-brand">Brand: ${gift.Brand}</p>
-                <p class="gift-description">${gift.Description}</p>
-              </div>
-              <div class="gift-image" style="background-image: url('${gift.ImageURL}');"></div>
-            </div>
-            <p class="gift-status final">✨ Offert par ${gift['Offert par']} !</p>
-          `;
+          cardContent += `<p class="gift-status final">✨ Offert par ${gift['Offert par']} !</p>`;
         } else {
-          giftCard.innerHTML = `
-            <div class="gift-details">
-              <div class="gift-info">
-                <p class="gift-name">${gift.Nom}</p>
-                <p class="gift-brand">Brand: ${gift.Brand}</p>
-                <p class="gift-description">${gift.Description}</p>
-              </div>
-              <div class="gift-image" style="background-image: url('${gift.ImageURL}');">
-                <span class="gift-price-badge">${gift.Prix}€</span>
-              </div>
-            </div>
+          // MODIFIÉ : On remplace l'ancien formulaire par le nouveau bouton
+          cardContent += `
             <div class="gift-actions">
-                <a href="${gift.ProductLink}" target="_blank" class="button secondary">Voir le produit</a>
-            </div>
-            <div class="gift-offer">
-              <label class="offer-checkbox-label">
-                <input type="checkbox" class="gift-offer-checkbox">
-                J'offre ce cadeau
-              </label>
-              <div class="offer-form">
-                <form>
-                  <input type="hidden" name="id" value="${gift.ID}">
-                  <label for="name-${gift.ID}">Votre nom/prénom :</label>
-                  <input type="text" id="name-${gift.ID}" name="name" placeholder="Ex: Jean Dupont" required>
-                  <button type="submit" class="button primary">Valider mon offre</button>
-                  <p class="form-status-message"></p>
-                </form>
-              </div>
+              <a href="${gift.ProductLink}" target="_blank" class="button secondary">Voir le produit</a>
+              <button class="button primary open-revolut-modal-btn" 
+                      data-gift-name="${gift.Nom}" 
+                      data-gift-price="${gift.Prix}" 
+                      data-gift-brand="${gift.Brand}">
+                Offrir via Revolut
+              </button>
             </div>
           `;
         }
+        giftCard.innerHTML = cardContent;
         giftListContainer.appendChild(giftCard);
       });
       
       attachEventListeners();
-      // MODIFICATION : On passe la catégorie à réactiver à la fonction d'initialisation des onglets
-      initializeTabs(categoryToSelect);
-
+      initializeTabs();
     } catch (error) {
       console.error('Erreur lors de la récupération des cadeaux:', error);
       giftListContainer.innerHTML = '<p>Erreur: Impossible de charger la liste de mariage.</p>';
     }
   }
 
-  // MODIFICATION : La fonction reçoit la catégorie à activer
   function initializeTabs(categoryToSelect) {
     const tabs = document.querySelectorAll('.tab-item');
-    
     function filterTabs(selectedTab) {
         if (!selectedTab) return;
         const category = selectedTab.dataset.tab;
-        tabs.forEach(tab => {
-            tab.classList.toggle('active', tab === selectedTab);
-        });
+        tabs.forEach(tab => tab.classList.toggle('active', tab === selectedTab));
         document.querySelectorAll('.gift-item').forEach(item => {
             item.style.display = item.dataset.category === category ? 'block' : 'none';
         });
     }
-
     tabs.forEach(tab => {
-      tab.addEventListener('click', function(event) {
-        event.preventDefault(); 
-        filterTabs(this); 
-      });
+      tab.addEventListener('click', (e) => { e.preventDefault(); filterTabs(e.currentTarget); });
     });
-    
-    // MODIFICATION : Logique pour activer le bon onglet
-    let tabToActivate = tabs[0]; // Par défaut, le premier
+    let tabToActivate = tabs[0];
     if (categoryToSelect) {
         const foundTab = document.querySelector(`.tab-item[data-tab="${categoryToSelect}"]`);
-        if (foundTab) {
-            tabToActivate = foundTab;
-        }
+        if (foundTab) tabToActivate = foundTab;
     }
     filterTabs(tabToActivate);
   }
 
   function attachEventListeners() {
-    document.querySelectorAll('.gift-offer-checkbox').forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        this.closest('.gift-item').classList.toggle('is-offering', this.checked);
+    // MODIFIÉ : On écoute les clics sur les nouveaux boutons
+    document.querySelectorAll('.open-revolut-modal-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const name = this.dataset.giftName;
+        const price = this.dataset.giftPrice;
+        const brand = this.dataset.giftBrand;
+        openRevolutModal(name, price, brand);
       });
     });
 
-    document.querySelectorAll('.offer-form form').forEach(form => {
-      form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const statusMessage = this.querySelector('.form-status-message');
-        const submitButton = this.querySelector('button[type="submit"]');
-        statusMessage.textContent = 'Envoi en cours...';
-        submitButton.disabled = true;
-
-        // MODIFICATION : On mémorise l'onglet actif AVANT de soumettre
-        const activeTab = document.querySelector('.tab-item.active');
-        const activeCategory = activeTab ? activeTab.dataset.tab : null;
-        
-        try {
-          await fetch(webAppURL_API, { method: 'POST', body: new FormData(this) });
-          statusMessage.textContent = 'Merci ! Votre offre a été enregistrée. La liste va se rafraîchir...';
-          statusMessage.style.color = 'green';
-          
-          // MODIFICATION : On passe la catégorie mémorisée à la fonction de rafraîchissement
-          setTimeout(() => fetchAndDisplayGifts(activeCategory), 2000);
-
-        } catch (error) {
-          console.error('Erreur lors de la soumission :', error);
-          statusMessage.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer.';
-          statusMessage.style.color = 'red';
-          submitButton.disabled = false;
-        }
-      });
-    });
+    // On ajoute les écouteurs pour fermer la modale
+    modalCloseBtn.addEventListener('click', closeRevolutModal);
+    modalOverlay.addEventListener('click', closeRevolutModal);
   }
   
   function parseCSV(text) {
@@ -174,6 +151,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }).filter(gift => gift && gift.ID && gift.ID.trim() !== '');
   }
 
-  // Lancement initial
-  fetchAndDisplayGifts();
-});
+  fetchAndDisplayGifts()
