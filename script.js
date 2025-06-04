@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
  const giftListContainer = document.getElementById('gift-list-container');
-  // NOUVEAU : On sélectionne les éléments de la modale
+  // On sélectionne les éléments de la modale et du formulaire
   const modalOverlay = document.getElementById('modal-overlay');
   const revolutModal = document.getElementById('revolut-modal');
   const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -25,13 +25,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const modalAmount = document.getElementById('modal-amount');
   const modalNote = document.getElementById('modal-note');
   const modalRevolutLink = document.getElementById('modal-revolut-link');
+  const modalOfferForm = document.getElementById('modal-offer-form');
+  const modalGiftIdInput = document.getElementById('modal-gift-id');
+  const modalFormStatus = document.getElementById('modal-form-status');
 
   // --- Fonctions pour la modale ---
-  function openRevolutModal(name, price, brand) {
+  function openRevolutModal(id, name, price, brand) {
     modalTitle.textContent = `Offrir : ${name}`;
     modalAmount.textContent = `${price}€`;
     modalNote.textContent = `Cadeau mariage : ${name} (${brand})`;
+    modalGiftIdInput.value = id; // On met l'ID du cadeau dans le champ caché du formulaire
     modalRevolutLink.href = `https://revolut.me/${revolutUsername}`;
+    modalFormStatus.textContent = ''; // On vide les anciens messages de statut
     
     modalOverlay.classList.add('active');
     revolutModal.classList.add('active');
@@ -43,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // --- Logique principale ---
-  async function fetchAndDisplayGifts() {
+  async function fetchAndDisplayGifts(categoryToSelect = null) {
     try {
       const urlWithCacheBuster = `${sheetURL_CSV}&t=${Date.now()}`;
       const response = await fetch(urlWithCacheBuster);
@@ -75,11 +80,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isOffered) {
           cardContent += `<p class="gift-status final">✨ Offert par ${gift['Offert par']} !</p>`;
         } else {
-          // MODIFIÉ : On remplace l'ancien formulaire par le nouveau bouton
           cardContent += `
             <div class="gift-actions">
               <a href="${gift.ProductLink}" target="_blank" class="button secondary">Voir le produit</a>
               <button class="button primary open-revolut-modal-btn" 
+                      data-gift-id="${gift.ID}"
                       data-gift-name="${gift.Nom}" 
                       data-gift-price="${gift.Prix}" 
                       data-gift-brand="${gift.Brand}">
@@ -93,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       
       attachEventListeners();
-      initializeTabs();
+      initializeTabs(categoryToSelect);
     } catch (error) {
       console.error('Erreur lors de la récupération des cadeaux:', error);
       giftListContainer.innerHTML = '<p>Erreur: Impossible de charger la liste de mariage.</p>';
@@ -122,19 +127,45 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function attachEventListeners() {
-    // MODIFIÉ : On écoute les clics sur les nouveaux boutons
     document.querySelectorAll('.open-revolut-modal-btn').forEach(button => {
       button.addEventListener('click', function() {
+        const id = this.dataset.giftId;
         const name = this.dataset.giftName;
         const price = this.dataset.giftPrice;
         const brand = this.dataset.giftBrand;
-        openRevolutModal(name, price, brand);
+        openRevolutModal(id, name, price, brand);
       });
     });
 
-    // On ajoute les écouteurs pour fermer la modale
     modalCloseBtn.addEventListener('click', closeRevolutModal);
     modalOverlay.addEventListener('click', closeRevolutModal);
+
+    // On reconnecte la logique de soumission du formulaire
+    modalOfferForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const submitButton = this.querySelector('button[type="submit"]');
+        modalFormStatus.textContent = 'Envoi en cours...';
+        submitButton.disabled = true;
+
+        const activeTab = document.querySelector('.tab-item.active');
+        const activeCategory = activeTab ? activeTab.dataset.tab : null;
+        
+        try {
+          await fetch(webAppURL_API, { method: 'POST', body: new FormData(this) });
+          modalFormStatus.textContent = 'Merci ! Votre offre a été enregistrée.';
+          modalFormStatus.style.color = 'green';
+          // On attend 2 secondes, on ferme la modale, et on rafraîchit la liste
+          setTimeout(() => {
+            closeRevolutModal();
+            fetchAndDisplayGifts(activeCategory);
+          }, 2000);
+        } catch (error) {
+          console.error('Erreur lors de la soumission :', error);
+          modalFormStatus.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer.';
+          modalFormStatus.style.color = 'red';
+          submitButton.disabled = false;
+        }
+    });
   }
   
   function parseCSV(text) {
@@ -151,5 +182,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }).filter(gift => gift && gift.ID && gift.ID.trim() !== '');
   }
 
-  fetchAndDisplayGifts()
+  fetchAndDisplayGifts();
 });
