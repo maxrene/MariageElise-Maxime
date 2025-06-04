@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="gift-info">
               <p class="gift-name">${gift.Nom}</p>
               <p class="gift-brand">Brand: ${gift.Brand}</p>
+              <p class="gift-description">${gift.Description}</p>
             </div>
             <div class="gift-image" style="background-image: url('${gift.ImageURL}');">
               ${!isOffered ? `<span class="gift-price-badge">${gift.Prix}€</span>` : ''}
