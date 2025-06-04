@@ -10,14 +10,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const sheetURL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?output=csv'; 
 
   // 2. COLLEZ L'URL DE VOTRE APPLICATION WEB (APPS SCRIPT)
-  const webAppURL_API = 'https://script.google.com/macros/s/AKfycby0dsby-8ZYDogigfdlEqAl7XAFHdYq9L0IspMlxn5DZe0ZqUeED4RKb91zff06sSEPRQ/exec';
+  const webAppURL_API = 'https://script.google.com/macros/s/AKfycbxWjfEAshO5ytdUrcxNenPiDxJhwIIC_stMMpMid3ae1OUwqABQpAGfEAyB-w8iD3q9yQ/exec';
 
   const revolutUsername = 'maxbook';
   // =========================================================================
 
 
  const giftListContainer = document.getElementById('gift-list-container');
-  // On sélectionne les éléments de la modale et du formulaire
   const modalOverlay = document.getElementById('modal-overlay');
   const revolutModal = document.getElementById('revolut-modal');
   const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -29,14 +28,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const modalGiftIdInput = document.getElementById('modal-gift-id');
   const modalFormStatus = document.getElementById('modal-form-status');
 
-  // --- Fonctions pour la modale ---
+  // --- FONCTIONS POUR LA MODALE REVOLUT ---
   function openRevolutModal(id, name, price, brand) {
     modalTitle.textContent = `Offrir : ${name}`;
     modalAmount.textContent = `${price}€`;
     modalNote.textContent = `Cadeau mariage : ${name} (${brand})`;
-    modalGiftIdInput.value = id; // On met l'ID du cadeau dans le champ caché du formulaire
+    modalGiftIdInput.value = id;
     modalRevolutLink.href = `https://revolut.me/${revolutUsername}`;
-    modalFormStatus.textContent = ''; // On vide les anciens messages de statut
+    modalOfferForm.reset();
+    modalFormStatus.textContent = '';
     
     modalOverlay.classList.add('active');
     revolutModal.classList.add('active');
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     revolutModal.classList.remove('active');
   }
 
-  // --- Logique principale ---
+  // --- FONCTION PRINCIPALE POUR AFFICHER LA LISTE ---
   async function fetchAndDisplayGifts(categoryToSelect = null) {
     try {
       const urlWithCacheBuster = `${sheetURL_CSV}&t=${Date.now()}`;
@@ -58,43 +58,68 @@ document.addEventListener('DOMContentLoaded', function() {
       giftListContainer.innerHTML = ''; 
 
       gifts.forEach(gift => {
-        const giftCard = document.createElement('div');
-        giftCard.className = 'gift-item';
-        giftCard.dataset.category = gift.Categorie.toLowerCase().trim();
-        
-        const isOffered = gift['Offert par'] && gift['Offert par'].trim() !== '';
+        // LOGIQUE SPÉCIALE POUR LA CAGNOTTE
+        if (gift.Categorie.toLowerCase().trim() === 'cagnotte') {
+          const cagnotteCard = document.createElement('div');
+          cagnotteCard.className = 'cagnotte-item';
+          cagnotteCard.dataset.category = 'cagnotte';
 
-        let cardContent = `
-          <div class="gift-details">
-            <div class="gift-info">
-              <p class="gift-name">${gift.Nom}</p>
-              <p class="gift-brand">Brand: ${gift.Brand}</p>
-              <p class="gift-description">${gift.Description}</p>
-            </div>
-            <div class="gift-image" style="background-image: url('${gift.ImageURL}');">
-              ${!isOffered ? `<span class="gift-price-badge">${gift.Prix}€</span>` : ''}
-            </div>
-          </div>
-        `;
-
-        if (isOffered) {
-          cardContent += `<p class="gift-status final">✨ Offert par ${gift['Offert par']} !</p>`;
+          cagnotteCard.innerHTML = `
+            <h3>${gift.Nom}</h3>
+            <p>${gift.Description}</p>
+            <form class="cagnotte-form">
+              <input type="hidden" name="id" value="${gift.ID}">
+              <div class="input-group">
+                <label for="cagnotte-amount">Montant de votre participation (€)</label>
+                <input type="number" id="cagnotte-amount" name="amount" placeholder="Ex: 50" min="1" required>
+              </div>
+              <div class="input-group">
+                <label for="cagnotte-name">De la part de :</label>
+                <input type="text" id="cagnotte-name" name="name" placeholder="Ex: Jean Dupont" required>
+              </div>
+              <button type="submit" class="button primary">Contribuer</button>
+            </form>
+            <p class="form-status-message"></p>
+          `;
+          giftListContainer.appendChild(cagnotteCard);
         } else {
-          cardContent += `
-            <div class="gift-actions">
-              <a href="${gift.ProductLink}" target="_blank" class="button secondary">Voir le produit</a>
-              <button class="button primary open-revolut-modal-btn" 
-                      data-gift-id="${gift.ID}"
-                      data-gift-name="${gift.Nom}" 
-                      data-gift-price="${gift.Prix}" 
-                      data-gift-brand="${gift.Brand}">
-                Offrir via Revolut
-              </button>
+          // LOGIQUE POUR LES CADEAUX NORMAUX
+          const giftCard = document.createElement('div');
+          giftCard.className = 'gift-item';
+          giftCard.dataset.category = gift.Categorie.toLowerCase().trim();
+          
+          const isOffered = gift['Offert par'] && gift['Offert par'].trim() !== '';
+
+          let cardContent = `
+            <div class="gift-details">
+              <div class="gift-info">
+                <p class="gift-name">${gift.Nom}</p>
+                <p class="gift-brand">Brand: ${gift.Brand}</p>
+                <p class="gift-description">${gift.Description}</p>
+              </div>
+              <div class="gift-image" style="background-image: url('${gift.ImageURL}');">
+                ${!isOffered ? `<span class="gift-price-badge">${gift.Prix}€</span>` : ''}
+              </div>
             </div>
           `;
+
+          if (isOffered) {
+            cardContent += `<p class="gift-status final">✨ Offert par ${gift['Offert par']} !</p>`;
+          } else {
+            cardContent += `
+              <div class="gift-actions">
+                <a href="${gift.ProductLink}" target="_blank" class="button secondary">Voir le produit</a>
+                <button class="button primary open-revolut-modal-btn" 
+                        data-gift-id="${gift.ID}" data-gift-name="${gift.Nom}" 
+                        data-gift-price="${gift.Prix}" data-gift-brand="${gift.Brand}">
+                  Offrir via Revolut
+                </button>
+              </div>
+            `;
+          }
+          giftCard.innerHTML = cardContent;
+          giftListContainer.appendChild(giftCard);
         }
-        giftCard.innerHTML = cardContent;
-        giftListContainer.appendChild(giftCard);
       });
       
       attachEventListeners();
@@ -105,13 +130,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // --- FONCTIONS UTILITAIRES ---
+
+  // Initialise et gère les onglets
   function initializeTabs(categoryToSelect) {
     const tabs = document.querySelectorAll('.tab-item');
     function filterTabs(selectedTab) {
         if (!selectedTab) return;
         const category = selectedTab.dataset.tab;
         tabs.forEach(tab => tab.classList.toggle('active', tab === selectedTab));
-        document.querySelectorAll('.gift-item').forEach(item => {
+        document.querySelectorAll('.gift-item, .cagnotte-item').forEach(item => {
             item.style.display = item.dataset.category === category ? 'block' : 'none';
         });
     }
@@ -126,7 +154,9 @@ document.addEventListener('DOMContentLoaded', function() {
     filterTabs(tabToActivate);
   }
 
+  // Attache tous les écouteurs d'événements
   function attachEventListeners() {
+    // Pour les boutons qui ouvrent la modale
     document.querySelectorAll('.open-revolut-modal-btn').forEach(button => {
       button.addEventListener('click', function() {
         const id = this.dataset.giftId;
@@ -137,10 +167,11 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
 
+    // Pour fermer la modale
     modalCloseBtn.addEventListener('click', closeRevolutModal);
     modalOverlay.addEventListener('click', closeRevolutModal);
 
-    // On reconnecte la logique de soumission du formulaire
+    // Pour la soumission du formulaire DANS la modale (cadeaux normaux)
     modalOfferForm.addEventListener('submit', async function(event) {
         event.preventDefault();
         const submitButton = this.querySelector('button[type="submit"]');
@@ -154,7 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
           await fetch(webAppURL_API, { method: 'POST', body: new FormData(this) });
           modalFormStatus.textContent = 'Merci ! Votre offre a été enregistrée.';
           modalFormStatus.style.color = 'green';
-          // On attend 2 secondes, on ferme la modale, et on rafraîchit la liste
           setTimeout(() => {
             closeRevolutModal();
             fetchAndDisplayGifts(activeCategory);
@@ -166,8 +196,34 @@ document.addEventListener('DOMContentLoaded', function() {
           submitButton.disabled = false;
         }
     });
+      
+    // Pour la soumission du formulaire de la CAGNOTTE
+    const cagnotteForm = document.querySelector('.cagnotte-form');
+    if (cagnotteForm) {
+      cagnotteForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const statusMessage = this.nextElementSibling;
+        const submitButton = this.querySelector('button[type="submit"]');
+        statusMessage.textContent = 'Envoi en cours...';
+        submitButton.disabled = true;
+
+        try {
+          await fetch(webAppURL_API, { method: 'POST', body: new FormData(this) });
+          statusMessage.textContent = 'Merci pour votre généreuse contribution !';
+          statusMessage.style.color = 'green';
+          this.reset();
+        } catch (error) {
+          console.error('Erreur lors de la soumission de la contribution :', error);
+          statusMessage.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer.';
+          statusMessage.style.color = 'red';
+        } finally {
+            submitButton.disabled = false;
+        }
+      });
+    }
   }
   
+  // Analyse le CSV de manière robuste
   function parseCSV(text) {
     const lines = text.split(/\r?\n/);
     const headers = lines[0].split(',');
@@ -182,5 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }).filter(gift => gift && gift.ID && gift.ID.trim() !== '');
   }
 
+  // --- LANCEMENT INITIAL ---
   fetchAndDisplayGifts();
 });
