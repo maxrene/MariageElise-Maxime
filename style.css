@@ -383,6 +383,16 @@ body {
 #modal-offer-form label {
   font-size: 1.1rem;
 }
+/* On s'assure que les éléments du formulaire de la modale peuvent être cachés/montrés */
+#modal-offer-form label[for="modal-guest-name"],
+#modal-guest-name {
+    display: block; /* Par défaut, ils sont visibles */
+}
+
+#modal-offer-form label[for="modal-guest-name"].hidden,
+#modal-guest-name.hidden {
+    display: none; /* Cachés si la classe .hidden est ajoutée */
+}
 /* --- Style pour la carte Cagnotte / Participation Libre --- */
 
 .cagnotte-item {
