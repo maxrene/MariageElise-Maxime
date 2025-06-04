@@ -386,8 +386,8 @@ body {
 /* --- Style pour la carte Cagnotte / Participation Libre --- */
 
 .cagnotte-item {
-  background-color: #f9fafb; /* Un fond légèrement différent */
-  border: 2px dashed #d1d5db; /* Une bordure en pointillés pour la distinguer */
+  background-color: #f9fafb;
+  border: 2px dashed #d1d5db;
   padding: 25px;
   border-radius: 12px;
   margin-bottom: 16px;
@@ -399,35 +399,47 @@ body {
   margin-bottom: 8px;
 }
 
-.cagnotte-item p {
+.cagnotte-item p { /* Style pour la description de la cagnotte */
   font-size: 1rem;
   color: #60758a;
   line-height: 1.5;
   margin-bottom: 20px;
 }
 
-.cagnotte-form {
+/* Style du formulaire de la carte cagnotte (pour alignement) */
+.cagnotte-form-display { /* Ancien .cagnotte-form, renommé pour clarté */
   display: flex;
-  flex-wrap: wrap; /* Permet aux éléments de passer à la ligne sur mobile */
+  flex-wrap: wrap;      /* Permet aux éléments de passer à la ligne si peu d'espace */
   gap: 15px;
   align-items: flex-end; /* Aligne le bas des champs et du bouton */
 }
 
-.cagnotte-form .input-group {
+.cagnotte-form-display .input-group {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  flex-grow: 1; /* Permet aux champs de prendre de la place */
+  flex: 1 1 180px; /* Chaque groupe prend de la place mais peut rétrécir */
 }
 
-.cagnotte-form label {
+.cagnotte-form-display label {
   font-weight: 500;
   font-size: 0.875rem;
 }
 
-.cagnotte-form input {
+.cagnotte-form-display input {
   padding: 10px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 1rem;
+  width: 100%; /* Les inputs prennent toute la largeur de leur groupe */
+}
+
+.cagnotte-form-display .button {
+    flex-shrink: 0; /* Empêche le bouton de trop rétrécir */
+}
+
+.form-status-message { /* Style pour les messages sous les formulaires */
+    width: 100%;
+    margin-top: 10px;
+    font-size: 0.875rem;
 }
