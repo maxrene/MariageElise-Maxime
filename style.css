@@ -453,3 +453,18 @@ body {
     margin-top: 10px;
     font-size: 0.875rem;
 }
+/* --- Style pour le paragraphe d'introduction --- */
+.intro-paragraph {
+  padding: 16px;
+  margin: 0 16px 24px 16px;
+  background-color: #f9fafb;
+  border-left: 4px solid #3490f3;
+  line-height: 1.6;
+}
+
+.intro-paragraph p {
+  color: #60758a;
+}
+.intro-paragraph p:not(:last-child) {
+  margin-bottom: 1em;
+}
