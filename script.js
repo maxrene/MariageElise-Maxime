@@ -13,14 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const revolutUsername = 'maxbook';
   // =========================================================================
 
-  // --- SÉLECTION DES ÉLÉMENTS DU DOM ---
   const giftListContainer = document.getElementById('gift-list-container');
   const cagnotteContainer = document.getElementById('cagnotte-container');
   const modalOverlay = document.getElementById('modal-overlay');
   const revolutModal = document.getElementById('revolut-modal');
   const modalOfferForm = document.getElementById('modal-offer-form');
 
-  // --- FONCTIONS POUR LA MODALE REVOLUT ---
   function openRevolutModal(id, giftNameForDisplay, amountToPay, noteTypeOrBrand, isGenericContribution = false, guestNameFromCard = null) {
       const modalTitle = document.getElementById('modal-title');
       const modalAmountElement = document.getElementById('modal-amount');
@@ -72,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if(revolutModal) revolutModal.classList.remove('active');
   }
 
-  // --- FONCTION PRINCIPALE POUR AFFICHER LA LISTE ---
   async function fetchAndDisplayGifts(categoryToSelect = null) {
     try {
       const [cadeauxResponse, contributionsResponse] = await Promise.all([
@@ -191,7 +188,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const category = selectedTab.dataset.tab;
         tabs.forEach(tab => tab.classList.toggle('active', tab === selectedTab));
         document.querySelectorAll('.gift-item').forEach(item => {
-             if(item.closest('#cagnotte-container')) return;
              item.style.display = item.dataset.category === category ? 'block' : 'none';
         });
     }
@@ -206,7 +202,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tabs.length > 0) filterTabs(tabToActivate);
   }
 
-  // --- VERSION FINALE DE ATTACHEVENTLISTENERS ---
   function attachEventListeners() {
     document.body.addEventListener('click', function(event) {
         const target = event.target;
@@ -219,20 +214,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.body.addEventListener('submit', async function(event) {
         const form = event.target;
-
-        // Soumission du formulaire DANS LA MODALE
         if (form.matches('#modal-offer-form')) {
             event.preventDefault();
             const submitButton = form.querySelector('button[type="submit"]');
             const modalFormStatus = document.getElementById('modal-form-status');
             modalFormStatus.textContent = 'Envoi en cours...';
             if(submitButton) submitButton.disabled = true;
-
             const activeTab = document.querySelector('.tab-item.active');
             const activeCategory = activeTab ? activeTab.dataset.tab : null;
             
             try {
+                // MODIFICATION CLÉ : On s'assure que le champ 'amount' est bien dans les données envoyées
                 const formData = new FormData(form);
+                const amountInput = form.querySelector('input[name="amount"]');
+                if (amountInput && amountInput.value) {
+                    formData.set('amount', amountInput.value);
+                }
+
                 const response = await fetch(webAppURL_API, { method: 'POST', body: formData });
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
                 const result = await response.json();
@@ -250,15 +248,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalFormStatus.style.color = 'red';
                 if(submitButton) submitButton.disabled = false;
             }
-        
-        // Soumission du formulaire de la CAGNOTTE
         } else if (form.matches('.cagnotte-form-display')) {
             event.preventDefault();
             const giftId = form.querySelector('input[name="id"]').value;
             const amount = form.querySelector('input[name="amount-display"]').value;
             const guestName = form.querySelector('input[name="name-display"]').value;
             const giftDisplayName = form.closest('.cagnotte-item').querySelector('h3').textContent;
-
             if (!amount || !guestName) {
                 form.nextElementSibling.textContent = "Veuillez remplir le montant et votre nom.";
                 form.nextElementSibling.style.color = 'red';
@@ -266,8 +261,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             form.nextElementSibling.textContent = '';
             openRevolutModal(giftId, giftDisplayName, amount, 'Cagnotte', true, guestName);
-        
-        // Soumission du formulaire de CONTRIBUTION PARTIELLE
         } else if (form.matches('.partial-contribution-form-display')) {
             event.preventDefault();
             const giftId = form.querySelector('input[name="id"]').value;
@@ -284,7 +277,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Parse le CSV de manière robuste
   function parseCSV(text) {
     const lines = text.split(/\r?\n/);
     if (lines.length < 1) return [];
@@ -293,8 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!line.trim()) return null;
       const data = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
       if (data.length !== headers.length) { 
-        console.warn('Ligne CSV malformée ignorée:', line);
-        return null; 
+        console.warn('Ligne CSV malformée ignorée:', line); return null; 
       }
       return headers.reduce((obj, nextKey, index) => {
         const value = data[index] ? data[index].trim() : "";
@@ -303,8 +294,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }, {});
     }).filter(gift => gift && gift.ID && gift.ID.trim() !== '');
   }
-
-  // --- LANCEMENT INITIAL ---
-  attachEventListeners(); // On attache les écouteurs permanents une seule fois
-  fetchAndDisplayGifts(); // On lance le premier affichage
+  
+  // Le premier appel pour charger la page
+  if(document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fetchAndDisplayGifts);
+  } else {
+      fetchAndDisplayGifts();
+  }
 });
