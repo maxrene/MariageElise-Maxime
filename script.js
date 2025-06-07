@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 1. COLLEZ L'URL DE VOTRE FEUILLE PUBLIÉE EN CSV
   const sheetURL_Cadeaux_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?output=csv'; 
   const sheetURL_Contributions_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?output=csv'; 
-  const webAppURL_API = 'https://script.google.com/macros/s/AKfycbxWjfEAshO5ytdUrcxNenPiDxJhwIIC_stMMpMid3ae1OUwqABQpAGfEAyB-w8iD3q9yQ/exec';
+  const webAppURL_API = 'https://script.google.com/macros/s/AKfycbxpMok_eLFs4XrhK0d51LvK9ettUVNNAsHX6K8Ao3xXb09K0XCdkH1T-vACHzEIWKG8Og/exec';
   const revolutUsername = 'maxbook';
   // =========================================================================
 
