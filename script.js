@@ -13,18 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const revolutUsername = 'maxbook';
   // =========================================================================
 
-
-document.addEventListener('DOMContentLoaded', function() {
-  
-  // =========================================================================
-  //                            CONFIGURATION
-  // =========================================================================
-  const sheetURL_Cadeaux_CSV = 'VOTRE_URL_CSV_POUR_LA_FEUILLE_CADEAUX_ICI'; 
-  const sheetURL_Contributions_CSV = 'VOTRE_URL_CSV_POUR_LA_FEUILLE_CONTRIBUTIONS_ICI';
-  const webAppURL_API = 'VOTRE_URL_APPS_SCRIPT_POUR_L_ECRITURE_ICI';
-  const revolutUsername = 'votre_nom_utilisateur_revolut';
-  // =========================================================================
-
   // --- SÉLECTION DES ÉLÉMENTS DU DOM ---
   const giftListContainer = document.getElementById('gift-list-container');
   const cagnotteContainer = document.getElementById('cagnotte-container');
