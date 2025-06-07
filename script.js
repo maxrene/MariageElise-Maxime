@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
  // --- SÉLECTION DES ÉLÉMENTS DU DOM ---
-  const giftListContainer = document.getElementById('gift-list-container');
+ const giftListContainer = document.getElementById('gift-list-container');
   const cagnotteContainer = document.getElementById('cagnotte-container');
   
   const modalOverlay = document.getElementById('modal-overlay');
@@ -32,16 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const modalSubmitButton = modalOfferForm ? modalOfferForm.querySelector('button[type="submit"]') : null;
   const modalFormStatus = document.getElementById('modal-form-status');
   
-  const modalGiftAmountInput = document.createElement('input'); // Pour contributions cagnotte/partielles
+  const modalGiftAmountInput = document.createElement('input');
   modalGiftAmountInput.type = 'hidden';
   modalGiftAmountInput.name = 'amount';
   if(modalOfferForm) modalOfferForm.appendChild(modalGiftAmountInput);
 
-  // --- FONCTIONS POUR LA MODALE REVOLUT ---
-  // isGenericContribution est vrai pour la cagnotte ET les participations partielles
   function openRevolutModal(id, giftNameForDisplay, amountToPay, noteTypeOrBrand, isGenericContribution = false, guestNameFromCard = null) {
     modalTitle.textContent = isGenericContribution ? `Confirmer votre contribution à : ${giftNameForDisplay}` : `Offrir : ${giftNameForDisplay}`;
-    modalAmountElement.textContent = `${amountToPay}€`; // C'est le montant que l'invité va payer
+    modalAmountElement.textContent = `${amountToPay}€`;
     
     modalGiftIdInput.value = id;
     modalRevolutLink.href = `https://revolut.me/${revolutUsername}`;
@@ -49,9 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if(modalFormStatus) modalFormStatus.textContent = '';
 
     if (isGenericContribution) {
-      // Pour cagnotte ou participation partielle
       modalNoteElement.textContent = `Contribution pour "${giftNameForDisplay}" (De la part de : ${guestNameFromCard})`;
-      modalGiftAmountInput.value = amountToPay; // Montant de la contribution à enregistrer
+      modalGiftAmountInput.value = amountToPay;
       
       if(modalGuestNameLabel) modalGuestNameLabel.classList.add('hidden');
       if(modalGuestNameInput) {
@@ -62,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if(modalSubmitButton) modalSubmitButton.textContent = 'Confirmer ma participation';
 
     } else {
-      // Pour un cadeau normal unique
       modalNoteElement.textContent = `Cadeau mariage : ${giftNameForDisplay} (${noteTypeOrBrand})`;
       modalGiftAmountInput.value = ''; 
       
@@ -84,46 +80,33 @@ document.addEventListener('DOMContentLoaded', function() {
     if(revolutModal) revolutModal.classList.remove('active');
   }
 
-  // --- FONCTION PRINCIPALE POUR AFFICHER LA LISTE ---
   async function fetchAndDisplayGifts(categoryToSelect = null) {
     try {
-      // On récupère les deux CSV en parallèle
       const [cadeauxResponse, contributionsResponse] = await Promise.all([
         fetch(`${sheetURL_Cadeaux_CSV}&t=${Date.now()}`),
         fetch(`${sheetURL_Contributions_CSV}&t=${Date.now()}`)
       ]);
-
       if (!cadeauxResponse.ok) throw new Error(`Erreur HTTP Cadeaux CSV: ${cadeauxResponse.status}`);
       if (!contributionsResponse.ok) throw new Error(`Erreur HTTP Contributions CSV: ${contributionsResponse.status}`);
-
       const cadeauxCsvText = await cadeauxResponse.text();
       const contributionsCsvText = await contributionsResponse.text();
-      
       const allItems = parseCSV(cadeauxCsvText);
       const allContributions = parseCSV(contributionsCsvText);
-
-      // On calcule le total des contributions pour chaque ID de cadeau/cagnotte
       const contributionsByGiftId = allContributions.reduce((acc, contrib) => {
         const id = contrib.ID_Cadeau;
         const amount = parseFloat(contrib.Montant) || 0;
         acc[id] = (acc[id] || 0) + amount;
         return acc;
       }, {});
-
       if(giftListContainer) giftListContainer.innerHTML = ''; 
       if(cagnotteContainer) cagnotteContainer.innerHTML = '';
-
       const cagnotteItemData = allItems.find(item => item.Categorie.toLowerCase().trim() === 'cagnotte');
       const regularGiftsData = allItems.filter(item => item.Categorie.toLowerCase().trim() !== 'cagnotte');
-
-      // --- 1. AFFICHER LA CAGNOTTE "PARTICIPATION LIBRE" (si elle existe) ---
       if (cagnotteItemData && cagnotteContainer) {
         const cagnotteCard = document.createElement('div');
         cagnotteCard.className = 'cagnotte-item';
         cagnotteContainer.appendChild(cagnotteCard);
-        
         const totalCagnotteContributed = contributionsByGiftId[cagnotteItemData.ID] || 0;
-
         cagnotteCard.innerHTML = `
           <h3>${cagnotteItemData.Nom}</h3>
           <p>${cagnotteItemData.Description || 'Contribuez du montant de votre choix.'}</p>
@@ -143,19 +126,15 @@ document.addEventListener('DOMContentLoaded', function() {
           <p class="form-status-message"></p>
         `;
       }
-      
-      // --- 2. AFFICHER LES CADEAUX NORMAUX ET PARTIELS ---
       regularGiftsData.forEach(gift => {
         const giftCard = document.createElement('div');
-        giftCard.className = 'gift-item'; // Par défaut
+        giftCard.className = 'gift-item';
         giftCard.dataset.category = gift.Categorie.toLowerCase().trim();
-        
         const isOffered = gift['Offert par'] && gift['Offert par'].trim() !== '';
         const isPartial = gift.Type_Contribution && gift.Type_Contribution.toLowerCase().trim() === 'partiel';
         const totalContributed = contributionsByGiftId[gift.ID] || 0;
         const giftPrice = parseFloat(gift.Prix) || 0;
         const isFullyFunded = isPartial && totalContributed >= giftPrice;
-
         let cardContent = `
           <div class="gift-details">
             <div class="gift-info">
@@ -169,11 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
           </div>
         `;
-
-        if (isOffered) { // Cadeau unique déjà offert
+        if (isOffered) {
           cardContent += `<p class="gift-status final">✨ Offert par ${gift['Offert par']} !</p>`;
         } else if (isPartial) {
-          giftCard.classList.add('partial-gift-item'); // Style spécifique possible
+          giftCard.classList.add('partial-gift-item');
           cardContent += `<div class="contribution-progress">
                             <p>Objectif : ${giftPrice.toFixed(2)}€</p>
                             <p>Collecté : <strong>${totalContributed.toFixed(2)}€</strong></p>
@@ -197,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <p class="form-status-message"></p>
             `;
           }
-        } else { // Cadeau unique pas encore offert
+        } else {
           cardContent += `
             <div class="gift-actions">
               <a href="${gift.ProductLink}" target="_blank" class="button secondary">Voir le produit</a>
@@ -212,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function() {
         giftCard.innerHTML = cardContent;
         giftListContainer.appendChild(giftCard);
       });
-      
       attachEventListeners();
       initializeTabs(categoryToSelect);
     } catch (error) {
@@ -221,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // --- FONCTIONS UTILITAIRES ---
   function initializeTabs(categoryToSelect) {
     const tabs = document.querySelectorAll('.tab-item');
     function filterTabs(selectedTab) {
@@ -230,12 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const category = selectedTab.dataset.tab;
         tabs.forEach(tab => tab.classList.toggle('active', tab === selectedTab));
-        // On filtre seulement les .gift-item, la cagnotte et les partial-gift-item restent visibles ou gérés autrement
-        document.querySelectorAll('.gift-item:not(.partial-gift-item)').forEach(item => {
-             if(item.closest('#cagnotte-container')) return; // Ne pas cacher la cagnotte
-             item.style.display = item.dataset.category === category ? 'block' : 'none';
-        });
-         document.querySelectorAll('.partial-gift-item').forEach(item => {
+        document.querySelectorAll('.gift-item').forEach(item => {
+             if(item.closest('#cagnotte-container')) return;
              item.style.display = item.dataset.category === category ? 'block' : 'none';
         });
     }
@@ -250,61 +222,49 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tabs.length > 0) filterTabs(tabToActivate);
   }
 
- function attachEventListeners() {
-    const mainContent = document.querySelector('.main-content'); // Un parent stable
-
+  function attachEventListeners() {
+    const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
 
-    // Un seul écouteur pour tous les clics
     mainContent.addEventListener('click', function(event) {
-        // Clic sur le bouton pour ouvrir la modale Revolut
         if (event.target.matches('.open-revolut-modal-btn')) {
             const button = event.target;
             openRevolutModal(button.dataset.giftId, button.dataset.giftName, button.dataset.giftPrice, button.dataset.giftBrand, false, null);
         }
     });
 
-    // Un seul écouteur pour toutes les soumissions de formulaire
     mainContent.addEventListener('submit', async function(event) {
-        // Soumission du formulaire de la cagnotte
-        if (event.target.matches('.cagnotte-form-display')) {
+        const form = event.target;
+        if (form.matches('.cagnotte-form-display')) {
             event.preventDefault();
-            const form = event.target;
-            const statusMessage = form.nextElementSibling;
             const giftId = form.querySelector('input[name="id"]').value;
             const amount = form.querySelector('input[name="amount-display"]').value;
             const guestName = form.querySelector('input[name="name-display"]').value;
             const giftDisplayName = form.closest('.cagnotte-item').querySelector('h3').textContent;
-
             if (!amount || !guestName) {
-                statusMessage.textContent = "Veuillez remplir le montant et votre nom.";
-                statusMessage.style.color = 'red';
+                form.nextElementSibling.textContent = "Veuillez remplir le montant et votre nom.";
+                form.nextElementSibling.style.color = 'red';
                 return;
             }
-            statusMessage.textContent = '';
+            form.nextElementSibling.textContent = '';
             openRevolutModal(giftId, giftDisplayName, amount, 'Cagnotte', true, guestName);
         }
         
-        // Soumission du formulaire de contribution partielle
-        if (event.target.matches('.partial-contribution-form-display')) {
+        if (form.matches('.partial-contribution-form-display')) {
             event.preventDefault();
-            const form = event.target;
             const giftId = form.querySelector('input[name="id"]').value;
             const giftName = form.querySelector('input[name="giftName"]').value;
             const amount = form.querySelector('input[name="amount-partial"]').value;
             const guestName = form.querySelector('input[name="name-partial"]').value;
-
             if (!amount || !guestName) {
-                const statusMessage = form.nextElementSibling;
-                statusMessage.textContent = "Veuillez remplir le montant et votre nom.";
-                statusMessage.style.color = 'red';
+                form.nextElementSibling.textContent = "Veuillez remplir le montant et votre nom.";
+                form.nextElementSibling.style.color = 'red';
                 return;
             }
             openRevolutModal(giftId, giftName, amount, 'Contribution Partielle', true, guestName);
         }
     });
 
-    // Les écouteurs pour la modale (qui ne changent pas)
     if(modalCloseBtn) modalCloseBtn.addEventListener('click', closeRevolutModal);
     if(modalOverlay) modalOverlay.addEventListener('click', closeRevolutModal);
 
@@ -312,7 +272,6 @@ document.addEventListener('DOMContentLoaded', function() {
       modalOfferForm.addEventListener('submit', async function(event) {
           event.preventDefault();
           const submitButton = this.querySelector('button[type="submit"]');
-          const modalFormStatus = document.getElementById('modal-form-status');
           modalFormStatus.textContent = 'Envoi en cours...';
           if(submitButton) submitButton.disabled = true;
 
@@ -342,7 +301,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Analyse le CSV de manière robuste
   function parseCSV(text) {
     const lines = text.split(/\r?\n/);
     if (lines.length < 1) return [];
@@ -362,6 +320,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }).filter(gift => gift && gift.ID && gift.ID.trim() !== '');
   }
 
-  // --- LANCEMENT INITIAL ---
   fetchAndDisplayGifts();
 });
