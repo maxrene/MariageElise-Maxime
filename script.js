@@ -250,23 +250,69 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tabs.length > 0) filterTabs(tabToActivate);
   }
 
-  function attachEventListeners() {
-    // Pour les boutons "Offrir via Revolut" (cadeaux uniques)
-    document.querySelectorAll('.open-revolut-modal-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        openRevolutModal(this.dataset.giftId, this.dataset.giftName, this.dataset.giftPrice, this.dataset.giftBrand, false, null);
-      });
+ function attachEventListeners() {
+    const mainContent = document.querySelector('.main-content'); // Un parent stable
+
+    if (!mainContent) return;
+
+    // Un seul écouteur pour tous les clics
+    mainContent.addEventListener('click', function(event) {
+        // Clic sur le bouton pour ouvrir la modale Revolut
+        if (event.target.matches('.open-revolut-modal-btn')) {
+            const button = event.target;
+            openRevolutModal(button.dataset.giftId, button.dataset.giftName, button.dataset.giftPrice, button.dataset.giftBrand, false, null);
+        }
     });
 
-    // Fermeture de la modale
+    // Un seul écouteur pour toutes les soumissions de formulaire
+    mainContent.addEventListener('submit', async function(event) {
+        // Soumission du formulaire de la cagnotte
+        if (event.target.matches('.cagnotte-form-display')) {
+            event.preventDefault();
+            const form = event.target;
+            const statusMessage = form.nextElementSibling;
+            const giftId = form.querySelector('input[name="id"]').value;
+            const amount = form.querySelector('input[name="amount-display"]').value;
+            const guestName = form.querySelector('input[name="name-display"]').value;
+            const giftDisplayName = form.closest('.cagnotte-item').querySelector('h3').textContent;
+
+            if (!amount || !guestName) {
+                statusMessage.textContent = "Veuillez remplir le montant et votre nom.";
+                statusMessage.style.color = 'red';
+                return;
+            }
+            statusMessage.textContent = '';
+            openRevolutModal(giftId, giftDisplayName, amount, 'Cagnotte', true, guestName);
+        }
+        
+        // Soumission du formulaire de contribution partielle
+        if (event.target.matches('.partial-contribution-form-display')) {
+            event.preventDefault();
+            const form = event.target;
+            const giftId = form.querySelector('input[name="id"]').value;
+            const giftName = form.querySelector('input[name="giftName"]').value;
+            const amount = form.querySelector('input[name="amount-partial"]').value;
+            const guestName = form.querySelector('input[name="name-partial"]').value;
+
+            if (!amount || !guestName) {
+                const statusMessage = form.nextElementSibling;
+                statusMessage.textContent = "Veuillez remplir le montant et votre nom.";
+                statusMessage.style.color = 'red';
+                return;
+            }
+            openRevolutModal(giftId, giftName, amount, 'Contribution Partielle', true, guestName);
+        }
+    });
+
+    // Les écouteurs pour la modale (qui ne changent pas)
     if(modalCloseBtn) modalCloseBtn.addEventListener('click', closeRevolutModal);
     if(modalOverlay) modalOverlay.addEventListener('click', closeRevolutModal);
 
-    // Soumission du formulaire DANS la modale (pour cadeaux uniques ET pour finaliser contributions cagnotte/partielles)
     if(modalOfferForm) {
       modalOfferForm.addEventListener('submit', async function(event) {
           event.preventDefault();
           const submitButton = this.querySelector('button[type="submit"]');
+          const modalFormStatus = document.getElementById('modal-form-status');
           modalFormStatus.textContent = 'Envoi en cours...';
           if(submitButton) submitButton.disabled = true;
 
@@ -274,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const activeCategory = activeTab ? activeTab.dataset.tab : null;
           
           try {
-            const formData = new FormData(this); // Contient ID, nom, et montant (si cagnotte/partiel)
+            const formData = new FormData(this);
             const response = await fetch(webAppURL_API, { method: 'POST', body: formData });
             if (!response.ok) throw new Error(`API Error: ${response.status}`);
             const result = await response.json();
@@ -294,46 +340,6 @@ document.addEventListener('DOMContentLoaded', function() {
           }
       });
     }
-      
-    // Soumission du formulaire de la CAGNOTTE (sur la carte)
-    const cagnotteDisplayForm = document.querySelector('.cagnotte-form-display');
-    if (cagnotteDisplayForm) {
-      cagnotteDisplayForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const statusMessage = this.nextElementSibling;
-        const giftId = this.querySelector('input[name="id"]').value;
-        const amount = this.querySelector('input[name="amount-display"]').value;
-        const guestName = this.querySelector('input[name="name-display"]').value;
-        const giftDisplayName = this.closest('.cagnotte-item').querySelector('h3').textContent;
-
-        if (!amount || !guestName) {
-            statusMessage.textContent = "Veuillez remplir le montant et votre nom.";
-            statusMessage.style.color = 'red';
-            return;
-        }
-        statusMessage.textContent = '';
-        openRevolutModal(giftId, giftDisplayName, amount, 'Cagnotte', true, guestName);
-      });
-    }
-
-    // NOUVEAU : Soumission du formulaire de CONTRIBUTION PARTIELLE (sur la carte)
-    document.querySelectorAll('.partial-contribution-form-display').forEach(form => {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const giftId = this.querySelector('input[name="id"]').value;
-            const giftName = this.querySelector('input[name="giftName"]').value;
-            const amount = this.querySelector('input[name="amount-partial"]').value;
-            const guestName = this.querySelector('input[name="name-partial"]').value;
-
-            if (!amount || !guestName) {
-                const statusMessage = this.nextElementSibling;
-                statusMessage.textContent = "Veuillez remplir le montant et votre nom.";
-                statusMessage.style.color = 'red';
-                return;
-            }
-            openRevolutModal(giftId, giftName, amount, 'Contribution Partielle', true, guestName);
-        });
-    });
   }
   
   // Analyse le CSV de manière robuste
