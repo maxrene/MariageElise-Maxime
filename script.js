@@ -24,7 +24,6 @@ const giftListContainer = document.getElementById('gift-list-container');
   }
 
   function openRevolutModal(id, giftNameForDisplay, amountToPay, noteTypeOrBrand, isGenericContribution = false, guestNameFromCard = null) {
-      console.log(`FONCTION openRevolutModal: Ouverture pour le cadeau "${giftNameForDisplay}".`);
       const modalTitle = document.getElementById('modal-title');
       const modalAmountElement = document.getElementById('modal-amount');
       const modalNoteElement = document.getElementById('modal-note');
@@ -34,7 +33,6 @@ const giftListContainer = document.getElementById('gift-list-container');
       const modalGuestNameInput = document.getElementById('modal-guest-name');
       const modalSubmitButton = modalOfferForm ? modalOfferForm.querySelector('button[type="submit"]') : null;
       const modalFormStatus = document.getElementById('modal-form-status');
-      const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
       
       modalTitle.textContent = isGenericContribution ? `Confirmer votre contribution à : ${giftNameForDisplay}` : `Offrir : ${giftNameForDisplay}`;
       modalAmountElement.textContent = `${amountToPay}€`;
@@ -46,6 +44,7 @@ const giftListContainer = document.getElementById('gift-list-container');
 
       if (isGenericContribution) {
           modalNoteElement.textContent = `Contribution pour "${giftNameForDisplay}" (De la part de : ${guestNameFromCard})`;
+          const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
           if(modalGiftAmountInput) modalGiftAmountInput.value = amountToPay;
           if(modalGuestNameLabel) modalGuestNameLabel.classList.add('hidden');
           if(modalGuestNameInput) {
@@ -56,6 +55,7 @@ const giftListContainer = document.getElementById('gift-list-container');
           if(modalSubmitButton) modalSubmitButton.textContent = 'Confirmer ma participation';
       } else {
           modalNoteElement.textContent = `Cadeau mariage : ${giftNameForDisplay} (${noteTypeOrBrand})`;
+          const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
           if(modalGiftAmountInput) modalGiftAmountInput.value = ''; 
           if(modalGuestNameLabel) modalGuestNameLabel.classList.remove('hidden');
           if(modalGuestNameInput) {
@@ -71,13 +71,11 @@ const giftListContainer = document.getElementById('gift-list-container');
   }
 
   function closeRevolutModal() {
-    console.log("FONCTION closeRevolutModal: Fermeture de la modale.");
     if(modalOverlay) modalOverlay.classList.remove('active');
     if(revolutModal) revolutModal.classList.remove('active');
   }
 
   async function fetchAndDisplayGifts(categoryToSelect = null) {
-    console.log("--- DÉBUT DU CHARGEMENT ---");
     try {
       const [cadeauxResponse, contributionsResponse] = await Promise.all([
         fetch(`${sheetURL_Cadeaux_CSV}&t=${Date.now()}`),
@@ -87,13 +85,8 @@ const giftListContainer = document.getElementById('gift-list-container');
       if (!contributionsResponse.ok) throw new Error(`Erreur HTTP Contributions CSV: ${contributionsResponse.status}`);
       const cadeauxCsvText = await cadeauxResponse.text();
       const contributionsCsvText = await contributionsResponse.text();
-      
-      console.log("--- PARSING DES DONNÉES ---");
       const allItems = parseCSV(cadeauxCsvText);
       const allContributions = parseCSV(contributionsCsvText);
-      
-      console.log("Objets 'Cadeaux' parsés (1er item):", allItems[0]);
-      console.log("Objets 'Contributions' parsés (1er item):", allContributions[0]);
 
       const contributionsByGiftId = allContributions.reduce((acc, contrib) => {
         const idKey = Object.keys(contrib).find(k => k.toLowerCase().replace(/[\s_]/g, '') === 'idcadeau');
@@ -106,8 +99,6 @@ const giftListContainer = document.getElementById('gift-list-container');
         }
         return acc;
       }, {});
-
-      console.log("Sommes des contributions calculées par ID:", contributionsByGiftId);
 
       if(giftListContainer) giftListContainer.innerHTML = ''; 
       if(cagnotteContainer) cagnotteContainer.innerHTML = '';
@@ -149,10 +140,6 @@ const giftListContainer = document.getElementById('gift-list-container');
         const giftPrice = parseFloat(getNormalizedValue(gift, 'prix')) || 0;
         const isFullyFunded = isPartial && totalContributed >= giftPrice;
         
-        if (isPartial) {
-            console.log(`Calcul pour cadeau partiel ID '${giftId}': Total trouvé = ${totalContributed}€`);
-        }
-
         giftCard.innerHTML = `
           <div class="gift-details">
             <div class="gift-info"><p class="gift-name">${getNormalizedValue(gift, 'nom')}</p><p class="gift-brand">Brand: ${getNormalizedValue(gift, 'brand')}</p><p class="gift-description">${getNormalizedValue(gift, 'description')}</p></div>
@@ -215,15 +202,51 @@ const giftListContainer = document.getElementById('gift-list-container');
         const form = event.target;
         if (form.matches('#modal-offer-form')) {
             event.preventDefault();
-            // ... (la logique de soumission de la modale reste identique)
+            const submitButton = form.querySelector('button[type="submit"]');
+            const modalFormStatus = document.getElementById('modal-form-status');
+            modalFormStatus.textContent = 'Envoi en cours...';
+            if(submitButton) submitButton.disabled = true;
+            const activeTab = document.querySelector('.tab-item.active');
+            const activeCategory = activeTab ? activeTab.dataset.tab : null;
+            try {
+                const formData = new FormData(form);
+                if (form.dataset.contributionAmount) {
+                    formData.set('amount', form.dataset.contributionAmount);
+                }
+                const response = await fetch(webAppURL_API, { method: 'POST', body: formData });
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message || 'API Unknown Error');
+                modalFormStatus.textContent = 'Merci ! Votre offre/contribution a été enregistrée.';
+                modalFormStatus.style.color = 'green';
+                setTimeout(() => { closeRevolutModal(); fetchAndDisplayGifts(activeCategory); }, 2000);
+            } catch (error) {
+                console.error('Erreur soumission modale:', error);
+                modalFormStatus.textContent = `Erreur: ${error.message}. Réessayez.`;
+                modalFormStatus.style.color = 'red';
+                if(submitButton) submitButton.disabled = false;
+            }
         } else if (form.matches('.cagnotte-form-display') || form.matches('.partial-contribution-form-display')) {
             event.preventDefault();
-            // ... (la logique de soumission des formulaires de carte reste identique)
+            const giftId = form.querySelector('input[name="id"]').value;
+            const guestName = form.querySelector('input[name*="name-"]').value;
+            const amount = form.querySelector('input[name*="amount-"]').value;
+            const giftName = form.matches('.cagnotte-form-display')
+                ? form.closest('.cagnotte-item').querySelector('h3').textContent
+                : form.querySelector('input[name="giftName"]').value;
+            const type = form.matches('.cagnotte-form-display') ? 'Cagnotte' : 'Contribution Partielle';
+            if (!amount || !guestName) {
+                form.nextElementSibling.textContent = "Veuillez remplir le montant et votre nom.";
+                form.nextElementSibling.style.color = 'red';
+                return;
+            }
+            form.nextElementSibling.textContent = '';
+            openRevolutModal(giftId, giftName, amount, type, true, guestName);
         }
     });
   }
   
-  // NOUVELLE FONCTION UTILITAIRE ROBUSTE
+  // Fonction utilitaire pour trouver une valeur dans un objet sans se soucier de la casse/espaces de la clé
   function getNormalizedValue(obj, keyName) {
       if (!obj) return '';
       const normalizedKeyName = keyName.toLowerCase().replace(/[\s_]/g, '');
@@ -231,20 +254,22 @@ const giftListContainer = document.getElementById('gift-list-container');
       return foundKey ? obj[foundKey] : '';
   }
 
-  // MODIFIÉ : parseCSV pour enlever les caractères invisibles (BOM)
+  // MODIFIÉ : parseCSV pour être plus robuste et tolérant
   function parseCSV(text) {
-    let cleanText = text;
+    let cleanText = text.trim();
+    // Enlève le caractère invisible BOM
     if (cleanText.charCodeAt(0) === 0xFEFF) {
         cleanText = cleanText.substring(1);
     }
     const lines = cleanText.split(/\r?\n/);
     if (lines.length < 2) return [];
+    
     const headers = lines[0].split(',');
+    
     return lines.slice(1).map(line => {
       if (!line.trim()) return null;
       const data = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
       if (data.length !== headers.length) { 
-        console.warn('Ligne CSV malformée ignorée:', line);
         return null; 
       }
       return headers.reduce((obj, nextKey, index) => {
@@ -252,7 +277,7 @@ const giftListContainer = document.getElementById('gift-list-container');
         obj[nextKey.trim()] = value.replace(/^"|"$/g, '');
         return obj;
       }, {});
-    }).filter(gift => gift && getNormalizedValue(gift, 'id'));
+    }).filter(item => item !== null); // On garde toutes les lignes valides, sans filtrer par ID
   }
 
   // --- LANCEMENT INITIAL ---
