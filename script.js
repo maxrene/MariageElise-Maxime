@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================================
   //                            CONFIGURATION
   // =========================================================================
-  const sheetURL_Cadeaux_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?output=csv';
+  const sheetURL_Cadeaux_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv';
   const sheetURL_Contributions_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=88609421&single=true&output=csv';
   const webAppURL_API = 'https://script.google.com/macros/s/AKfycbzeUY76LoHLz9iHaH_8b3iyY5RhVM6zg1V0Ot3nK79Yu8quEG0zAHeJ-2uRrMKKUb9Rzw/exec';
   const revolutUsername = 'maxbook';
