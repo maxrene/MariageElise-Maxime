@@ -33,7 +33,6 @@ const giftListContainer = document.getElementById('gift-list-container');
       const modalGuestNameInput = document.getElementById('modal-guest-name');
       const modalSubmitButton = modalOfferForm ? modalOfferForm.querySelector('button[type="submit"]') : null;
       const modalFormStatus = document.getElementById('modal-form-status');
-      const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
       
       modalTitle.textContent = isGenericContribution ? `Confirmer votre contribution à : ${giftNameForDisplay}` : `Offrir : ${giftNameForDisplay}`;
       modalAmountElement.textContent = `${amountToPay}€`;
@@ -45,6 +44,7 @@ const giftListContainer = document.getElementById('gift-list-container');
 
       if (isGenericContribution) {
           modalNoteElement.textContent = `Contribution pour "${giftNameForDisplay}" (De la part de : ${guestNameFromCard})`;
+          const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
           if(modalGiftAmountInput) modalGiftAmountInput.value = amountToPay;
           if(modalGuestNameLabel) modalGuestNameLabel.classList.add('hidden');
           if(modalGuestNameInput) {
@@ -55,6 +55,7 @@ const giftListContainer = document.getElementById('gift-list-container');
           if(modalSubmitButton) modalSubmitButton.textContent = 'Confirmer ma participation';
       } else {
           modalNoteElement.textContent = `Cadeau mariage : ${giftNameForDisplay} (${noteTypeOrBrand})`;
+          const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
           if(modalGiftAmountInput) modalGiftAmountInput.value = ''; 
           if(modalGuestNameLabel) modalGuestNameLabel.classList.remove('hidden');
           if(modalGuestNameInput) {
@@ -116,7 +117,12 @@ const giftListContainer = document.getElementById('gift-list-container');
         const giftCard = document.createElement('div');
         giftCard.className = 'gift-item';
         giftCard.dataset.category = gift.Categorie.toLowerCase().trim();
-        const isOffered = gift['Offert par'] && gift['Offert par'].trim() !== '';
+        
+        // CORRECTION : Logique insensible à la casse pour trouver si un cadeau est offert
+        const offeredByKey = Object.keys(gift).find(key => key.toLowerCase().trim() === 'offert par');
+        const offeredByValue = offeredByKey ? gift[offeredByKey] : null;
+        const isOffered = offeredByValue && offeredByValue.trim() !== '';
+
         const isPartial = gift.Type_Contribution && gift.Type_Contribution.toLowerCase().trim() === 'partiel';
         const totalContributed = contributionsByGiftId[gift.ID] || 0;
         const giftPrice = parseFloat(gift.Prix) || 0;
@@ -129,7 +135,7 @@ const giftListContainer = document.getElementById('gift-list-container');
               ${isPartial && !isFullyFunded ? `<span class="gift-price-badge">${giftPrice.toFixed(2)}€</span>` : ''}
             </div>
           </div>
-          ${isOffered ? `<p class="gift-status final">✨ Offert par ${gift['Offert par']} !</p>`
+          ${isOffered ? `<p class="gift-status final">✨ Offert par ${offeredByValue} !</p>`
           : isPartial ? `
             <div class="contribution-progress"><p>Objectif : ${giftPrice.toFixed(2)}€</p><p>Collecté : <strong>${totalContributed.toFixed(2)}€</strong></p>${isFullyFunded ? '<p class="gift-status final">🎉 Objectif atteint ! Merci !</p>' : ''}</div>
             ${!isFullyFunded ? `<form class="partial-contribution-form-display"><input type="hidden" name="id" value="${gift.ID}"><input type="hidden" name="giftName" value="${gift.Nom}"><div class="input-group"><label for="partial-amount-${gift.ID}">Votre participation (€)</label><input type="number" id="partial-amount-${gift.ID}" name="amount-partial" placeholder="Ex: 20" min="1" max="${(giftPrice - totalContributed).toFixed(2)}" required></div><div class="input-group"><label for="partial-name-${gift.ID}">De la part de :</label><input type="text" id="partial-name-${gift.ID}" name="name-partial" placeholder="Ex: Jean Dupont" required></div><button type="submit" class="button primary">Participer</button></form><p class="form-status-message"></p>` : ''}
@@ -139,10 +145,6 @@ const giftListContainer = document.getElementById('gift-list-container');
         `;
         giftListContainer.appendChild(giftCard);
       });
-      
-      // LA LIGNE SUIVANTE A ÉTÉ SUPPRIMÉE D'ICI
-      // attachEventListeners(); 
-      
       initializeTabs(categoryToSelect);
     } catch (error) {
       console.error('Erreur fetch/display:', error);
@@ -190,10 +192,8 @@ const giftListContainer = document.getElementById('gift-list-container');
             const modalFormStatus = document.getElementById('modal-form-status');
             modalFormStatus.textContent = 'Envoi en cours...';
             if(submitButton) submitButton.disabled = true;
-
             const activeTab = document.querySelector('.tab-item.active');
             const activeCategory = activeTab ? activeTab.dataset.tab : null;
-            
             try {
                 const formData = new FormData(form);
                 const amountInput = form.querySelector('input[name="amount"]');
@@ -206,10 +206,7 @@ const giftListContainer = document.getElementById('gift-list-container');
                 if (result.status !== 'success') throw new Error(result.message || 'API Unknown Error');
                 modalFormStatus.textContent = 'Merci ! Votre offre/contribution a été enregistrée.';
                 modalFormStatus.style.color = 'green';
-                setTimeout(() => { 
-                    closeRevolutModal(); 
-                    fetchAndDisplayGifts(activeCategory); 
-                }, 2000);
+                setTimeout(() => { closeRevolutModal(); fetchAndDisplayGifts(activeCategory); }, 2000);
             } catch (error) {
                 console.error('Erreur soumission modale:', error);
                 modalFormStatus.textContent = `Erreur: ${error.message}. Réessayez.`;
@@ -255,10 +252,6 @@ const giftListContainer = document.getElementById('gift-list-container');
     }).filter(gift => gift && gift.ID && gift.ID.trim() !== '');
   }
 
-  // --- LANCEMENT INITIAL ---
-  // On attache les écouteurs permanents UNE SEULE FOIS au chargement.
   attachEventListeners();
-  // On lance le premier affichage.
   fetchAndDisplayGifts();
-  
 });
