@@ -16,8 +16,12 @@ const giftListContainer = document.getElementById('gift-list-container');
   const revolutModal = document.getElementById('revolut-modal');
   const modalOfferForm = document.getElementById('modal-offer-form');
 
-  // MODIFIÉ : On retire la logique du champ caché qui était peu fiable
-  // const modalGiftAmountInput = ...
+  if(modalOfferForm){
+      const modalGiftAmountInput = document.createElement('input');
+      modalGiftAmountInput.type = 'hidden';
+      modalGiftAmountInput.name = 'amount';
+      modalOfferForm.appendChild(modalGiftAmountInput);
+  }
 
   function openRevolutModal(id, giftNameForDisplay, amountToPay, noteTypeOrBrand, isGenericContribution = false, guestNameFromCard = null) {
       const modalTitle = document.getElementById('modal-title');
@@ -29,21 +33,19 @@ const giftListContainer = document.getElementById('gift-list-container');
       const modalGuestNameInput = document.getElementById('modal-guest-name');
       const modalSubmitButton = modalOfferForm ? modalOfferForm.querySelector('button[type="submit"]') : null;
       const modalFormStatus = document.getElementById('modal-form-status');
+      const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
       
       modalTitle.textContent = isGenericContribution ? `Confirmer votre contribution à : ${giftNameForDisplay}` : `Offrir : ${giftNameForDisplay}`;
       modalAmountElement.textContent = `${amountToPay}€`;
       modalGiftIdInput.value = id;
       modalRevolutLink.href = `https://revolut.me/${revolutUsername}`;
-      if(modalOfferForm) modalOfferForm.reset();
-      if(modalFormStatus) modalFormStatus.textContent = '';
+      modalOfferForm.reset();
+      modalFormStatus.textContent = '';
       if(modalSubmitButton) modalSubmitButton.disabled = false;
 
-      // MODIFIÉ : On attache l'information du montant directement au formulaire via un data attribute
-      // C'est beaucoup plus fiable qu'un champ caché ajouté dynamiquement.
       if (isGenericContribution) {
           modalNoteElement.textContent = `Contribution pour "${giftNameForDisplay}" (De la part de : ${guestNameFromCard})`;
-          modalOfferForm.dataset.contributionAmount = amountToPay; // On stocke le montant ici
-          
+          if(modalGiftAmountInput) modalGiftAmountInput.value = amountToPay;
           if(modalGuestNameLabel) modalGuestNameLabel.classList.add('hidden');
           if(modalGuestNameInput) {
               modalGuestNameInput.classList.add('hidden');
@@ -53,8 +55,7 @@ const giftListContainer = document.getElementById('gift-list-container');
           if(modalSubmitButton) modalSubmitButton.textContent = 'Confirmer ma participation';
       } else {
           modalNoteElement.textContent = `Cadeau mariage : ${giftNameForDisplay} (${noteTypeOrBrand})`;
-          delete modalOfferForm.dataset.contributionAmount; // On s'assure qu'il n'y a pas de montant
-          
+          if(modalGiftAmountInput) modalGiftAmountInput.value = ''; 
           if(modalGuestNameLabel) modalGuestNameLabel.classList.remove('hidden');
           if(modalGuestNameInput) {
               modalGuestNameInput.classList.remove('hidden');
@@ -95,7 +96,6 @@ const giftListContainer = document.getElementById('gift-list-container');
       if(cagnotteContainer) cagnotteContainer.innerHTML = '';
       const cagnotteItemData = allItems.find(item => item.Categorie.toLowerCase().trim() === 'cagnotte');
       const regularGiftsData = allItems.filter(item => item.Categorie.toLowerCase().trim() !== 'cagnotte');
-      
       if (cagnotteItemData && cagnotteContainer) {
         cagnotteContainer.innerHTML = `
           <div class="cagnotte-item">
@@ -112,7 +112,6 @@ const giftListContainer = document.getElementById('gift-list-container');
           </div>
         `;
       }
-      
       regularGiftsData.forEach(gift => {
         const giftCard = document.createElement('div');
         giftCard.className = 'gift-item';
@@ -141,8 +140,10 @@ const giftListContainer = document.getElementById('gift-list-container');
         giftListContainer.appendChild(giftCard);
       });
       
+      // LA LIGNE SUIVANTE A ÉTÉ SUPPRIMÉE D'ICI
+      // attachEventListeners(); 
+      
       initializeTabs(categoryToSelect);
-      attachEventListeners();
     } catch (error) {
       console.error('Erreur fetch/display:', error);
       if(giftListContainer) giftListContainer.innerHTML = '<p>Erreur chargement. Vérifiez la console.</p>';
@@ -173,13 +174,11 @@ const giftListContainer = document.getElementById('gift-list-container');
   function attachEventListeners() {
     document.body.addEventListener('click', function(event) {
         const target = event.target;
+        const modalCloseBtn = document.getElementById('modal-close-btn');
         if (target.matches('.open-revolut-modal-btn')) {
             openRevolutModal(target.dataset.giftId, target.dataset.giftName, target.dataset.giftPrice, target.dataset.giftBrand, false, null);
-        } else {
-            const modalCloseBtn = document.getElementById('modal-close-btn');
-            if (target === modalCloseBtn || target.matches('.modal-overlay')) {
-                closeRevolutModal();
-            }
+        } else if (target === modalCloseBtn || target.matches('.modal-overlay')) {
+            closeRevolutModal();
         }
     });
 
@@ -197,16 +196,14 @@ const giftListContainer = document.getElementById('gift-list-container');
             
             try {
                 const formData = new FormData(form);
-                // MODIFICATION CLÉ : On lit l'information depuis le data attribute et on l'ajoute.
-                if (form.dataset.contributionAmount) {
-                    formData.append('amount', form.dataset.contributionAmount);
+                const amountInput = form.querySelector('input[name="amount"]');
+                if (amountInput && amountInput.value) {
+                    formData.set('amount', amountInput.value);
                 }
-
                 const response = await fetch(webAppURL_API, { method: 'POST', body: formData });
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
                 const result = await response.json();
                 if (result.status !== 'success') throw new Error(result.message || 'API Unknown Error');
-
                 modalFormStatus.textContent = 'Merci ! Votre offre/contribution a été enregistrée.';
                 modalFormStatus.style.color = 'green';
                 setTimeout(() => { 
@@ -258,7 +255,10 @@ const giftListContainer = document.getElementById('gift-list-container');
     }).filter(gift => gift && gift.ID && gift.ID.trim() !== '');
   }
 
-  // Lancement initial
+  // --- LANCEMENT INITIAL ---
+  // On attache les écouteurs permanents UNE SEULE FOIS au chargement.
   attachEventListeners();
+  // On lance le premier affichage.
   fetchAndDisplayGifts();
+  
 });
