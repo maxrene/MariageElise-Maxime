@@ -89,12 +89,9 @@ const giftListContainer = document.getElementById('gift-list-container');
       const allContributions = parseCSV(contributionsCsvText);
 
       const contributionsByGiftId = allContributions.reduce((acc, contrib) => {
-        const idKey = Object.keys(contrib).find(k => k.toLowerCase().replace(/[\s_]/g, '') === 'idcadeau');
-        const amountKey = Object.keys(contrib).find(k => k.toLowerCase() === 'montant');
-
-        if (idKey && amountKey && contrib[idKey]) {
-            const id = contrib[idKey];
-            const amount = parseFloat(contrib[amountKey]) || 0;
+        const id = getNormalizedValue(contrib, 'id_cadeau');
+        const amount = parseFloat(getNormalizedValue(contrib, 'montant')) || 0;
+        if (id) {
             acc[id] = (acc[id] || 0) + amount;
         }
         return acc;
@@ -107,12 +104,10 @@ const giftListContainer = document.getElementById('gift-list-container');
       
       if (cagnotteItemData && cagnotteContainer) {
         const cagnotteId = getNormalizedValue(cagnotteItemData, 'id');
-        const totalCagnotteContributed = contributionsByGiftId[cagnotteId] || 0;
         cagnotteContainer.innerHTML = `
           <div class="cagnotte-item">
             <h3>${getNormalizedValue(cagnotteItemData, 'nom')}</h3>
             <p>${getNormalizedValue(cagnotteItemData, 'description') || 'Contribuez du montant de votre choix.'}</p>
-            ${totalCagnotteContributed > 0 ? `<p><strong>Déjà collecté : ${totalCagnotteContributed.toFixed(2)}€</strong></p>` : ''}
             <form class="cagnotte-form-display">
               <input type="hidden" name="id" value="${cagnotteId}">
               <div class="input-group"><label for="cagnotte-amount">Montant de votre participation (€)</label><input type="number" id="cagnotte-amount" name="amount-display" placeholder="Ex: 50" min="1" required></div>
@@ -131,31 +126,42 @@ const giftListContainer = document.getElementById('gift-list-container');
         
         const offeredByValue = getNormalizedValue(gift, 'offert par');
         const isOffered = offeredByValue && offeredByValue.trim() !== '';
-        
         const isPartial = getNormalizedValue(gift, 'type_contribution') === 'partiel';
-        
         const giftId = getNormalizedValue(gift, 'id');
         const totalContributed = contributionsByGiftId[giftId] || 0;
-        
         const giftPrice = parseFloat(getNormalizedValue(gift, 'prix')) || 0;
         const isFullyFunded = isPartial && totalContributed >= giftPrice;
-        
-        giftCard.innerHTML = `
+        const progressPercentage = giftPrice > 0 ? (totalContributed / giftPrice) * 100 : 0;
+
+        let cardContent = `
           <div class="gift-details">
             <div class="gift-info"><p class="gift-name">${getNormalizedValue(gift, 'nom')}</p><p class="gift-brand">Brand: ${getNormalizedValue(gift, 'brand')}</p><p class="gift-description">${getNormalizedValue(gift, 'description')}</p></div>
             <div class="gift-image" style="background-image: url('${getNormalizedValue(gift, 'imageurl')}');">
-              ${!isOffered && !isFullyFunded && !isPartial ? `<span class="gift-price-badge">${getNormalizedValue(gift, 'prix')}€</span>` : ''}
-              ${isPartial && !isFullyFunded ? `<span class="gift-price-badge">${giftPrice.toFixed(2)}€</span>` : ''}
+              ${!isOffered && !isFullyFunded ? `<span class="gift-price-badge">${giftPrice.toFixed(2)}€</span>` : ''}
             </div>
           </div>
-          ${isOffered ? `<p class="gift-status final">✨ Offert par ${offeredByValue} !</p>`
-          : isPartial ? `
-            <div class="contribution-progress"><p>Objectif : ${giftPrice.toFixed(2)}€</p><p>Collecté : <strong>${totalContributed.toFixed(2)}€</strong></p>${isFullyFunded ? '<p class="gift-status final">🎉 Objectif atteint ! Merci !</p>' : ''}</div>
-            ${!isFullyFunded ? `<form class="partial-contribution-form-display"><input type="hidden" name="id" value="${giftId}"><input type="hidden" name="giftName" value="${getNormalizedValue(gift, 'nom')}"><div class="input-group"><label for="partial-amount-${giftId}">Votre participation (€)</label><input type="number" id="partial-amount-${giftId}" name="amount-partial" placeholder="Ex: 20" min="1" max="${(giftPrice - totalContributed).toFixed(2)}" required></div><div class="input-group"><label for="partial-name-${giftId}">De la part de :</label><input type="text" id="partial-name-${giftId}" name="name-partial" placeholder="Ex: Jean Dupont" required></div><button type="submit" class="button primary">Participer</button></form><p class="form-status-message"></p>` : ''}
-          ` : `
-            <div class="gift-actions"><a href="${getNormalizedValue(gift, 'productlink')}" target="_blank" class="button secondary">Voir le produit</a><button class="button primary open-revolut-modal-btn" data-gift-id="${giftId}" data-gift-name="${getNormalizedValue(gift, 'nom')}" data-gift-price="${getNormalizedValue(gift, 'prix')}" data-gift-brand="${getNormalizedValue(gift, 'brand')}">Offrir via Revolut</button></div>
-          `}
         `;
+        if (isOffered) {
+          cardContent += `<p class="gift-status final">✨ Offert par ${offeredByValue} !</p>`;
+        } else if (isPartial) {
+          giftCard.classList.add('partial-gift-item');
+          if (isFullyFunded) {
+            cardContent += '<p class="gift-status final">🎉 Objectif atteint ! Merci à tous les contributeurs !</p>';
+          } else {
+            cardContent += `
+              <div class="contribution-progress">
+                <p class="progress-text">Collecté : <strong>${totalContributed.toFixed(2)}€</strong> sur ${giftPrice.toFixed(2)}€</p>
+                <div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${progressPercentage}%;"></div></div>
+              </div>
+              <form class="partial-contribution-form-display"><input type="hidden" name="id" value="${giftId}"><input type="hidden" name="giftName" value="${getNormalizedValue(gift, 'nom')}"><div class="input-group"><label for="partial-amount-${giftId}">Votre participation (€)</label><input type="number" id="partial-amount-${giftId}" name="amount-partial" placeholder="Ex: 20" min="1" max="${(giftPrice - totalContributed).toFixed(2)}" required></div><div class="input-group"><label for="partial-name-${giftId}">De la part de :</label><input type="text" id="partial-name-${giftId}" name="name-partial" placeholder="Ex: Jean Dupont" required></div><button type="submit" class="button primary">Participer</button></form><p class="form-status-message"></p>
+            `;
+          }
+        } else {
+          cardContent += `
+            <div class="gift-actions"><a href="${getNormalizedValue(gift, 'productlink')}" target="_blank" class="button secondary">Voir le produit</a><button class="button primary open-revolut-modal-btn" data-gift-id="${giftId}" data-gift-name="${getNormalizedValue(gift, 'nom')}" data-gift-price="${getNormalizedValue(gift, 'prix')}" data-gift-brand="${getNormalizedValue(gift, 'brand')}">Offrir via Revolut</button></div>
+          `;
+        }
+        giftCard.innerHTML = cardContent;
         giftListContainer.appendChild(giftCard);
       });
       
@@ -246,7 +252,6 @@ const giftListContainer = document.getElementById('gift-list-container');
     });
   }
   
-  // Fonction utilitaire pour trouver une valeur dans un objet sans se soucier de la casse/espaces de la clé
   function getNormalizedValue(obj, keyName) {
       if (!obj) return '';
       const normalizedKeyName = keyName.toLowerCase().replace(/[\s_]/g, '');
@@ -254,33 +259,28 @@ const giftListContainer = document.getElementById('gift-list-container');
       return foundKey ? obj[foundKey] : '';
   }
 
-  // MODIFIÉ : parseCSV pour être plus robuste et tolérant
   function parseCSV(text) {
     let cleanText = text.trim();
-    // Enlève le caractère invisible BOM
     if (cleanText.charCodeAt(0) === 0xFEFF) {
         cleanText = cleanText.substring(1);
     }
     const lines = cleanText.split(/\r?\n/);
     if (lines.length < 2) return [];
-    
     const headers = lines[0].split(',');
-    
     return lines.slice(1).map(line => {
       if (!line.trim()) return null;
       const data = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
       if (data.length !== headers.length) { 
-        return null; 
+        console.warn('Ligne CSV malformée ignorée:', line); return null; 
       }
       return headers.reduce((obj, nextKey, index) => {
         const value = data[index] ? data[index].trim() : "";
         obj[nextKey.trim()] = value.replace(/^"|"$/g, '');
         return obj;
       }, {});
-    }).filter(item => item !== null); // On garde toutes les lignes valides, sans filtrer par ID
+    }).filter(item => item !== null && getNormalizedValue(item, 'id'));
   }
 
-  // --- LANCEMENT INITIAL ---
   attachEventListeners();
   fetchAndDisplayGifts();
 });
