@@ -468,3 +468,35 @@ body {
 .intro-paragraph p:not(:last-child) {
   margin-bottom: 1em;
 }
+
+/* --- Styles pour la Progression des Contributions Partielles --- */
+
+/* Conteneur pour le texte et la barre */
+.contribution-progress {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+/* Texte de progression (ex: "Collecté : 150€ sur 500€") */
+.progress-text {
+  font-size: 0.9rem;
+  color: #60758a;
+  margin-bottom: 8px;
+}
+
+/* Le fond de la barre de progression */
+.progress-bar-container {
+  background-color: #e5e7eb; /* Gris clair */
+  border-radius: 99px;
+  height: 8px;
+  width: 100%;
+  overflow: hidden; /* Assure que la barre de remplissage reste à l'intérieur */
+}
+
+/* La barre de remplissage colorée */
+.progress-bar-fill {
+  background-color: #3490f3; /* Bleu */
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease-in-out; /* Petite animation fluide */
+}
