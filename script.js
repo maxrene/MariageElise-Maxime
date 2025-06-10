@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const revolutUsername = 'maxbook';
   // =========================================================================
 
-const giftListContainer = document.getElementById('gift-list-container');
+ const giftListContainer = document.getElementById('gift-list-container');
   const cagnotteContainer = document.getElementById('cagnotte-container');
   const modalOverlay = document.getElementById('modal-overlay');
   const revolutModal = document.getElementById('revolut-modal');
@@ -104,10 +104,12 @@ const giftListContainer = document.getElementById('gift-list-container');
       
       if (cagnotteItemData && cagnotteContainer) {
         const cagnotteId = getNormalizedValue(cagnotteItemData, 'id');
+        const totalCagnotteContributed = contributionsByGiftId[cagnotteId] || 0;
         cagnotteContainer.innerHTML = `
           <div class="cagnotte-item">
             <h3>${getNormalizedValue(cagnotteItemData, 'nom')}</h3>
             <p>${getNormalizedValue(cagnotteItemData, 'description') || 'Contribuez du montant de votre choix.'}</p>
+            ${totalCagnotteContributed > 0 ? `<p><strong>Déjà collecté : ${totalCagnotteContributed.toFixed(2)}€</strong></p>` : ''}
             <form class="cagnotte-form-display">
               <input type="hidden" name="id" value="${cagnotteId}">
               <div class="input-group"><label for="cagnotte-amount">Montant de votre participation (€)</label><input type="number" id="cagnotte-amount" name="amount-display" placeholder="Ex: 50" min="1" required></div>
@@ -124,8 +126,10 @@ const giftListContainer = document.getElementById('gift-list-container');
         giftCard.className = 'gift-item';
         giftCard.dataset.category = getNormalizedValue(gift, 'categorie');
         
+        // CORRECTION : On utilise la fonction 'getNormalizedValue' partout pour la robustesse
         const offeredByValue = getNormalizedValue(gift, 'offert par');
         const isOffered = offeredByValue && offeredByValue.trim() !== '';
+        
         const isPartial = getNormalizedValue(gift, 'type_contribution') === 'partiel';
         const giftId = getNormalizedValue(gift, 'id');
         const totalContributed = contributionsByGiftId[giftId] || 0;
@@ -137,7 +141,8 @@ const giftListContainer = document.getElementById('gift-list-container');
           <div class="gift-details">
             <div class="gift-info"><p class="gift-name">${getNormalizedValue(gift, 'nom')}</p><p class="gift-brand">Brand: ${getNormalizedValue(gift, 'brand')}</p><p class="gift-description">${getNormalizedValue(gift, 'description')}</p></div>
             <div class="gift-image" style="background-image: url('${getNormalizedValue(gift, 'imageurl')}');">
-              ${!isOffered && !isFullyFunded ? `<span class="gift-price-badge">${giftPrice.toFixed(2)}€</span>` : ''}
+              ${!isOffered && !isFullyFunded && !isPartial ? `<span class="gift-price-badge">${getNormalizedValue(gift, 'prix')}€</span>` : ''}
+              ${isPartial && !isFullyFunded ? `<span class="gift-price-badge">${giftPrice.toFixed(2)}€</span>` : ''}
             </div>
           </div>
         `;
@@ -212,7 +217,7 @@ const giftListContainer = document.getElementById('gift-list-container');
             const modalFormStatus = document.getElementById('modal-form-status');
             modalFormStatus.textContent = 'Envoi en cours...';
             if(submitButton) submitButton.disabled = true;
-            const activeTab = document.querySelector('.tab-item.active');
+            const activeTab = document.querySelector('.item.active');
             const activeCategory = activeTab ? activeTab.dataset.tab : null;
             try {
                 const formData = new FormData(form);
@@ -252,6 +257,7 @@ const giftListContainer = document.getElementById('gift-list-container');
     });
   }
   
+  // Fonction utilitaire pour trouver une valeur dans un objet sans se soucier de la casse/espaces/underscores de la clé
   function getNormalizedValue(obj, keyName) {
       if (!obj) return '';
       const normalizedKeyName = keyName.toLowerCase().replace(/[\s_]/g, '');
@@ -271,14 +277,15 @@ const giftListContainer = document.getElementById('gift-list-container');
       if (!line.trim()) return null;
       const data = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
       if (data.length !== headers.length) { 
-        console.warn('Ligne CSV malformée ignorée:', line); return null; 
+        console.warn('Ligne CSV malformée ignorée:', line);
+        return null; 
       }
       return headers.reduce((obj, nextKey, index) => {
         const value = data[index] ? data[index].trim() : "";
         obj[nextKey.trim()] = value.replace(/^"|"$/g, '');
         return obj;
       }, {});
-    }).filter(item => item !== null && getNormalizedValue(item, 'id'));
+    }).filter(item => item && getNormalizedValue(item, 'id'));
   }
 
   attachEventListeners();
