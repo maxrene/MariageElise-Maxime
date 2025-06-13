@@ -1,0 +1,51 @@
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste de Mariage - Elise & Maxime</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="liste-style.css">
+</head>
+<body>
+
+    <div class="page-container">
+        <header class="site-header">
+            <h2>Notre Liste de Mariage</h2>
+            <a href="index.html" class="back-link">Retour au site</a>
+        </header>
+
+        <main class="main-content">
+            <div class="content-container">
+
+                <div class="intro-paragraph">
+                    <p>Votre présence à notre mariage est le plus beau des cadeaux que vous puissiez nous faire. Cependant, si vous souhaitez nous témoigner une attention supplémentaire, vous trouverez sur cette page quelques idées qui nous feraient plaisir.</p>
+                    <p>Habitant à l'étranger, nous avons opté pour une liste dématérialisée. Pour éviter les frais, deux options s'offrent à vous : un virement via l'application Revolut ou, pour les cadeaux spécifiques, la possibilité de l'acheter vous-même. Dans tous les cas, n'oubliez pas de cliquer sur le bouton de confirmation sur le site pour que votre participation soit bien enregistrée. Merci du fond du cœur pour votre générosité !</p>
+                </div>
+
+                <div id="cagnotte-container"></div>
+          
+                <div class="tabs-container">
+                    <a href="#" class="tab-item" data-tab="kitchen">Cuisine</a>
+                    <a href="#" class="tab-item" data-tab="home">Maison</a>
+                    <a href="#" class="tab-item" data-tab="experiences">Expériences</a>
+                </div>
+
+                <div class="gift-list" id="gift-list-container">
+                    <p class="loading-message">Chargement de la liste de cadeaux...</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <p>Elise & Maxime - 2026</p>
+        </footer>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay"></div>
+    <div id="revolut-modal" class="modal">
+        </div>
+
+    <script src="liste-script.js" defer></script>
+</body>
+</html>
