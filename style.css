@@ -1461,3 +1461,23 @@ img {
   pointer-events: none;
   white-space: nowrap;
 }
+#liste-de-mariage-section {
+    background-color: var(--background-alt); /* Utilise la couleur de fond alternée de votre thème */
+}
+
+.wedding-list-intro {
+    max-width: 700px;
+    margin: 40px auto 0 auto; /* Espace après le titre et centrage */
+    text-align: center;
+}
+
+.wedding-list-intro p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    font-weight: 300;
+    color: var(--text-color-dark);
+}
+
+.wedding-list-intro .cta-button {
+    margin-top: 30px; /* Espace entre le texte et le bouton */
+}
