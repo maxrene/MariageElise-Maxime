@@ -1,0 +1,135 @@
+/* Fichier: liste-style.css */
+
+/* --- Variables de Style (inspirées de votre site principal) --- */
+:root {
+    --primary-font: 'Cormorant Garamond', serif;
+    --secondary-font: 'Montserrat', sans-serif;
+    --text-color-dark: #5c544b;
+    --text-color-headings: #4a4137;
+    --accent-color: #c8a07d;
+    --background-light: #fdfaf6;
+    --background-alt: #f4efea;
+    --border-color: #e0d8cf;
+}
+
+/* --- Styles Généraux --- */
+body {
+    font-family: var(--secondary-font);
+    background-color: var(--background-light);
+    color: var(--text-color-dark);
+    margin: 0;
+    line-height: 1.65;
+}
+.page-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* --- Header --- */
+.site-header {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 40px;
+    position: relative;
+}
+.site-header h2 {
+    font-family: var(--primary-font);
+    font-size: 2.5rem;
+    color: var(--text-color-headings);
+    font-weight: 700;
+}
+.back-link {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* --- Intro Paragraph --- */
+.intro-paragraph {
+    padding: 20px;
+    margin: 0 0 40px 0;
+    background-color: var(--background-alt);
+    border-left: 3px solid var(--accent-color);
+    font-size: 0.95rem;
+    font-weight: 300;
+}
+.intro-paragraph p:last-child {
+    margin-bottom: 0;
+}
+
+/* --- Cartes Cadeaux --- */
+.gift-item, .cagnotte-item, .partial-gift-item {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+}
+.gift-details {
+    display: flex;
+    gap: 25px;
+}
+.gift-info { flex: 2; }
+.gift-image { 
+    flex: 1; 
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px;
+    min-height: 200px;
+    position: relative;
+}
+.gift-name {
+    font-family: var(--primary-font);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-color-headings);
+}
+.gift-brand, .gift-description {
+    font-size: 0.9rem;
+    color: var(--text-color-dark);
+    font-weight: 300;
+}
+.gift-description { 
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* --- Boutons --- */
+.button {
+    font-family: var(--secondary-font);
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: 1px solid var(--accent-color);
+    transition: all 0.3s ease;
+}
+.button.primary {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+.button.primary:hover {
+    background-color: var(--text-color-headings);
+    border-color: var(--text-color-headings);
+}
+.button.secondary {
+    background-color: transparent;
+    color: var(--accent-color);
+}
+.button.secondary:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+/* ... (Ajoutez ici les autres styles comme .gift-actions, .gift-status, etc., en adaptant les couleurs et polices) */
