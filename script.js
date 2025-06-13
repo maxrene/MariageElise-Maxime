@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="cagnotte-item">
             <h3>${getNormalizedValue(cagnotteItemData, 'nom')}</h3>
             <p>${getNormalizedValue(cagnotteItemData, 'description') || 'Contribuez du montant de votre choix.'}</p>
-            ${totalCagnotteContributed > 0 ? `<p><strong>Déjà collecté : ${totalCagnotteContributed.toFixed(2)}€</strong></p>` : ''}
             <form class="cagnotte-form-display">
               <input type="hidden" name="id" value="${cagnotteId}">
               <div class="input-group"><label for="cagnotte-amount">Montant de votre participation (€)</label><input type="number" id="cagnotte-amount" name="amount-display" placeholder="Ex: 50" min="1" required></div>
