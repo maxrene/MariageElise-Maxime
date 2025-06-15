@@ -258,6 +258,55 @@ img {
 .main-nav.fixed-nav ul li a.active-nav-link::after {
     background-color: var(--accent-color);
 }
+/* 1. Style de base du bouton */
+.nav-rsvp-button {
+    background-color: var(--accent-color);
+    padding: 8px 18px !important; /* !important pour outrepasser le padding des autres liens */
+    border-radius: 20px; /* Forme de pilule */
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+/* 2. Couleur du texte (doit rester claire/blanche) */
+.main-nav ul li a.nav-rsvp-button,
+.main-nav.fixed-nav ul li a.nav-rsvp-button {
+    color: var(--text-color-light) !important;
+    text-shadow: none !important; /* On retire l'ombre du texte pour ce bouton */
+}
+
+/* 3. Style au survol (CORRIGÉ) */
+/* Règle plus spécifique pour garantir que la couleur du texte change */
+.main-nav ul li a.nav-rsvp-button:hover {
+    background-color: #fff;
+    color: var(--accent-color) !important; /* Le texte devient doré sur fond blanc */
+    transform: scale(1.05);
+}
+.main-nav.fixed-nav ul li a.nav-rsvp-button:hover {
+    background-color: var(--text-color-headings); /* Fond sombre au survol en mode fixe */
+    color: #fff !important;
+}
+
+/* 4. Gestion du trait de soulignement */
+
+/* NOUVEAU : On désactive le trait au survol UNIQUEMENT pour le bouton RSVP */
+.main-nav ul li a.nav-rsvp-button:hover::after {
+    width: 0 !important;
+}
+
+/* On ajuste sa position verticale pour qu'il ne soit pas trop bas */
+.nav-rsvp-button::after {
+    bottom: -5px; 
+}
+        
+/* On garde le trait quand la section RSVP est ACTIVE SUR LE HERO */
+.main-nav ul li a.nav-rsvp-button.active-nav-link::after {
+    background-color: var(--text-color-light); /* Le trait est blanc */
+    width: 70%; /* On le rend visible en permanence */
+}
+
+/* On garde le trait quand la section RSVP est ACTIVE ET que le menu est FIXE */
+.main-nav.fixed-nav ul li a.nav-rsvp-button.active-nav-link::after {
+    background-color: var(--accent-color); /* Le trait redevient doré */
+}
 
 .hero-content {
     position: relative;
