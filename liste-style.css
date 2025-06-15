@@ -131,5 +131,43 @@ body {
     background-color: var(--accent-color);
     color: #fff;
 }
-
+/* --- Footer --- */
+.site-footer {
+    background-color: var(--text-color-headings); /* Dark, sophisticated footer */
+    color: var(--text-color-light);
+    padding: 50px 5%;
+    text-align: center;
+    margin-top: 60px;
+    border-top: 3px solid var(--accent-color);
+}
+.footer-content-wrapper {
+    margin-bottom: 25px;
+}
+.footer-names {
+    font-family: var(--hero-title-font);
+    font-size: clamp(2rem, 4.5vw, 2.5rem);
+    color: var(--text-color-light);
+    margin-bottom: 5px;
+}
+.footer-separator {
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    margin: 8px 0;
+}
+.footer-date {
+    font-family: var(--primary-font);
+    font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+    font-weight: 500;
+    color: var(--text-color-light);
+    opacity: 0.9;
+    letter-spacing: 1px;
+}
+.footer-signature {
+    font-family: var(--secondary-font);
+    font-size: 0.85em;
+    color: rgba(248, 240, 227, 0.7); /* Lighter text on dark bg */
+    line-height: 1.6;
+    font-weight: 300;
+}
+.footer-signature p { margin: 3px 0 0 0; }
 /* ... (Ajoutez ici les autres styles comme .gift-actions, .gift-status, etc., en adaptant les couleurs et polices) */
