@@ -203,7 +203,7 @@ body {
 }
 
 .gift-image-wrapper {
-    position: relative;
+    position: relative; /* Déjà présent, important pour la pastille */
     width: 100%;
     aspect-ratio: 1 / 1;
     background-size: cover;
@@ -213,10 +213,28 @@ body {
     overflow: hidden;
 }
 
-/* Pastille Prix (supprimée) */
 .price-tag {
-    display: none;
+    display: block; /* Réactive l'affichage */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.9); /* Fond blanc semi-transparent */
+    color: var(--text-color-headings); /* Texte foncé */
+    font-size: 0.85rem; /* Taille ajustée */
+    font-weight: 600; /* Plus gras */
+    padding: 5px 10px; /* Ajuster pour la taille souhaitée */
+    border-radius: 15px; /* Pour un effet "pilule" ou 50% pour rond */
+    z-index: 1;
+    transition: opacity 0.3s ease;
+    /* Optionnel: petite ombre pour détacher */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+/* Cache la pastille si le cadeau est offert */
+.gift-card.offered .price-tag {
+    opacity: 0;
+    pointer-events: none; /* Empêche interaction si invisible */
+}
+
 
 /* Overlay "Offert" sur l'image */
 .gift-card.offered .gift-image-wrapper::after {
@@ -234,12 +252,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2;
+    z-index: 2; /* Au-dessus de l'image */
     border-radius: 8px;
 }
 
-/* Cache le prix dans le titre si offert */
-.gift-card.offered .gift-price-value {
+/* Cache le prix DANS le titre (puisqu'il est maintenant sur l'image) */
+.gift-price-value {
     display: none;
 }
 
@@ -252,7 +270,7 @@ body {
     text-align: left;
 }
 
-/* Nouveau style pour Titre - Prix */
+/* Style pour Titre (sans le prix) */
 .gift-title-price {
     font-family: var(--secondary-font);
     font-size: 1rem;
@@ -262,7 +280,7 @@ body {
     line-height: 1.4;
 }
 
-/* Marque (optionnelle, si présente) */
+/* Marque */
 .gift-info .brand {
     font-size: 0.85rem;
     color: var(--text-color-card-description);
@@ -270,6 +288,7 @@ body {
     margin-bottom: 8px;
 }
 
+/* Description */
 .gift-info .description {
     font-family: var(--secondary-font);
     font-size: 0.9rem;
