@@ -131,25 +131,22 @@ body {
     margin-right: auto;
 }
 
-/* --- Onglets Catégories --- */
-
 /* --- Conteneur global de la liste (après les onglets) --- */
-/* On retire la grille de .gift-list car c'est maintenant le conteneur global */
 .gift-list {
-    display: block; /* Ou flex si besoin, mais plus grid */
+    display: block; /* Conteneur simple pour titres + grilles */
 }
 
 /* --- Style pour le Titre de Catégorie --- */
 .category-title {
-    font-family: var(--secondary-font); /* Police moderne sans-serif */
-    font-size: 1.5rem; /* Taille assez grande */
-    font-weight: 700; /* Gras */
-    color: var(--text-color-card-title); /* Noir/Gris très foncé */
-    margin-bottom: 25px; /* Espace avant la grille */
-    padding-bottom: 10px; /* Espace pour une éventuelle bordure */
-    /* border-bottom: 1px solid var(--border-color); /* Optionnel: Ligne de séparation */
-    text-align: left; /* Alignement à gauche */
-    /* Assure que le titre prend toute la largeur pour repousser la grille */
+    font-family: var(--secondary-font);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color-card-title);
+    margin-bottom: 25px;
+    padding-top: 20px; /* Espace AU-DESSUS pour séparer les catégories */
+    padding-bottom: 10px;
+    /* border-bottom: 1px solid var(--border-color); /* Optionnel */
+    text-align: left;
     width: 100%;
     box-sizing: border-box;
 }
@@ -158,12 +155,12 @@ body {
     padding-top: 0;
 }
 
+
 /* --- Style pour le Conteneur de la Grille Cadeaux --- */
 .gift-grid-wrapper {
     display: grid;
-    /* Reprend les styles de l'ancienne classe .gift-list pour les colonnes */
     grid-template-columns: repeat(4, 1fr);
-    gap: 30px; /* Espace entre les cartes */
+    gap: 30px;
 }
 
 .loading-message {
@@ -171,7 +168,7 @@ body {
     padding: 40px;
     font-style: italic;
     color: var(--text-color-dark);
-    grid-column: 1 / -1; /* Prend toute la largeur si affiché */
+    /* S'applique maintenant au gridWrapper si vide, pas besoin de grid-column */
 }
 .error-message {
      text-align: center;
@@ -179,34 +176,33 @@ body {
     font-style: italic;
     color: #c53030; /* Red for errors */
     font-weight: 500;
-    grid-column: 1 / -1;
+    /* S'applique maintenant au gridWrapper si erreur */
 }
 
 
 /* --- Styles pour UNE carte cadeau (design épuré) --- */
 .gift-card {
-    /* Suppression du fond, bordure, ombre */
     background-color: transparent;
     border: none;
-    border-radius: 0; /* Pas d'arrondi sur le conteneur global */
-    padding: 0; /* Pas de padding global */
-    box-shadow: none; /* Pas d'ombre */
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
-    transition: none; /* Pas de transition au survol */
+    transition: none;
 }
 .gift-card:hover {
-     box-shadow: none; /* Pas d'ombre au survol */
+     box-shadow: none;
 }
 
 .gift-image-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1; /* Force le ratio carré */
+    aspect-ratio: 1 / 1;
     background-size: cover;
     background-position: center;
-    border-radius: 8px; /* Coins légèrement arrondis POUR L'IMAGE */
-    margin-bottom: 12px; /* Espace avant le titre/prix */
+    border-radius: 8px;
+    margin-bottom: 12px;
     overflow: hidden;
 }
 
@@ -223,7 +219,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.75); /* Voile un peu plus opaque */
+    background-color: rgba(255, 255, 255, 0.75);
     color: var(--text-color-headings);
     font-family: var(--primary-font);
     font-size: 1.5rem;
@@ -232,7 +228,7 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 2;
-    border-radius: 8px; /* Correspond à l'arrondi de l'image */
+    border-radius: 8px;
 }
 
 /* Cache le prix dans le titre si offert */
@@ -244,61 +240,61 @@ body {
 .gift-info {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Permet à la description de pousser le bouton en bas */
-    padding: 0; /* Pas de padding interne ici */
-    text-align: left; /* Aligne le texte à gauche */
+    flex-grow: 1;
+    padding: 0;
+    text-align: left;
 }
 
 /* Nouveau style pour Titre - Prix */
 .gift-title-price {
     font-family: var(--secondary-font);
-    font-size: 1rem; /* Taille de base */
-    font-weight: 500; /* Semi-gras */
+    font-size: 1rem;
+    font-weight: 500;
     color: var(--text-color-card-title);
-    margin-bottom: 8px; /* Espace avant la description */
+    margin-bottom: 8px;
     line-height: 1.4;
 }
 
 /* Marque (optionnelle, si présente) */
 .gift-info .brand {
     font-size: 0.85rem;
-    color: var(--text-color-card-description); /* Gris moyen */
-    font-weight: 400; /* Moins gras */
-    margin-bottom: 8px; /* Espacement entre marque et description */
+    color: var(--text-color-card-description);
+    font-weight: 400;
+    margin-bottom: 8px;
 }
 
 .gift-info .description {
     font-family: var(--secondary-font);
-    font-size: 0.9rem; /* Taille légèrement plus grande */
-    color: var(--text-color-card-description); /* Texte plus clair */
+    font-size: 0.9rem;
+    color: var(--text-color-card-description);
     font-weight: 300;
     line-height: 1.5;
-    margin-bottom: 15px; /* Espace avant le bouton */
-    flex-grow: 1; /* Pousse le bouton en bas */
+    margin-bottom: 15px;
+    flex-grow: 1;
 }
 
 /* --- Boutons (style épuré) --- */
 .button {
-    display: inline-flex; /* Pour centrer texte/icône */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 20px; /* Arrondi plus doux */
+    border-radius: 20px;
     padding: 8px 16px;
     font-size: 0.85rem;
     font-weight: 600;
-    text-transform: none; /* Supprime l'uppercase */
-    letter-spacing: normal; /* Supprime le letter-spacing */
+    text-transform: none;
+    letter-spacing: normal;
     cursor: pointer;
-    border: 1px solid var(--accent-color); /* Bordure fine */
+    border: 1px solid var(--accent-color);
     transition: all 0.3s ease;
-    text-decoration: none; /* Pour les liens stylés en bouton */
-    width: 100%; /* Prend toute la largeur de la carte */
+    text-decoration: none;
+    width: 100%;
     box-sizing: border-box;
-    margin-top: auto; /* Se colle en bas de la carte */
+    margin-top: auto;
 }
 .button i {
     margin-right: 8px;
-    font-size: 0.9em; /* Icône légèrement plus petite */
+    font-size: 0.9em;
 }
 
 .button.primary {
@@ -311,25 +307,25 @@ body {
     border-color: var(--text-color-headings);
 }
 
-.button.secondary { /* Style pour "Annuler" ou "Acheter soi-même" */
-    background-color: transparent; /* Pas de fond */
+.button.secondary {
+    background-color: transparent;
     color: var(--accent-color);
     border: 1px solid var(--accent-color);
 }
 .button.secondary:hover {
-    background-color: rgba(var(--accent-color-rgb), 0.1); /* Léger fond au survol */
+    background-color: rgba(var(--accent-color-rgb), 0.1);
 }
 
 
 /* Bouton "Offert" */
 .button.offered {
     background-color: transparent;
-    border: 1px solid #ccc; /* Bordure grise */
-    color: #9a9a9a; /* Texte gris */
-    cursor: default; /* Non cliquable */
+    border: 1px solid #ccc;
+    color: #9a9a9a;
+    cursor: default;
 }
 .button.offered:hover {
-    background-color: transparent; /* Reste transparent */
+    background-color: transparent;
     border-color: #ccc;
 }
 
@@ -354,8 +350,8 @@ body {
     height: 100%;
     background-color: rgba(60, 50, 40, 0.8);
     backdrop-filter: blur(5px);
-    z-index: 1010; /* Au-dessus de tout */
-    display: none; /* Caché par défaut */
+    z-index: 1010;
+    display: none;
 }
 .modal {
     position: fixed;
@@ -370,7 +366,7 @@ body {
     width: 90%;
     border: 1px solid var(--border-color);
     z-index: 1011;
-    display: none; /* Caché par défaut */
+    display: none;
 }
 .modal-close-button {
     position: absolute;
@@ -393,7 +389,7 @@ body {
     font-family: var(--primary-font);
     font-size: 1.6rem;
     color: var(--text-color-headings);
-    margin-top: 0; /* Annule marge par défaut */
+    margin-top: 0;
     margin-bottom: 15px;
     text-align: center;
 }
@@ -403,7 +399,7 @@ body {
     text-align: center;
 }
 #modal-content .modal-revolut-link {
-    display: block; /* Prend toute la largeur */
+    display: block;
     margin-bottom: 25px;
     text-align: center;
 }
@@ -412,7 +408,7 @@ body {
     margin-top: 25px;
     padding-top: 20px;
     border-top: 1px solid var(--border-color);
-    text-align: center; /* Centre les éléments du formulaire */
+    text-align: center;
 }
 #modal-content label {
     display: block;
@@ -420,7 +416,7 @@ body {
     margin-bottom: 8px;
     color: var(--text-color-headings);
     font-size: 0.9rem;
-    text-align: left; /* Aligne le label à gauche */
+    text-align: left;
 }
 #modal-content input[type="text"] {
     width: 100%;
@@ -430,35 +426,32 @@ body {
     font-family: var(--secondary-font);
     font-size: 0.9rem;
     margin-bottom: 15px;
-    box-sizing: border-box; /* Important pour que width 100% inclue le padding */
+    box-sizing: border-box;
 }
 #modal-content .modal-buttons {
     display: flex;
-    flex-direction: column; /* Boutons l'un sous l'autre sur mobile */
+    flex-direction: column;
     gap: 10px;
-    align-items: center; /* Centre les boutons */
+    align-items: center;
 }
 
-/* Styles pour écrans plus larges dans la modale */
 @media (min-width: 480px) {
     #modal-content .modal-buttons {
-        flex-direction: row; /* Boutons côte à côte */
-        justify-content: center; /* Centre horizontalement */
+        flex-direction: row;
+        justify-content: center;
     }
     #modal-content .modal-buttons .button {
-        width: auto; /* Largeur s'adapte au contenu */
-        min-width: 150px; /* Largeur minimale */
+        width: auto;
+        min-width: 150px;
     }
 }
 
-
-/* Message de succès/erreur dans la modale */
 #modal-message {
     margin-top: 15px;
     padding: 10px;
     border-radius: 5px;
     font-size: 0.9rem;
-    display: none; /* Caché par défaut */
+    display: none;
 }
 #modal-message.success {
     background-color: rgba(var(--accent-color-rgb), 0.1);
@@ -466,21 +459,19 @@ body {
     border: 1px solid rgba(var(--accent-color-rgb), 0.3);
 }
 #modal-message.error {
-    background-color: #fceded; /* Soft red */
-    color: #c53030; /* Darker red */
+    background-color: #fceded;
+    color: #c53030;
     border: 1px solid #f7baba;
 }
 
 /* --- Adaptation Mobile pour Titre + Grille --- */
-/* (Assurez-vous que ces règles sont DANS ou APRES vos media queries existantes) */
-
 @media (max-width: 960px) {
     .gift-grid-wrapper {
         grid-template-columns: repeat(3, 1fr);
         gap: 25px;
     }
     .category-title {
-        font-size: 1.4rem; /* Un peu plus petit sur tablette */
+        font-size: 1.4rem;
         margin-bottom: 20px;
     }
 }
@@ -507,19 +498,19 @@ body {
 /* --- Adaptation Mobile pour Header/Intro --- */
 @media (max-width: 600px) {
     .back-link {
-        position: static; /* Annule la position absolue */
+        position: static;
         transform: none;
-        display: block; /* Prend toute la largeur */
-        margin-top: 15px; /* Espace après le titre */
+        display: block;
+        margin-top: 15px;
         text-align: center;
     }
     .page-container {
-        padding: 10px; /* Moins de padding sur petit écran */
+        padding: 10px;
     }
     .intro-paragraph {
-        margin-left: -10px; /* Pour toucher les bords */
+        margin-left: -10px;
         margin-right: -10px;
-        border-radius: 0; /* Pas d'arrondi si touche les bords */
+        border-radius: 0;
     }
      .cagnotte-section {
         padding: 20px;
