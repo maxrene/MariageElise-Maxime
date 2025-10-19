@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // <--- PASTE YOUR CSV LINK HERE
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
-    const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbzu5ctOjbt_2EqNl7Z2JMM8aJGgirNVoWIhD3P72qn4Dwp4EFQJ4FQOdfwJFMEr_kUBpg/exec'; // <-- AJOUTEZ CETTE LIGNE (URL à venir)
+    const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxpYkmQpRry9oXlBoX03eV9EIOGIi3Pj41ZLbmxdjuHY0fXJYi0ra8y5XlhdGKOeHm4bA/exec'; // <-- AJOUTEZ CETTE LIGNE (URL à venir)
 
  // --- DOM ELEMENTS ---
     const giftListContainer = document.getElementById('gift-list-container');
