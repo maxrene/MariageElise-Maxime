@@ -1,295 +1,286 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIGURATION ---
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtHWPuy80gjnY-HuAO8K7KMxBQPEE5XEGNzJUZTsiDnE8MOG-3V9DSbp0tJ5jP7bTF1yYplsKx59p1/pub?output=csv'; // <--- PASTE YOUR CSV LINK HERE
+    const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
 
-  console.log("SCRIPT START: Le document est prêt.");
-  // =========================================================================
-  //                            CONFIGURATION
-  // =========================================================================
-  const sheetURL_Cadeaux_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv';
-  const sheetURL_Contributions_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=88609421&single=true&output=csv';
-  const webAppURL_API = 'https://script.google.com/macros/s/AKfycbznjTvevA4lDxSfVKxz9lpZBhg3grsB116q0eCE3BZNFxhFIybQB0s91Vh94uDpedrk8Q/exec';
-  const revolutUsername = 'maxbook';
-  // =========================================================================
+    // --- DOM ELEMENTS ---
+    const giftListContainer = document.getElementById('gift-list-container');
+    const tabsContainer = document.getElementById('tabs-container');
+    const cagnotteButton = document.querySelector('.cagnotte-section .revolut-button');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const giftModal = document.getElementById('gift-modal');
+    const modalContent = document.getElementById('modal-content');
+    const closeModalButton = giftModal.querySelector('.modal-close-button');
 
- const giftListContainer = document.getElementById('gift-list-container');
-  const cagnotteContainer = document.getElementById('cagnotte-container');
-  const modalOverlay = document.getElementById('modal-overlay');
-  const revolutModal = document.getElementById('revolut-modal');
-  const modalOfferForm = document.getElementById('modal-offer-form');
+    let allGifts = []; // To store all gifts fetched from the sheet
+    let currentGiftId = null; // To track which gift is being offered in the modal
 
-  if(modalOfferForm){
-    const modalGiftAmountInput = document.createElement('input');
-    modalGiftAmountInput.type = 'hidden';
-    modalGiftAmountInput.name = 'amount';
-    modalOfferForm.appendChild(modalGiftAmountInput);
-  }
+    // --- FUNCTIONS ---
 
-  function openRevolutModal(id, giftNameForDisplay, amountToPay, noteTypeOrBrand, isGenericContribution = false, guestNameFromCard = null) {
-      const modalTitle = document.getElementById('modal-title');
-      const modalAmountElement = document.getElementById('modal-amount');
-      const modalNoteElement = document.getElementById('modal-note');
-      const modalRevolutLink = document.getElementById('modal-revolut-link');
-      const modalGiftIdInput = document.getElementById('modal-gift-id');
-      const modalGuestNameLabel = document.querySelector('label[for="modal-guest-name"]');
-      const modalGuestNameInput = document.getElementById('modal-guest-name');
-      const modalSubmitButton = modalOfferForm ? modalOfferForm.querySelector('button[type="submit"]') : null;
-      const modalFormStatus = document.getElementById('modal-form-status');
-      
-      modalTitle.textContent = isGenericContribution ? `Confirmer votre contribution à : ${giftNameForDisplay}` : `Offrir : ${giftNameForDisplay}`;
-      modalAmountElement.textContent = `${amountToPay}€`;
-      modalGiftIdInput.value = id;
-      modalRevolutLink.href = `https://revolut.me/${revolutUsername}`;
-      modalOfferForm.reset();
-      modalFormStatus.textContent = '';
-      if(modalSubmitButton) modalSubmitButton.disabled = false;
-
-      if (isGenericContribution) {
-          modalNoteElement.textContent = `Contribution pour "${giftNameForDisplay}" (De la part de : ${guestNameFromCard})`;
-          const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
-          if(modalGiftAmountInput) modalGiftAmountInput.value = amountToPay;
-          if(modalGuestNameLabel) modalGuestNameLabel.classList.add('hidden');
-          if(modalGuestNameInput) {
-              modalGuestNameInput.classList.add('hidden');
-              modalGuestNameInput.value = guestNameFromCard; 
-              modalGuestNameInput.required = false; 
-          }
-          if(modalSubmitButton) modalSubmitButton.textContent = 'Confirmer ma participation';
-      } else {
-          modalNoteElement.textContent = `Cadeau mariage : ${giftNameForDisplay} (${noteTypeOrBrand})`;
-          const modalGiftAmountInput = modalOfferForm.querySelector('input[name="amount"]');
-          if(modalGiftAmountInput) modalGiftAmountInput.value = ''; 
-          if(modalGuestNameLabel) modalGuestNameLabel.classList.remove('hidden');
-          if(modalGuestNameInput) {
-              modalGuestNameInput.classList.remove('hidden');
-              modalGuestNameInput.value = '';
-              modalGuestNameInput.required = true;
-          }
-          if(modalSubmitButton) modalSubmitButton.textContent = 'Valider mon offre';
-      }
-      
-      if(modalOverlay) modalOverlay.classList.add('active');
-      if(revolutModal) revolutModal.classList.add('active');
-  }
-
-  function closeRevolutModal() {
-    if(modalOverlay) modalOverlay.classList.remove('active');
-    if(revolutModal) revolutModal.classList.remove('active');
-  }
-
-  async function fetchAndDisplayGifts(categoryToSelect = null) {
-    try {
-      const [cadeauxResponse, contributionsResponse] = await Promise.all([
-        fetch(`${sheetURL_Cadeaux_CSV}&t=${Date.now()}`),
-        fetch(`${sheetURL_Contributions_CSV}&t=${Date.now()}`)
-      ]);
-      if (!cadeauxResponse.ok) throw new Error(`Erreur HTTP Cadeaux CSV: ${cadeauxResponse.status}`);
-      if (!contributionsResponse.ok) throw new Error(`Erreur HTTP Contributions CSV: ${contributionsResponse.status}`);
-      const cadeauxCsvText = await cadeauxResponse.text();
-      const contributionsCsvText = await contributionsResponse.text();
-      const allItems = parseCSV(cadeauxCsvText);
-      const allContributions = parseCSV(contributionsCsvText);
-
-      const contributionsByGiftId = allContributions.reduce((acc, contrib) => {
-        const id = getNormalizedValue(contrib, 'id_cadeau');
-        const amount = parseFloat(getNormalizedValue(contrib, 'montant')) || 0;
-        if (id) {
-            acc[id] = (acc[id] || 0) + amount;
+    /**
+     * Fetches and parses CSV data from Google Sheets.
+     * Skips the header row.
+     */
+    async function fetchGifts() {
+        try {
+            const response = await fetch(sheetUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const csvText = await response.text();
+            // Simple CSV parsing (assumes no commas within fields)
+            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
+            const headers = rows[0].split(',').map(h => h.trim());
+            allGifts = rows.slice(1).map(row => {
+                const values = row.split(',');
+                const gift = {};
+                headers.forEach((header, index) => {
+                    gift[header] = values[index] ? values[index].trim() : '';
+                });
+                // Convert price to number, default to 0 if invalid
+                gift.Prix = parseFloat(gift.Prix) || 0;
+                return gift;
+            });
+            console.log("Gifts loaded:", allGifts); // For debugging
+            displayCategories();
+            displayGifts('all'); // Display all gifts initially
+        } catch (error) {
+            console.error("Error fetching or parsing gifts:", error);
+            giftListContainer.innerHTML = '<p class="error-message">Impossible de charger la liste. Veuillez réessayer plus tard.</p>';
         }
-        return acc;
-      }, {});
-
-      if(giftListContainer) giftListContainer.innerHTML = ''; 
-      if(cagnotteContainer) cagnotteContainer.innerHTML = '';
-      const cagnotteItemData = allItems.find(item => getNormalizedValue(item, 'categorie') === 'cagnotte');
-      const regularGiftsData = allItems.filter(item => getNormalizedValue(item, 'categorie') !== 'cagnotte');
-      
-      if (cagnotteItemData && cagnotteContainer) {
-        const cagnotteId = getNormalizedValue(cagnotteItemData, 'id');
-        const totalCagnotteContributed = contributionsByGiftId[cagnotteId] || 0;
-        cagnotteContainer.innerHTML = `
-          <div class="cagnotte-item">
-            <h3>${getNormalizedValue(cagnotteItemData, 'nom')}</h3>
-            <p>${getNormalizedValue(cagnotteItemData, 'description') || 'Contribuez du montant de votre choix.'}</p>
-            <form class="cagnotte-form-display">
-              <input type="hidden" name="id" value="${cagnotteId}">
-              <div class="input-group"><label for="cagnotte-amount">Montant de votre participation (€)</label><input type="number" id="cagnotte-amount" name="amount-display" placeholder="Ex: 50" min="1" required></div>
-              <div class="input-group"><label for="cagnotte-name">De la part de :</label><input type="text" id="cagnotte-name" name="name-display" placeholder="Ex: Jean Dupont" required></div>
-              <button type="submit" class="button primary">Préparer ma contribution</button>
-            </form>
-            <p class="form-status-message"></p>
-          </div>
-        `;
-      }
-      
-      regularGiftsData.forEach(gift => {
-        const giftCard = document.createElement('div');
-        giftCard.className = 'gift-item';
-        giftCard.dataset.category = getNormalizedValue(gift, 'categorie');
-        
-        const offeredByValue = getNormalizedValue(gift, 'offert par');
-        const isOffered = offeredByValue && offeredByValue.trim() !== '';
-        
-        const isPartial = getNormalizedValue(gift, 'type_contribution') === 'partiel';
-        const giftId = getNormalizedValue(gift, 'id');
-        const totalContributed = contributionsByGiftId[giftId] || 0;
-        const giftPrice = parseFloat(getNormalizedValue(gift, 'prix')) || 0;
-        const isFullyFunded = isPartial && totalContributed >= giftPrice;
-        const progressPercentage = giftPrice > 0 ? (totalContributed / giftPrice) * 100 : 0;
-
-        let cardContent = `
-          <div class="gift-details">
-            <div class="gift-info"><p class="gift-name">${getNormalizedValue(gift, 'nom')}</p><p class="gift-brand">Brand: ${getNormalizedValue(gift, 'brand')}</p><p class="gift-description">${getNormalizedValue(gift, 'description')}</p></div>
-            <div class="gift-image" style="background-image: url('${getNormalizedValue(gift, 'imageurl')}');">
-              ${!isOffered && !isFullyFunded && !isPartial ? `<span class="gift-price-badge">${getNormalizedValue(gift, 'prix')}€</span>` : ''}
-              ${isPartial && !isFullyFunded ? `<span class="gift-price-badge">${giftPrice.toFixed(2)}€</span>` : ''}
-            </div>
-          </div>
-        `;
-        if (isOffered) {
-          cardContent += `<p class="gift-status final">✨ Offert par ${offeredByValue} !</p>`;
-        } else if (isPartial) {
-          giftCard.classList.add('partial-gift-item');
-          if (isFullyFunded) {
-            cardContent += '<p class="gift-status final">🎉 Objectif atteint ! Merci à tous les contributeurs !</p>';
-          } else {
-            cardContent += `
-              <div class="contribution-progress">
-                <p class="progress-text">Collecté : <strong>${totalContributed.toFixed(2)}€</strong> sur ${giftPrice.toFixed(2)}€</p>
-                <div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${progressPercentage}%;"></div></div>
-              </div>
-              <form class="partial-contribution-form-display"><input type="hidden" name="id" value="${giftId}"><input type="hidden" name="giftName" value="${getNormalizedValue(gift, 'nom')}"><div class="input-group"><label for="partial-amount-${giftId}">Votre participation (€)</label><input type="number" id="partial-amount-${giftId}" name="amount-partial" placeholder="Ex: 20" min="1" max="${(giftPrice - totalContributed).toFixed(2)}" required></div><div class="input-group"><label for="partial-name-${giftId}">De la part de :</label><input type="text" id="partial-name-${giftId}" name="name-partial" placeholder="Ex: Jean Dupont" required></div><button type="submit" class="button primary">Participer</button></form><p class="form-status-message"></p>
-            `;
-          }
-        } else {
-          cardContent += `
-            <div class="gift-actions"><a href="${getNormalizedValue(gift, 'productlink')}" target="_blank" class="button secondary">Voir le produit</a><button class="button primary open-revolut-modal-btn" data-gift-id="${giftId}" data-gift-name="${getNormalizedValue(gift, 'nom')}" data-gift-price="${getNormalizedValue(gift, 'prix')}" data-gift-brand="${getNormalizedValue(gift, 'brand')}">Offrir via Revolut</button></div>
-          `;
-        }
-        giftCard.innerHTML = cardContent;
-        giftListContainer.appendChild(giftCard);
-      });
-      
-      initializeTabs(categoryToSelect);
-    } catch (error) {
-      console.error('Erreur lors du chargement ou de l\'affichage:', error);
-      if(giftListContainer) giftListContainer.innerHTML = '<p>Erreur chargement. Vérifiez la console pour plus de détails.</p>';
     }
-  }
 
-  function initializeTabs(categoryToSelect) {
-    const tabs = document.querySelectorAll('.tab-item');
-    function filterTabs(selectedTab) {
-        if (!selectedTab) { if (tabs.length > 0) selectedTab = tabs[0]; else return; }
-        const category = selectedTab.dataset.tab;
-        tabs.forEach(tab => tab.classList.toggle('active', tab === selectedTab));
-        document.querySelectorAll('.gift-item').forEach(item => {
-             item.style.display = item.dataset.category === category ? 'block' : 'none';
+    /**
+     * Extracts unique categories and creates filter tabs.
+     */
+    function displayCategories() {
+        const categories = ['all', ...new Set(allGifts.map(gift => gift.Categorie))];
+        tabsContainer.innerHTML = categories.map(category => `
+            <a href="#" class="tab-item ${category === 'all' ? 'active' : ''}" data-category="${category}">
+                ${category === 'all' ? 'Tous' : category}
+            </a>
+        `).join('');
+
+        // Add event listeners to tabs
+        tabsContainer.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                tabsContainer.querySelector('.tab-item.active').classList.remove('active');
+                tab.classList.add('active');
+                displayGifts(tab.dataset.category);
+            });
         });
     }
-    tabs.forEach(tab => {
-      tab.addEventListener('click', (e) => { e.preventDefault(); filterTabs(e.currentTarget); });
-    });
-    let tabToActivate = tabs[0];
-    if (categoryToSelect) {
-        const foundTab = document.querySelector(`.tab-item[data-tab="${categoryToSelect}"]`);
-        if (foundTab) tabToActivate = foundTab;
-    }
-    if (tabs.length > 0) filterTabs(tabToActivate);
-  }
 
-  function attachEventListeners() {
-    document.body.addEventListener('click', function(event) {
-        const target = event.target;
-        const modalCloseBtn = document.getElementById('modal-close-btn');
-        if (target.matches('.open-revolut-modal-btn')) {
-            openRevolutModal(target.dataset.giftId, target.dataset.giftName, target.dataset.giftPrice, target.dataset.giftBrand, false, null);
-        } else if (target === modalCloseBtn || target.matches('.modal-overlay')) {
-            closeRevolutModal();
+    /**
+     * Generates HTML for a single gift card.
+     */
+    function createGiftCardHTML(gift) {
+        const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
+        const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : ''; // Format price
+
+        return `
+            <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
+                <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
+                    ${!isOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
+                </div>
+                <div class="gift-info">
+                    <h4>${gift.Nom || 'Cadeau'}</h4>
+                    ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
+                    <p class="description">${gift.Description || ''}</p>
+                </div>
+                <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
+                    ${isOffered ? `Offert par ${gift.Offert_Par}` : '<i class="fas fa-gift"></i> Offrir'}
+                </button>
+            </div>
+        `;
+    }
+
+
+    /**
+     * Displays gifts based on the selected category.
+     */
+    function displayGifts(category) {
+        giftListContainer.innerHTML = ''; // Clear previous gifts
+        const filteredGifts = category === 'all'
+            ? allGifts
+            : allGifts.filter(gift => gift.Categorie === category);
+
+        if (filteredGifts.length === 0 && category !== 'all') {
+             giftListContainer.innerHTML = '<p class="loading-message">Aucun cadeau dans cette catégorie pour le moment.</p>';
+        } else if (allGifts.length === 0) {
+            // This case is handled by the fetch error message or initial loading message
+             giftListContainer.innerHTML = '<p class="loading-message">La liste est vide pour le moment.</p>';
         }
-    });
-
-    document.body.addEventListener('submit', async function(event) {
-        const form = event.target;
-        if (form.matches('#modal-offer-form')) {
-            event.preventDefault();
-            const submitButton = form.querySelector('button[type="submit"]');
-            const modalFormStatus = document.getElementById('modal-form-status');
-            modalFormStatus.textContent = 'Envoi en cours...';
-            if(submitButton) submitButton.disabled = true;
-            const activeTab = document.querySelector('.tab-item.active');
-            const activeCategory = activeTab ? activeTab.dataset.tab : null;
-            try {
-                const formData = new FormData(form);
-                if (form.dataset.contributionAmount) {
-                    formData.set('amount', form.dataset.contributionAmount);
-                }
-                const response = await fetch(webAppURL_API, { method: 'POST', body: formData });
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                const result = await response.json();
-                if (result.status !== 'success') throw new Error(result.message || 'API Unknown Error');
-                modalFormStatus.textContent = 'Merci ! Votre offre/contribution a été enregistrée.';
-                modalFormStatus.style.color = 'green';
-                setTimeout(() => { closeRevolutModal(); fetchAndDisplayGifts(activeCategory); }, 2000);
-            } catch (error) {
-                console.error('Erreur soumission modale:', error);
-                modalFormStatus.textContent = `Erreur: ${error.message}. Réessayez.`;
-                modalFormStatus.style.color = 'red';
-                if(submitButton) submitButton.disabled = false;
-            }
-        } else if (form.matches('.cagnotte-form-display') || form.matches('.partial-contribution-form-display')) {
-            event.preventDefault();
-            const giftId = form.querySelector('input[name="id"]').value;
-            const guestName = form.querySelector('input[name*="name-"]').value;
-            const amount = form.querySelector('input[name*="amount-"]').value;
-            const giftName = form.matches('.cagnotte-form-display')
-                ? form.closest('.cagnotte-item').querySelector('h3').textContent
-                : form.querySelector('input[name="giftName"]').value;
-            const type = form.matches('.cagnotte-form-display') ? 'Cagnotte' : 'Contribution Partielle';
-            if (!amount || !guestName) {
-                form.nextElementSibling.textContent = "Veuillez remplir le montant et votre nom.";
-                form.nextElementSibling.style.color = 'red';
-                return;
-            }
-            form.nextElementSibling.textContent = '';
-            openRevolutModal(giftId, giftName, amount, type, true, guestName);
+        else {
+             filteredGifts.forEach(gift => {
+                giftListContainer.innerHTML += createGiftCardHTML(gift);
+            });
         }
-    });
-  }
-  
-  // Fonction utilitaire pour trouver une valeur dans un objet sans se soucier de la casse/espaces/underscores de la clé
-  function getNormalizedValue(obj, keyName) {
-      if (!obj) return '';
-      const normalizedKeyName = keyName.toLowerCase().replace(/[\s_]/g, '');
-      const foundKey = Object.keys(obj).find(k => k.toLowerCase().replace(/[\s_]/g, '') === normalizedKeyName);
-      return foundKey ? obj[foundKey] : '';
-  }
 
-  // CORRIGÉ : La fonction parseCSV la plus robuste et simple
-  function parseCSV(text) {
-    let cleanText = text.trim();
-    if (cleanText.charCodeAt(0) === 0xFEFF) { // Enlève le caractère invisible BOM
-        cleanText = cleanText.substring(1);
-    }
-    const lines = cleanText.split(/\r?\n/);
-    if (lines.length < 2 || !lines[0].trim()) {
-        return []; // Retourne un tableau vide si pas de données ou pas d'en-tête
-    }
-    
-    const headers = lines[0].split(',').map(h => h.trim());
-    
-    return lines.slice(1).map(line => {
-      if (!line.trim()) return null;
-      const data = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-      if (data.length !== headers.length) { 
-        return null; 
-      }
-      return headers.reduce((obj, header, index) => {
-        const value = data[index] ? data[index].trim() : "";
-        obj[header] = value.replace(/^"|"$/g, '');
-        return obj;
-      }, {});
-    }).filter(item => item !== null); // Filtre uniquement les lignes vides ou malformées
-  }
 
-  attachEventListeners();
-  fetchAndDisplayGifts();
+        // Add event listeners to the new buttons
+        addOfferButtonListeners();
+    }
+
+    /**
+     * Adds event listeners to all "Offrir" buttons.
+     */
+    function addOfferButtonListeners() {
+        giftListContainer.querySelectorAll('.revolut-button[data-type="gift"]').forEach(button => {
+            button.addEventListener('click', () => {
+                currentGiftId = button.closest('.gift-card').dataset.id;
+                const gift = allGifts.find(g => g.ID === currentGiftId);
+                openModal(gift);
+            });
+        });
+    }
+
+    /**
+     * Opens the modal with gift details or for free contribution.
+     */
+     function openModal(gift = null) {
+        let contentHTML = '';
+        if (gift) { // Offering a specific gift
+            const revolutAmountLink = gift.Prix > 0 ? `${revolutLinkBase}${gift.Prix}` : revolutLinkBase;
+            contentHTML = `
+                <h3>${gift.Nom}</h3>
+                <p>${gift.Description}</p>
+                <a href="${revolutAmountLink}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
+                   <i class="fas fa-external-link-alt"></i> Contribuer ${gift.Prix > 0 ? `de ${gift.Prix}€ ` : ''}via Revolut
+                </a>
+                <div class="confirmation-section">
+                    <p>Après avoir contribué, merci d'entrer votre nom pour marquer ce cadeau comme offert :</p>
+                    <label for="offeredByName">Votre nom ou initiales :</label>
+                    <input type="text" id="offeredByName" placeholder="Ex: Jean D." required>
+                    <div class="modal-buttons">
+                        <button class="button secondary" id="cancelOfferButton">Annuler</button>
+                        <button class="button primary" id="confirmOfferButton">Marquer comme offert</button>
+                    </div>
+                    <div id="modal-message" class="success" style="display: none;"></div>
+                </div>
+            `;
+        } else { // Free contribution (cagnotte)
+             contentHTML = `
+                <h3>Contribution Libre</h3>
+                <p>Participez librement à notre cagnotte !</p>
+                 <a href="${revolutLinkBase}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
+                   <i class="fas fa-external-link-alt"></i> Contribuer via Revolut
+                </a>
+                 <div class="confirmation-section">
+                    <p>Vous pouvez fermer cette fenêtre après avoir effectué votre virement.</p>
+                     <div class="modal-buttons">
+                         <button class="button secondary" id="cancelOfferButton">Fermer</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        modalContent.innerHTML = contentHTML;
+        modalOverlay.style.display = 'block';
+        giftModal.style.display = 'block';
+
+        // Add listeners for modal buttons
+        const confirmButton = document.getElementById('confirmOfferButton');
+        const cancelButton = document.getElementById('cancelOfferButton');
+
+        if (confirmButton) {
+            confirmButton.addEventListener('click', handleConfirmOffer);
+        }
+        if (cancelButton) {
+             cancelButton.addEventListener('click', closeModal);
+        }
+    }
+
+    /**
+     * Closes the modal.
+     */
+    function closeModal() {
+        modalOverlay.style.display = 'none';
+        giftModal.style.display = 'none';
+        modalContent.innerHTML = ''; // Clear content
+        currentGiftId = null;
+    }
+
+    /**
+     * Handles the confirmation of offering a gift.
+     * **Note:** This only updates the UI for now. No data is sent back to Google Sheets.
+     */
+    function handleConfirmOffer() {
+        const nameInput = document.getElementById('offeredByName');
+        const modalMessage = document.getElementById('modal-message');
+
+        if (!nameInput || !nameInput.value.trim()) {
+            displayModalMessage("Veuillez entrer votre nom.", "error");
+            return;
+        }
+
+        const offeredByName = nameInput.value.trim();
+
+        // --- SIMULATION: Update UI ---
+        const giftIndex = allGifts.findIndex(g => g.ID === currentGiftId);
+        if (giftIndex !== -1) {
+            allGifts[giftIndex].Offert_Par = offeredByName; // Update local data
+             // Re-display gifts with the current filter to show the change
+            const currentCategory = tabsContainer.querySelector('.tab-item.active')?.dataset.category || 'all';
+            displayGifts(currentCategory);
+             displayModalMessage("Merci beaucoup pour votre contribution !", "success");
+             // Disable form and change button after success
+             nameInput.disabled = true;
+             document.getElementById('confirmOfferButton').style.display = 'none';
+             const cancelButton = document.getElementById('cancelOfferButton');
+             cancelButton.textContent = 'Fermer'; // Change cancel to close
+            // Optional: Close modal automatically after a delay
+            // setTimeout(closeModal, 2500);
+        } else {
+            displayModalMessage("Erreur lors de la mise à jour.", "error");
+        }
+        // --- End Simulation ---
+
+        /*
+        // --- REAL IMPLEMENTATION (Requires backend/Apps Script) ---
+        // Here you would typically send the gift ID and offeredByName
+        // to a backend service (like a Google Apps Script web app)
+        // which would then update the Google Sheet.
+        // Example:
+        // markGiftAsOfferedOnSheet(currentGiftId, offeredByName)
+        //    .then(() => {
+        //        // Update UI as in simulation
+        //        displayModalMessage("Merci beaucoup !", "success");
+        //         setTimeout(closeModal, 2000); // Close after success
+        //    })
+        //    .catch(error => {
+        //        console.error("Error marking gift as offered:", error);
+        //        displayModalMessage("Erreur lors de la mise à jour.", "error");
+        //    });
+        */
+    }
+
+     /**
+     * Displays a message within the modal.
+     */
+    function displayModalMessage(message, type = 'success') {
+        const modalMessage = document.getElementById('modal-message');
+        if (modalMessage) {
+            modalMessage.textContent = message;
+            modalMessage.className = type; // 'success' or 'error'
+            modalMessage.style.display = 'block';
+        }
+    }
+
+
+    // --- INITIALIZATION ---
+    fetchGifts();
+
+    // Event listener for the free contribution button
+    if (cagnotteButton) {
+        cagnotteButton.addEventListener('click', () => {
+            openModal(); // Open modal without gift details
+        });
+    }
+
+    // Event listener for closing the modal via overlay or close button
+    modalOverlay.addEventListener('click', closeModal);
+    closeModalButton.addEventListener('click', closeModal);
+
 });
