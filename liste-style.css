@@ -537,3 +537,28 @@ body {
         font-size: 1.6rem;
     }
 }
+/* Message d'information dans la modale */
+#modal-message.modal-message-info {
+    background-color: #e6f7ff; /* Light blue */
+    color: #1890ff; /* Blue */
+    border: 1px solid #91d5ff;
+}
+/* Ensure existing styles use the new class names */
+#modal-message.modal-message-success {
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+    color: var(--accent-color);
+    border: 1px solid rgba(var(--accent-color-rgb), 0.3);
+}
+#modal-message.modal-message-error {
+    background-color: #fceded; /* Soft red */
+    color: #c53030; /* Darker red */
+    border: 1px solid #f7baba;
+}
+/* General modal message styles */
+#modal-message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    display: none; /* Caché par défaut */
+}
