@@ -308,7 +308,7 @@ function createGiftCardHTML(gift) {
         currentGiftId = null;
     }
 
-    async function handleConfirmOffer() {
+    async function handleConfirmOffer() { // Made async
         const nameInput = document.getElementById('offeredByName');
         const modalMessage = document.getElementById('modal-message');
         const confirmButton = document.getElementById('confirmOfferButton');
@@ -320,71 +320,70 @@ function createGiftCardHTML(gift) {
         }
 
         const offeredByName = nameInput.value.trim();
-        const giftIdToUpdate = currentGiftId; // Store ID before potential modal closure
+        const giftIdToUpdate = currentGiftId;
 
-        // Disable buttons during processing
+        // Disable buttons and show processing message IMMEDIATELY
         if (confirmButton) confirmButton.disabled = true;
         if (cancelButton) cancelButton.disabled = true;
-        displayModalMessage("Mise à jour en cours...", "info"); // Show processing message
+        displayModalMessage("Mise à jour en cours...", "info");
+
+        let scriptUpdateError = null; // Variable pour suivre l'erreur du script
 
         try {
-            console.log("Sending to Apps Script:", { giftId: giftIdToUpdate, name: offeredByName }); // Debug log
-            
+            console.log("Sending to Apps Script:", { giftId: giftIdToUpdate, name: offeredByName });
+
             // --- Appel à Google Apps Script ---
-            const response = await fetch(appsScriptUrl, {
+            await fetch(appsScriptUrl, { // Attend que la requête soit envoyée (même si on ne lit pas la réponse)
                 method: 'POST',
-                mode: 'no-cors', // Important for simple Apps Script POST
+                mode: 'no-cors',
                 cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                 // Send data as a JSON string in the request body
-                 // Apps Script will parse this using JSON.parse(e.postData.contents)
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ giftId: giftIdToUpdate, name: offeredByName }),
              });
-             
-            // Note: With 'no-cors', we cannot directly read the response status or body here.
-            // We assume success if the request itself didn't throw an error.
-            // Apps Script needs to handle errors internally if possible.
-            console.log("Request sent to Apps Script (no-cors). Assuming success if no error thrown."); // Debug log
 
-            // --- Update UI Optimistically ---
-            const giftIndex = allGifts.findIndex(g => g.ID === giftIdToUpdate);
-            if (giftIndex !== -1) {
-                allGifts[giftIndex].Offert_Par = offeredByName; // Update local data
-                displayAllGiftsByCategory(); // Re-render the list
-                displayModalMessage("Merci beaucoup pour votre contribution !", "success");
-                nameInput.disabled = true;
-                if (confirmButton) confirmButton.style.display = 'none';
-                if (cancelButton) {
-                    cancelButton.textContent = 'Fermer';
-                    cancelButton.disabled = false; // Re-enable close button
-                }
-                 // Optional: Close modal automatically after a delay
-                // setTimeout(closeModal, 2500);
-            } else {
-                 // This case should ideally not happen if currentGiftId was valid
-                console.error("Error updating UI: could not find gift with ID", giftIdToUpdate);
-                throw new Error("Erreur locale lors de la mise à jour (cadeau non trouvé).");
-            }
+            console.log("Request potentially sent to Apps Script (no-cors). Assuming success for UI update.");
 
         } catch (error) {
-            console.error("❌ Error sending update to Apps Script or updating UI:", error);
-            displayModalMessage(`Erreur lors de la mise à jour: ${error.message}. Veuillez réessayer ou nous contacter.`, "error");
-            // Re-enable buttons on error
-            if (confirmButton) confirmButton.disabled = false;
-            if (cancelButton) cancelButton.disabled = false;
+            // Capture network or CORS related errors DURING fetch
+            scriptUpdateError = error; // Store the error
+            console.error("❌ Error sending update request to Apps Script:", error);
+            // Don't update UI if the request itself failed
         }
-    }
 
-    // --- Add a new CSS class for the info message ---
-    function displayModalMessage(message, type = 'success') { // success, error, info
-        const modalMessage = document.getElementById('modal-message');
-        if (modalMessage) {
-            modalMessage.textContent = message;
-            // Use specific classes for styling
-            modalMessage.className = `modal-message-${type}`; // e.g., modal-message-success
-            modalMessage.style.display = 'block';
+        // --- Update UI (even if script might have failed silently due to no-cors) ---
+        // We do this optimistically unless the fetch itself threw an error
+        if (!scriptUpdateError) {
+             const giftIndex = allGifts.findIndex(g => g.ID === giftIdToUpdate);
+             if (giftIndex !== -1) {
+                 allGifts[giftIndex].Offert_Par = offeredByName; // Update local data FIRST
+                 try {
+                     displayAllGiftsByCategory(); // THEN re-render the list
+                     console.log("UI redraw attempted after potential script success.");
+                     displayModalMessage("Merci beaucoup pour votre contribution !", "success"); // Show success in modal
+                     if (nameInput) nameInput.disabled = true;
+                     if (confirmButton) confirmButton.style.display = 'none';
+                     if (cancelButton) {
+                         cancelButton.textContent = 'Fermer';
+                         cancelButton.disabled = false; // Re-enable close button after UI update
+                     }
+                 } catch(redrawError) {
+                     // Catch errors during redraw
+                     console.error("❌ Error during UI redraw:", redrawError);
+                     displayModalMessage(`Cadeau marqué, mais erreur d'affichage: ${redrawError.message}. Rafraîchissez la page.`, "warning");
+                     if (cancelButton) cancelButton.disabled = false; // Still allow closing
+                 }
+             } else {
+                 // This error means the gift ID was lost somehow
+                 console.error("Error updating UI: could not find gift with ID", giftIdToUpdate);
+                 displayModalMessage("Erreur locale lors de la mise à jour (cadeau non trouvé).", "error");
+                 if (confirmButton) confirmButton.disabled = false; // Re-enable buttons if UI update failed early
+                 if (cancelButton) cancelButton.disabled = false;
+             }
+        } else {
+             // If scriptUpdateError occurred (fetch failed)
+             displayModalMessage(`Erreur réseau lors de la mise à jour: ${scriptUpdateError.message}. Veuillez réessayer.`, "error");
+             if (confirmButton) confirmButton.disabled = false;
+             if (cancelButton) cancelButton.disabled = false;
         }
     }
 
