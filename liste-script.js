@@ -77,16 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function createGiftCardHTML(gift) {
         const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
-        const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : ''; // Format price
+        const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
 
+        // Notez les changements dans la structure et les classes
         return `
             <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
-                    ${!isOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
-                </div>
+                    </div>
                 <div class="gift-info">
                     <h4>${gift.Nom || 'Cadeau'}</h4>
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
+                    ${!isOffered && formattedPrice ? `<span class="gift-price">${formattedPrice}</span>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
                 <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
