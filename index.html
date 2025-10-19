@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mariage Elise & Maxime - V8</title>
-    <link rel="stylesheet" href="style.css"> 
+    <title>Mariage Elise & Maxime - V10</title>
+    <link rel="stylesheet" href="style10.css"> 
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Playfair+Display:wght@700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -25,6 +25,11 @@
              <li><a href="#faq-section">FAQ</a></li>
          </ul>
      </nav>
+     
+     <button id="mobile-nav-toggle" class="mobile-nav-toggle" aria-label="Menu" aria-controls="main-nav">
+         <i class="fas fa-bars" aria-hidden="true"></i>
+     </button>
+
      <div class="hero-content">
          <h3 class="hero-subtitle">We're getting married</h3>
          <h1>Elise & Maxime</h1>
@@ -36,7 +41,6 @@
      </div>
    </header>
 
-   <!-- ─────────── LE CONTAINER DES VIGNETTES “SURFANTES” ─────────── -->
    <div id="image-cursor-container"></div>
 
    <section id="notre-histoire-section" class="content-section">
@@ -146,9 +150,9 @@
          <div class="team-category">
              <h3 class="team-category-title">L'Artisan(e) de notre Cérémonie</h3>
              <div class="team-grid officiant-grid">
-                 <div class="team-member-card">
+                 <div class="team-member-card martin-card">
                      <div class="team-member-photo">
-                         <img src="https://via.placeholder.com/250x250/E0A96D/FFFFFF?text=Photo+Officiant" alt="Nom Prénom - Officiant(e)">
+                         <img src="images/equipe/martin.jpg" alt="Nom Prénom - Officiant(e)">
                      </div>
                      <div class="team-member-info">
                          <h4 class="team-member-name">Martin</h4>
@@ -164,7 +168,7 @@
              <div class="team-grid temoins-grid">
                  <div class="team-member-card">
                      <div class="team-member-photo">
-                         <img src="https://via.placeholder.com/250x250/B08D57/FFFFFF?text=Photo+T%C3%A9moin" alt="Nom Prénom - Témoin d'Elise">
+                         <img src="images/equipe/julie.JPG" alt="Nom Prénom - Témoin d'Elise">
                      </div>
                      <div class="team-member-info">
                          <h4 class="team-member-name">Julie</h4>
@@ -182,7 +186,7 @@
                  </div>
                  <div class="team-member-card">
                      <div class="team-member-photo">
-                         <img src="https://via.placeholder.com/250x250/B08D57/FFFFFF?text=Photo+T%C3%A9moin" alt="Nom Prénom - Témoin d'Elise">
+                         <img src="images/equipe/emilie.JPG" alt="Nom Prénom - Témoin d'Elise">
                      </div>
                      <div class="team-member-info">
                          <h4 class="team-member-name">Lucie</h4>
@@ -206,7 +210,7 @@
              <div class="team-grid temoins-grid">
                  <div class="team-member-card">
                      <div class="team-member-photo">
-                         <img src="https://via.placeholder.com/250x250/5D737E/FFFFFF?text=Photo+T%C3%A9moin" alt="Nom Prénom - Témoin de Maxime">
+                         <img src="images/equipe/arthurG.png" alt="Nom Prénom - Témoin de Maxime">
                      </div>
                      <div class="team-member-info">
                          <h4 class="team-member-name">Arthur</h4>
@@ -215,7 +219,7 @@
                  </div>
                  <div class="team-member-card">
                      <div class="team-member-photo">
-                         <img src="images/equipe/hugo.jpg" alt="Hugo - Témoin de Maxime">
+                         <img src="images/equipe/hugo.jpg" alt="Nom Prénom - Témoin de Maxime">
                      </div>
                      <div class="team-member-info">
                          <h4 class="team-member-name">Hugo</h4>
@@ -347,6 +351,14 @@
                 </figcaption>
             </div>
         </div>
+       <div class="info-block-wrapper">
+    <div class="info-block shuttle-info">
+        <h4><i class="fas fa-taxi"></i>Retour Serein</h4>
+        <p>
+            Pour que vous puissiez célébrer et profiter de chaque instant avec nous sans vous soucier du retour, un service de navettes sera organisé en fin de soirée pour vous raccompagner en toute sécurité. Plus de détails vous seront communiqués à l'approche du grand jour.
+        </p>
+    </div>
+</div>
         <div class="hebergement-suggestions-wrapper">
             <h3 class="hebergement-main-title"><i class="fas fa-bed"></i> Où se loger ? Nos suggestions</h3>
             <div class="hebergement-grid">
@@ -430,7 +442,7 @@
 
         <div class="rsvp-bg-overlay-text rsvp-card-header">
             <p class="rsvp-bg-title">RSVP</p>
-            <p class="rsvp-bg-names">Elise &amp; Maxime</p>
+            <p class="rsvp-bg-names">Elise & Maxime</p>
             <p class="rsvp-bg-date">20 juin 2026</p>
         </div>
 
@@ -513,17 +525,19 @@
 </section>
 
     <section id="liste-de-mariage-section" class="content-section">
-    <div class="section-title-container">
-        <h2 class="section-title">Liste de Mariage</h2>
-        <p class="section-subtitle">Votre présence est notre plus beau cadeau.</p>
-    </div>
-    <div class="wedding-list-intro">
-        <p>
-            Parce que vous nous gâtez déjà par votre présence, nous n'avons besoin de rien d'autre.
-            Pour ceux qui souhaitent tout de même nous offrir une attention, nous avons préparé avec amour une petite liste qui nous aidera à démarrer notre nouvelle vie ensemble.
-        </p>
-    <a href="liste.html" class="cta-button rsvp-button" target="_blank" rel="noopener noreferrer">Découvrir notre liste</a>    </div>
-</section>
+        <div class="section-title-container">
+            <h2 class="section-title">Liste de Mariage</h2>
+            <p class="section-subtitle">Votre présence est notre plus beau cadeau.</p>
+        </div>
+        <div class="wedding-list-intro">
+            <p>
+                Parce que vous nous gâtez déjà par votre présence, nous n'avons besoin de rien d'autre.
+                Pour ceux qui souhaitent tout de même nous offrir une attention, nous avons préparé avec amour une petite liste qui nous aidera à démarrer notre nouvelle vie ensemble.
+            </p>
+            {/* Le bouton utilise les mêmes classes que le bouton RSVP pour la cohérence */}
+            <a href="liste.html" class="cta-button rsvp-button" target="_blank" rel="noopener noreferrer">Découvrir notre liste</a>    
+        </div>
+    </section>
         
 <section id="faq-section" class="content-section">
     <div class="section-title-container">
@@ -537,7 +551,6 @@
                 <li><a href="#faq-cat-generale" class="faq-nav-link active">Infos Générales</a></li>
                 <li><a href="#faq-cat-jourj" class="faq-nav-link">Le Jour J</a></li>
                 <li><a href="#faq-cat-lieu" class="faq-nav-link">Lieu & Accès</a></li>
-                {/* Ajoutez d'autres catégories si besoin */}
             </ul>
         </aside>
 
@@ -571,7 +584,6 @@
                         <p>La cérémonie débutera à 15h00, suivie du vin d'honneur vers 18h00, puis du dîner à 20h00 et de la soirée dansante à partir de 22h00. Le brunch du lendemain sera servi à 11h00. Vous trouverez le détail dans la section <a href="#programme-section" class="faq-inline-link">Programme</a>.</p>
                     </div>
                 </div>
-                {/* Ajoutez d'autres questions pour cette catégorie */}
             </div>
 
             <div id="faq-cat-lieu" class="faq-category-content" style="display: none;">
@@ -581,22 +593,21 @@
                         <p>Vous trouverez toutes les informations détaillées concernant l'itinéraire vers le Château Fengari et les options de stationnement dans la section <a href="#infospratiques" class="faq-inline-link">Infos Pratiques</a> de notre site. Un parking sera disponible pour nos invités.</p>
                     </div>
                 </div>
-                {/* Ajoutez d'autres questions pour cette catégorie */}
             </div>
         </main>
     </div>
 </section>
 
-   <script src="script.js"></script>
+   <script src="script10.js"></script>
      <footer class="site-footer">
     <div class="footer-content-wrapper">
-        <p class="footer-names">Elise &amp; Maxime</p>
-        <p class="footer-separator">&hearts;</p> 
+        <p class="footer-names">Elise & Maxime</p>
+        <p class="footer-separator">♥</p> 
         <p class="footer-date">20 Juin 2026</p>
     </div>
     <div class="footer-signature">
         <p>Fait avec amour pour notre grand jour.</p>
-        <p>&copy; 2024-2026 Elise & Maxime. Tous droits réservés.</p>
+        <p>© 2024-2026 Elise & Maxime. Tous droits réservés.</p>
     </div>
 </footer>
 </body>
