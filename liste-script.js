@@ -108,13 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Generates HTML for a single gift card (White price tag - Comments Removed).
      */
- function createGiftCardHTML(gift) {
-        const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
+function createGiftCardHTML(gift) {
+        // Check if the 'Offert_par' field has content (is not empty/null/undefined)
+        const isOffered = gift.Offert_par && gift.Offert_par.trim() !== ''; // Use the exact header name 'Offert_par'
         const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
 
+        // Add 'offered' class to the main div if isOffered is true
         return `
             <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
+                    {/* Display price tag only if NOT offered AND price exists */}
                     ${!isOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
@@ -122,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
+                {/* Set button class, text, and disabled state based on isOffered */}
                 <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
                     ${isOffered ? 'Offert' : '<i class="fab fa-rev"></i> Offrir via Revolut'}
                 </button>
