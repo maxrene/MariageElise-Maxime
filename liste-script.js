@@ -57,6 +57,7 @@ Fdocument.addEventListener('DOMContentLoaded', () => {
                     ${!isOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
+                {/* Le span pour le prix a été retiré d'ici */}
                     <p class="gift-title-price">${gift.Nom || 'Cadeau'}</p>
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
