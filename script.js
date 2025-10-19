@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // --- DÉBUT DU CODE D’ANCIENNE PAGE (Hero Transition, Timeline, Countdown, FAQ, RSVP, etc.) ---
+  // --- DÉBUT DES VARIABLES GLOBALES ---
 
   const heroSection = document.getElementById('hero-section');
   const heroBackground = heroSection ? heroSection.querySelector('.hero-background') : null;
@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let heroHeight = heroSection ? heroSection.offsetHeight : 0;
   let initialNavTop = mainNav ? mainNav.offsetTop : 0;
+
+  // --- Variables pour le menu hamburger ---
+  const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+  const mainNavForMobile = document.querySelector('.main-nav');
+  const navLinks = document.querySelectorAll('.main-nav ul li a');
+
+  // --- FIN DES VARIABLES GLOBALES ---
+
+  // --- DÉBUT DES FONCTIONS PRINCIPALES ---
 
   function handleHeroTransition() {
     if (!heroSection) return;
@@ -142,11 +151,31 @@ document.addEventListener('DOMContentLoaded', function() {
     timelineItems.forEach(item => timelineObserver.observe(item));
   }
 
+  // Fonction pour gérer la couleur de l'icône du hamburger
+  function handleHamburgerIconColor() {
+      if (mobileNavToggle && mainNav) {
+          const isFixed = mainNav.classList.contains('fixed-nav');
+          // Si le menu est ouvert, l'icône est toujours foncée (car sur fond clair)
+          if (mobileNavToggle.classList.contains('is-open')) {
+                mobileNavToggle.style.color = 'var(--text-color-headings)';
+          }
+          // Sinon, on adapte sa couleur au scroll (clair sur hero, foncé après)
+          else if (isFixed) {
+              mobileNavToggle.style.color = 'var(--text-color-headings)';
+          } else {
+              mobileNavToggle.style.color = 'var(--text-color-light)';
+          }
+      }
+  }
+
   function onScrollOrResize() {
     handleHeroTransition();
     updateActiveNavLink();
     handleTimelineScrollAnimations();
+    handleHamburgerIconColor(); // Ligne ajoutée
   }
+
+  // --- DÉBUT DES ÉCOUTEURS D'ÉVÉNEMENTS INITIAUX ---
 
   window.addEventListener('scroll', onScrollOrResize);
   window.addEventListener('resize', () => {
@@ -158,13 +187,18 @@ document.addEventListener('DOMContentLoaded', function() {
     onScrollOrResize();
   });
 
+  // --- DÉBUT DES APPELS DE FONCTIONS INITIAUX ---
+  
   heroHeight = heroSection?.offsetHeight || 0;
   initialNavTop = mainNav?.offsetTop || 0;
+  
   handleHeroTransition();
   updateActiveNavLink();
   handleTimelineScrollAnimations();
+  handleHamburgerIconColor();
   startCountdown("2026-06-20T15:00:00");
 
+  // --- LOGIQUE DU FORMULAIRE RSVP ---
   const rsvpForm = document.getElementById('rsvpForm');
   const guestCountSelect = document.getElementById('guestCount');
   const additionalGuestsSection = document.getElementById('additionalGuestsSection');
@@ -348,6 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // --- LOGIQUE DE LA FAQ ---
   const faqNavLinks = document.querySelectorAll('.faq-nav-link');
   const faqCategoryContents = document.querySelectorAll('.faq-category-content');
   if (faqNavLinks && faqNavLinks.length > 0 && faqCategoryContents && faqCategoryContents.length > 0) {
@@ -377,305 +412,241 @@ document.addEventListener('DOMContentLoaded', function() {
     else if (faqNavLinks.length > 0) showFaqCategory(faqNavLinks[0].getAttribute('href'));
   }
 
-  const styleElement = document.createElement('style');
-  if (styleElement) {
-    styleElement.textContent = `
-      /* Votre ancien code d’injection de styles dynamiques, s’il y en avait… */
-    `;
-    document.head.appendChild(styleElement);
-  }
-  // --- FIN DU CODE D’ANCIENNE PAGE ---
+  // --- LOGIQUE DES VIGNETTES SURFANTES (Corrigée) ---
+  const vignetteContainer = document.getElementById('image-cursor-container');
+  const vignetteMainNav = document.querySelector('.main-nav'); // Renommé pour éviter les conflits
 
-  // ─── 2) CODE “V3 – VIGNETTES SURFANTES” (Inertie de groupe + texte année) ───
+  if (heroSection && vignetteContainer) {
+    const imageData = [
+      { src: 'images/cards/card0.jpg', year: '2017' },
+      { src:  'images/cards/card1.jpg', year: '2017' },
+      { src:  'images/cards/card2.jpg', year: '2017' },
+      { src:  'images/cards/card3.jpg', year: '2018' },
+      { src:  'images/cards/card4.jpg', year: '2018' },
+      { src:  'images/cards/card5.jpg', year: '2018' },
+      { src:  'images/cards/card6.jpg', year: '2018' },
+      { src:  'images/cards/card7.jpg', year: '2019' },
+      { src:  'images/cards/card8.jpg', year: '2020' },
+      { src:  'images/cards/card9.jpg', year: '2021' },
+      { src:  'images/cards/card10.jpg', year: '2021' },
+      { src:  'images/cards/card11.jpg', year: '2021' },
+      { src:  'images/cards/card12.jpg', year: '2021' },
+      { src:  'images/cards/card13.jpg', year: '2021' },
+      { src:  'images/cards/card14.jpg', year: '2021' },
+      { src:  'images/cards/card15.jpg', year: '2022' },
+      { src:  'images/cards/card16.jpg', year: '2022' },
+      { src:  'images/cards/card17.jpg', year: '2022' },
+      { src:  'images/cards/card18.jpg', year: '2022' },
+      { src:  'images/cards/card19.jpg', year: '2022' },
+      { src:  'images/cards/card20.jpg', year: '2022' },
+      { src:  'images/cards/card21.jpg', year: '2022' },
+      { src:  'images/cards/card22.jpg', year: '2022' },
+      { src:  'images/cards/card23.jpg', year: '2022' },
+      { src:  'images/cards/card24.jpg', year: '2023' },
+      { src:  'images/cards/card25.jpg', year: '2023' },
+      { src:  'images/cards/card26.jpg', year: '2023' },
+      { src:  'images/cards/card27.jpg', year: '2023' },
+      { src:  'images/cards/card28.jpg', year: '2023' },
+      { src:  'images/cards/card29.jpg', year: '2023' },
+      { src:  'images/cards/card30.jpg', year: '2023' },
+      { src:  'images/cards/card31.jpg', year: '2023' },
+      { src:  'images/cards/card32.jpg', year: '2023' },
+      { src:  'images/cards/card33.jpg', year: '2023' },
+      { src:  'images/cards/card34.jpg', year: '2023' },
+      { src:  'images/cards/card35.jpg', year: '2023' },
+      { src:  'images/cards/card36.jpg', year: '2023' },
+      { src:  'images/cards/card37.jpg', year: '2024' },
+      { src:  'images/cards/card38.jpg', year: '2024' },
+      { src:  'images/cards/card39.jpg', year: '2024' },
+      { src:  'images/cards/card40.jpg', year: '2024' },
+      { src:  'images/cards/card41.jpg', year: '2024' },
+      { src:  'images/cards/card42.jpg', year: '2024' },
+      { src:  'images/cards/card43.jpg', year: '2024' },
+      { src:  'images/cards/card44.jpg', year: '2024' },
+      { src:  'images/cards/card45.jpg', year: '2024' },
+      { src:  'images/cards/card46.jpg', year: '2025' },
+      { src:  'images/cards/card47.jpg', year: '2025' },
+      { src:  'images/cards/card48.jpg', year: '2025' },
+      { src:  'images/cards/card49.jpg', year: '2025' },
+    ];
+    const totalImages = imageData.length;
+    let currentIndex = 0;
 
-  // 2.0) Sélecteur du menu, pour savoir si la souris est dessus
-  const mainNavElement = document.querySelector('.main-nav');
+    const OFFSET_X           = 300;
+    const OFFSET_Y           = -30;
+    const SPATIAL_INTERVAL   = 120;
+    const FRICTION_GLOBAL    = 0.85;
+    const FRICTION_DRIFT     = 0.90;
+    const MIN_SPEED_GLOBAL   = 0.2;
+    const MIN_SPEED_DRIFT    = 0.7;
+    const MAX_INITIAL_SPEED  = 14;
+    const HORIZ_DAMPEN       = 0.7;
+    const DISPLAY_TIME       = 500;
+    const FADE_DURATION      = 500;
+    const FALL_DISTANCE      = 200;
+    const MAX_ONSCREEN       = 6;
 
-  // Sélecteurs pour la V3
-  const container = document.getElementById('image-cursor-container');
+    let lastMouseX = 0, lastMouseY = 0;
+    let lastTime = performance.now();
+    let accumulatedDistance = 0;
+    let isFirstMove = true;
+    let globalVX = 0, globalVY = 0;
 
-  if (!heroSection || !container) {
-    console.error("❌ #hero-section ou #image-cursor-container introuvable");
-    return;
-  }
+    function animateVignette(wrapper, initVX, initVY) {
+      let currX = 0, currY = 0;
+      let vx = initVX, vy = initVY;
 
-  // 2.1) Liste des images + année associée (à adapter à vos fichiers)
-  const imageData = [
-    { src: 'images/cards/card0.jpg', year: '2017' },
-    { src:  'images/cards/card1.jpg', year: '2017' },
-    { src:  'images/cards/card2.jpg', year: '2017' },
-    { src:  'images/cards/card3.jpg', year: '2018' },
-    { src:  'images/cards/card4.jpg', year: '2018' },
-    { src:  'images/cards/card5.jpg', year: '2018' },
-    { src:  'images/cards/card6.jpg', year: '2018' },
-    { src:  'images/cards/card7.jpg', year: '2019' },
-    { src:  'images/cards/card8.jpg', year: '2020' },
-    { src:  'images/cards/card9.jpg', year: '2021' },
-    { src:  'images/cards/card10.jpg', year: '2021' },
-    { src:  'images/cards/card11.jpg', year: '2021' },
-    { src:  'images/cards/card12.jpg', year: '2021' },
-    { src:  'images/cards/card13.jpg', year: '2021' },
-    { src:  'images/cards/card14.jpg', year: '2021' },
-    { src:  'images/cards/card15.jpg', year: '2022' },
-    { src:  'images/cards/card16.jpg', year: '2022' },
-    { src:  'images/cards/card17.jpg', year: '2022' },
-    { src:  'images/cards/card18.jpg', year: '2022' },
-    { src:  'images/cards/card19.jpg', year: '2022' },
-    { src:  'images/cards/card20.jpg', year: '2022' },
-    { src:  'images/cards/card21.jpg', year: '2022' },
-    { src:  'images/cards/card22.jpg', year: '2022' },
-    { src:  'images/cards/card23.jpg', year: '2022' },
-    { src:  'images/cards/card24.jpg', year: '2023' },
-    { src:  'images/cards/card25.jpg', year: '2023' },
-    { src:  'images/cards/card26.jpg', year: '2023' },
-    { src:  'images/cards/card27.jpg', year: '2023' },
-    { src:  'images/cards/card28.jpg', year: '2023' },
-    { src:  'images/cards/card29.jpg', year: '2023' },
-    { src:  'images/cards/card30.jpg', year: '2023' },
-    { src:  'images/cards/card31.jpg', year: '2023' },
-    { src:  'images/cards/card32.jpg', year: '2023' },
-    { src:  'images/cards/card33.jpg', year: '2023' },
-    { src:  'images/cards/card34.jpg', year: '2023' },
-    { src:  'images/cards/card35.jpg', year: '2023' },
-    { src:  'images/cards/card36.jpg', year: '2023' },
-    { src:  'images/cards/card37.jpg', year: '2024' },
-    { src:  'images/cards/card38.jpg', year: '2024' },
-    { src:  'images/cards/card39.jpg', year: '2024' },
-    { src:  'images/cards/card40.jpg', year: '2024' },
-    { src:  'images/cards/card41.jpg', year: '2024' },
-    { src:  'images/cards/card42.jpg', year: '2024' },
-    { src:  'images/cards/card43.jpg', year: '2024' },
-    { src:  'images/cards/card44.jpg', year: '2024' },
-    { src:  'images/cards/card45.jpg', year: '2024' },
-    { src:  'images/cards/card46.jpg', year: '2025' },
-    { src:  'images/cards/card47.jpg', year: '2025' },
-    { src:  'images/cards/card48.jpg', year: '2025' },
-    { src:  'images/cards/card49.jpg', year: '2025' },
- 
-  ];
-  const totalImages = imageData.length;
-  let currentIndex = 0;
-
-  // 2.2) Constantes V3 (inertie de groupe + espacement régulier)
-  const OFFSET_X           = 300;     // px : décalage horizontal pour que la vignette n’apparaisse pas sous la souris
-  const OFFSET_Y           = -30;    // px : décalage vertical (au-dessus de la souris)
-  const SPATIAL_INTERVAL   = 120;    // px : distance le long du chemin entre deux vignettes
-  const FRICTION_GLOBAL    = 0.85;   // friction pour le lissage de la vitesse “groupe”
-  const FRICTION_DRIFT     = 0.90;   // friction du drift pour chaque vignette
-  const MIN_SPEED_GLOBAL   = 0.2;    // si vitesse globale < 0.2 px/frame, on considère qu’elle est nulle
-  const MIN_SPEED_DRIFT    = 0.7;    // si vitesse du drift (vignette) < 0.7 px/frame, on arrête le drift
-  const MAX_INITIAL_SPEED  = 14;     // px/frame max pour la vitesse initiale de chaque vignette
-  const HORIZ_DAMPEN       = 0.7;    // pour atténuer la composante X du drift
-  const DISPLAY_TIME       = 500;    // ms que la vignette reste immobile avant fade-out
-  const FADE_DURATION      = 500;    // ms pour le fade-out + chute verticale
-  const FALL_DISTANCE      = 200;    // px que la vignette descend au moment du fade-out
-  const MAX_ONSCREEN       = 6;      // nombre max de vignettes affichées en même temps
-
-  // 2.3) Variables de suivi
-  let lastMouseX           = 0;
-  let lastMouseY           = 0;
-  let lastTime             = performance.now();
-  let accumulatedDistance  = 0;      // distance restante à parcourir avant de créer une nouvelle vignette
-  let isFirstMove          = true;   // pour initialiser lastMouseX et lastMouseY
-  let isHeroVisible        = false;  // pour savoir si on est dans la zone du hero
-
-  // Vitesse globale lissée
-  let globalVX = 0;
-  let globalVY = 0;
-
-  // 2.4) IntersectionObserver pour activer/désactiver les vignettes selon qu’on soit dans #hero-section
-  const heroObserver = new IntersectionObserver(entries => {
-    const e = entries[0];
-    if (e.isIntersecting) {
-      isHeroVisible = true;
-    } else {
-      isHeroVisible = false;
-      container.style.display = 'none';
-      // Supprime toutes les vignettes restantes
-      container.querySelectorAll('.vignette-wrapper').forEach(el => el.remove());
-    }
-  }, {
-    threshold: 0.01,
-    rootMargin: "-150px 0px 0px 0px"
-  });
-  heroObserver.observe(heroSection);
-
-  // 2.5) Fonction d’animation du drift + fade-out vertical pour chaque wrapper
-  function animateVignette(wrapper, initVX, initVY) {
-    let currX = 0;
-    let currY = 0;
-    let vx = initVX;
-    let vy = initVY;
-
-    function drift() {
-      currX += vx;
-      currY += vy;
-      wrapper.style.transform = `translate(${currX}px, ${currY}px)`;
-
-      vx *= FRICTION_DRIFT;
-      vy *= FRICTION_DRIFT;
-
-      if (Math.hypot(vx, vy) > MIN_SPEED_DRIFT) {
-        requestAnimationFrame(drift);
-      } else {
-        // Quand le drift est trop lent → après DISPLAY_TIME, fade-out vertical
-        setTimeout(() => {
-          wrapper.style.transition = `
-            opacity ${FADE_DURATION}ms ease,
-            transform ${FADE_DURATION}ms ease
-          `;
-          // Fade-out uniquement vertical, on garde X fixe
-          wrapper.style.transform = `translate(${currX}px, ${currY + FALL_DISTANCE}px)`;
-          wrapper.style.opacity   = '0';
+      function drift() {
+        currX += vx; currY += vy;
+        wrapper.style.transform = `translate(${currX}px, ${currY}px)`;
+        vx *= FRICTION_DRIFT; vy *= FRICTION_DRIFT;
+        if (Math.hypot(vx, vy) > MIN_SPEED_DRIFT) {
+          requestAnimationFrame(drift);
+        } else {
           setTimeout(() => {
-            wrapper.remove();
-          }, FADE_DURATION);
-        }, DISPLAY_TIME);
+            wrapper.style.transition = `opacity ${FADE_DURATION}ms ease, transform ${FADE_DURATION}ms ease`;
+            wrapper.style.transform = `translate(${currX}px, ${currY + FALL_DISTANCE}px)`;
+            wrapper.style.opacity   = '0';
+            setTimeout(() => { wrapper.remove(); }, FADE_DURATION);
+          }, DISPLAY_TIME);
+        }
       }
+      requestAnimationFrame(drift);
     }
-    requestAnimationFrame(drift);
+
+    function dropVignetteAt(x, y) {
+      const existing = vignetteContainer.querySelectorAll('.vignette-wrapper');
+      if (existing.length >= MAX_ONSCREEN) {
+        existing[0].remove();
+      }
+      currentIndex = (currentIndex + 1) % totalImages;
+      const { src, year } = imageData[currentIndex];
+      const wrapper = document.createElement('div');
+      wrapper.className = 'vignette-wrapper';
+      wrapper.style.left = `${x + OFFSET_X}px`;
+      wrapper.style.top  = `${y + OFFSET_Y}px`;
+      wrapper.style.opacity = '1';
+      wrapper.style.transition = '';
+      const img = document.createElement('img');
+      img.src = src; img.className = 'vignette-img';
+      wrapper.appendChild(img);
+      const label = document.createElement('span');
+      label.className = 'vignette-year';
+      label.textContent = year;
+      wrapper.appendChild(label);
+      if (vignetteContainer.style.display !== 'block') {
+        vignetteContainer.style.display = 'block';
+      }
+      vignetteContainer.appendChild(wrapper);
+      const norm = Math.hypot(globalVX, globalVY);
+      const capped = Math.min(norm, MAX_INITIAL_SPEED);
+      let dirX = 0, dirY = 0;
+      if (norm > 0) { dirX = globalVX / norm; dirY = globalVY / norm; }
+      const vx = dirX * capped * HORIZ_DAMPEN;
+      const vy = dirY * capped;
+      animateVignette(wrapper, vx, vy);
+    }
+
+    // --- ICI LA LOGIQUE CORRIGÉE ---
+    // 1. Définir la fonction qui gère le mouvement de la souris
+    function handleVignetteMouseMove(e) {
+      if (vignetteMainNav) {
+        const rect = vignetteMainNav.getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+          return;
+        }
+      }
+      const now = performance.now();
+      const mouseX = e.clientX, mouseY = e.clientY;
+      if (isFirstMove) {
+        lastMouseX = mouseX; lastMouseY = mouseY;
+        lastTime = now; isFirstMove = false; return;
+      }
+      const dx = mouseX - lastMouseX, dy = mouseY - lastMouseY;
+      const dist = Math.hypot(dx, dy);
+      const dtMs = now - lastTime;
+      const newGlobalVX = (dx / (dtMs || 1)) * (1000 / 60);
+      const newGlobalVY = (dy / (dtMs || 1)) * (1000 / 60);
+      globalVX = globalVX * FRICTION_GLOBAL + newGlobalVX * (1 - FRICTION_GLOBAL);
+      globalVY = globalVY * FRICTION_GLOBAL + newGlobalVY * (1 - FRICTION_GLOBAL);
+      if (Math.hypot(globalVX, globalVY) < MIN_SPEED_GLOBAL) {
+        globalVX = 0; globalVY = 0;
+      }
+      lastMouseX = mouseX; lastMouseY = mouseY; lastTime = now;
+      if (vignetteContainer.style.display !== 'block') {
+        vignetteContainer.style.display = 'block';
+      }
+      let remaining = dist;
+      let startX = mouseX - dx, startY = mouseY - dy;
+      while (accumulatedDistance + remaining >= SPATIAL_INTERVAL) {
+        const needed = SPATIAL_INTERVAL - accumulatedDistance;
+        const dropX = startX + (dx / dist) * needed;
+        const dropY = startY + (dy / dist) * needed;
+        dropVignetteAt(dropX, dropY);
+        remaining -= needed;
+        accumulatedDistance = 0;
+        startX += (dx / dist) * needed;
+        startY += (dy / dist) * needed;
+      }
+      accumulatedDistance += remaining;
+    }
+
+    // 2. Créer l'observateur pour le hero
+    const heroObserver = new IntersectionObserver(entries => {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        // Quand le hero est visible, on active l'écouteur
+        isFirstMove = true; // Réinitialiser au cas où
+        document.addEventListener('mousemove', handleVignetteMouseMove);
+      } else {
+        // Quand le hero n'est pas visible, on désactive l'écouteur
+        document.removeEventListener('mousemove', handleVignetteMouseMove);
+        vignetteContainer.style.display = 'none';
+        vignetteContainer.querySelectorAll('.vignette-wrapper').forEach(el => el.remove());
+      }
+    }, {
+      threshold: 0.01,
+      rootMargin: "-150px 0px 0px 0px"
+    });
+
+    // 3. Lancer l'observation
+    heroObserver.observe(heroSection);
   }
 
-  // 2.6) Créer une vignette à un point (x, y), incluant le texte de l’année
-  function dropVignetteAt(x, y) {
-    // 2.6.a) Si déjà trop de vignettes à l’écran, on supprime la plus ancienne
-    const existing = container.querySelectorAll('.vignette-wrapper');
-    if (existing.length >= MAX_ONSCREEN) {
-      existing[0].remove();
-    }
+  // --- LOGIQUE DU MENU HAMBURGER (Placée au bon endroit) ---
+  if (mobileNavToggle && mainNavForMobile) {
+      
+      // 1. Gérer l'ouverture/fermeture au clic sur l'icône
+      mobileNavToggle.addEventListener('click', () => {
+          mainNavForMobile.classList.toggle('is-open');
+          
+          // Changer l'icône (bars <-> times)
+          const icon = mobileNavToggle.querySelector('i');
+          if (mainNavForMobile.classList.contains('is-open')) {
+              icon.classList.remove('fa-bars');
+              icon.classList.add('fa-times');
+              mobileNavToggle.classList.add('is-open');
+          } else {
+              icon.classList.remove('fa-times');
+              icon.classList.add('fa-bars');
+              mobileNavToggle.classList.remove('is-open');
+          }
+          handleHamburgerIconColor(); // Mettre à jour la couleur de l'icône
+      });
 
-    // 2.6.b) Choix cyclique de l’image + année
-    currentIndex = (currentIndex + 1) % totalImages;
-    const { src, year } = imageData[currentIndex];
-
-    // 2.6.c) Créer un wrapper (div) qui contiendra l’image et le label
-    const wrapper = document.createElement('div');
-    wrapper.className = 'vignette-wrapper';
-    // Position initiale : on place le coin supérieur gauche ici
-    wrapper.style.left = `${x + OFFSET_X}px`;
-    wrapper.style.top  = `${y + OFFSET_Y}px`;
-    // On place en opacité 1 pour apparaître tout de suite
-    wrapper.style.opacity = '1';
-    // Pas de transition sur wrapper pour le moment
-    wrapper.style.transition = '';
-
-    // 2.6.d) Créer l’élément <img>
-    const img = document.createElement('img');
-    img.src = src;
-    img.className = 'vignette-img';
-    // dimensions fixées en CSS : 120×180, border-radius, etc.
-    // On positionne l’image au sein du wrapper (wrapper en position:absolute)
-    wrapper.appendChild(img);
-
-    // 2.6.e) Créer un label pour l’année
-    const label = document.createElement('span');
-    label.className = 'vignette-year';
-    label.textContent = year;
-    wrapper.appendChild(label);
-
-    // 2.6.f) Afficher le container s’il est caché
-    if (container.style.display !== 'block') {
-      container.style.display = 'block';
-    }
-
-    // 2.6.g) Insérer immédiatement le wrapper dans le DOM
-    container.appendChild(wrapper);
-
-    // 2.6.h) Calculer la vitesse initiale du drift d’après globalVX/globalVY
-    const norm = Math.hypot(globalVX, globalVY);
-    const capped = Math.min(norm, MAX_INITIAL_SPEED);
-    let dirX = 0, dirY = 0;
-    if (norm > 0) {
-      dirX = globalVX / norm;
-      dirY = globalVY / norm;
-    }
-    const vx = dirX * capped * HORIZ_DAMPEN;
-    const vy = dirY * capped;
-
-    // 2.6.i) Lancer l’animation du drift + fade-out vertical sur le wrapper
-    animateVignette(wrapper, vx, vy);
+      // 2. Fermer le menu automatiquement quand on clique sur un lien
+      navLinks.forEach(link => {
+          link.addEventListener('click', () => {
+              if (mainNavForMobile.classList.contains('is-open')) {
+                  mainNavForMobile.classList.remove('is-open');
+                  const icon = mobileNavToggle.querySelector('i');
+                  icon.classList.remove('fa-times');
+                  icon.classList.add('fa-bars');
+                  mobileNavToggle.classList.remove('is-open');
+                  handleHamburgerIconColor(); // Mettre à jour la couleur
+              }
+          });
+      });
   }
 
-  // 2.7) Gestion du mousemove : on calcule la vitesse globale lissée + on place les vignettes à SPATIAL_INTERVAL
-  document.addEventListener('mousemove', e => {
-    if (!isHeroVisible) return;
-
-    // 2.7.0) Si le curseur est au-dessus du menu, on ne crée pas de vignettes
-    if (mainNavElement) {
-      const rect = mainNavElement.getBoundingClientRect();
-      if (
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom
-      ) {
-        return;
-      }
-    }
-
-    const now    = performance.now();
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-
-    // 2.7.a) Au premier mouvement, on initialise lastMouseX/lastMouseY
-    if (isFirstMove) {
-      lastMouseX = mouseX;
-      lastMouseY = mouseY;
-      lastTime   = now;
-      isFirstMove = false;
-      return;
-    }
-
-    // 2.7.b) Calcul du vecteur entre l’ancienne position et la nouvelle
-    const dx   = mouseX - lastMouseX;
-    const dy   = mouseY - lastMouseY;
-    const dist = Math.hypot(dx, dy);
-
-    // 2.7.c) Calcul de la vitesse instantanée (~ px/frame)
-    const dtMs            = now - lastTime;
-    const speedPxPerMs    = dtMs > 0 ? dist / dtMs : 0;
-    const speedPxPerFrame = speedPxPerMs * (1000 / 60);
-
-    // 2.7.d) Mise à jour de la vitesse globale (lissée)
-    const newGlobalVX = (dx / (dtMs || 1)) * (1000 / 60);
-    const newGlobalVY = (dy / (dtMs || 1)) * (1000 / 60);
-
-    globalVX = globalVX * FRICTION_GLOBAL + newGlobalVX * (1 - FRICTION_GLOBAL);
-    globalVY = globalVY * FRICTION_GLOBAL + newGlobalVY * (1 - FRICTION_GLOBAL);
-
-    if (Math.hypot(globalVX, globalVY) < MIN_SPEED_GLOBAL) {
-      globalVX = 0;
-      globalVY = 0;
-    }
-
-    lastMouseX = mouseX;
-    lastMouseY = mouseY;
-    lastTime   = now;
-
-    // 2.7.e) Si le container était caché, on l’affiche dès le premier mouvement dans le hero
-    if (container.style.display !== 'block') {
-      container.style.display = 'block';
-    }
-
-    // 2.7.f) On découpe la distance parcourue en segments de SPATIAL_INTERVAL pour déposer les vignettes
-    let remaining = dist;
-    let startX = mouseX - dx;
-    let startY = mouseY - dy;
-
-    while (accumulatedDistance + remaining >= SPATIAL_INTERVAL) {
-      const needed = SPATIAL_INTERVAL - accumulatedDistance;
-      const dropX = startX + (dx / dist) * needed;
-      const dropY = startY + (dy / dist) * needed;
-
-      dropVignetteAt(dropX, dropY);
-
-      remaining -= needed;
-      accumulatedDistance = 0;
-
-      startX += (dx / dist) * needed;
-      startY += (dy / dist) * needed;
-    }
-
-    accumulatedDistance += remaining;
-  });
-});
+}); // --- FIN DU DOMCONTENTLOADED ---
