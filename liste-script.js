@@ -93,53 +93,83 @@ document.addEventListener('DOMContentLoaded', () => {
      * Displays all gifts grouped by category sequentially. (Listener call moved)
      */
     function displayAllGiftsByCategory() {
-        giftListContainer.innerHTML = ''; // Clear loading message
+        console.log("Running displayAllGiftsByCategory..."); // Log start
+        giftListContainer.innerHTML = ''; // Clear loading message or previous content
 
-        if (allGifts.length === 0) {
+        if (!allGifts || allGifts.length === 0) {
+            console.log("No gifts found in allGifts array."); // Log empty data
             if (!giftListContainer.querySelector('.error-message')) {
                giftListContainer.innerHTML = '<p class="loading-message">La liste est vide ou n\'a pas pu être chargée correctement.</p>';
             }
             return;
         }
 
+        // 1. Grouper les cadeaux par catégorie
+        console.log("Grouping gifts by category..."); // Log grouping step
         const giftsByCategory = allGifts.reduce((acc, gift) => {
-            const category = gift.Categorie || 'Autres';
-            if (!acc[category]) {
-                acc[category] = [];
-            }
-            acc[category].push(gift);
+             // Ensure gift and gift.Categorie exist before trying to access
+             if (gift && typeof gift === 'object') {
+                const category = gift.Categorie ? gift.Categorie.trim() : 'Autres'; // Use 'Autres' if category is missing or empty
+                if (!acc[category]) {
+                    acc[category] = [];
+                }
+                acc[category].push(gift);
+             } else {
+                console.warn("Skipping invalid gift object during grouping:", gift);
+             }
             return acc;
         }, {});
+        console.log("Gifts grouped:", giftsByCategory); // Log the result of grouping
 
+        // 2. Déterminer l'ordre des catégories
         const categoryOrder = Object.keys(giftsByCategory);
+        console.log("Category order:", categoryOrder); // Log the category order
 
         if (categoryOrder.length === 0) {
+             console.log("No categories found after grouping."); // Log no categories
              giftListContainer.innerHTML = '<p class="loading-message">Aucune catégorie trouvée dans la liste.</p>';
             return;
         }
 
-        // Use a document fragment for potentially better performance
+        // 3. Afficher chaque catégorie et ses cadeaux using a fragment
         const fragment = document.createDocumentFragment();
+        let giftCount = 0; // Counter for gifts actually added
 
         categoryOrder.forEach(category => {
-            console.log("Displaying category:", category); // Debug log
-            const categoryTitle = document.createElement('h3');
-            categoryTitle.className = 'category-title';
-            categoryTitle.textContent = category;
-            fragment.appendChild(categoryTitle); // Add title to fragment
+            console.log("Processing category:", category); // Log each category
+            const gifts = giftsByCategory[category];
+            if (gifts && gifts.length > 0) {
+                // Ajoute le titre de la catégorie
+                const categoryTitle = document.createElement('h3');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = category;
+                fragment.appendChild(categoryTitle);
 
-            const gridWrapper = document.createElement('div');
-            gridWrapper.className = 'gift-grid-wrapper';
-            giftsByCategory[category].forEach(gift => {
-                gridWrapper.innerHTML += createGiftCardHTML(gift); // Add gifts to grid
-            });
-            fragment.appendChild(gridWrapper); // Add grid to fragment
+                // Ajoute la grille pour les cadeaux de cette catégorie
+                const gridWrapper = document.createElement('div');
+                gridWrapper.className = 'gift-grid-wrapper';
+                let categoryGiftHTML = ''; // Build HTML string for efficiency
+                gifts.forEach(gift => {
+                    // Ensure gift object is valid before creating HTML
+                    if (gift && gift.ID) {
+                        categoryGiftHTML += createGiftCardHTML(gift);
+                        giftCount++; // Increment counter
+                    } else {
+                        console.warn("Skipping invalid gift object during HTML generation:", gift);
+                    }
+                });
+                gridWrapper.innerHTML = categoryGiftHTML; // Set HTML once per category
+                fragment.appendChild(gridWrapper);
+            } else {
+                console.log(`Skipping category "${category}" because it has no valid gifts.`); // Log skipped category
+            }
         });
 
-        giftListContainer.appendChild(fragment); // Append everything at once
-        console.log("Finished appending categories and gifts."); // Debug log
+        // Append the fragment to the DOM
+        giftListContainer.appendChild(fragment);
+        console.log(`Finished displaying gifts. Total gifts added: ${giftCount}`); // Log completion and count
 
-        // Add event listeners AFTER all HTML is added to the page
+        // Add event listeners AFTER all HTML is added
         addOfferButtonListeners();
     }
 
