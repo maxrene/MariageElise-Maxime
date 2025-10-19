@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // <--- PASTE YOUR CSV LINK HERE
-    const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
+    const revolutLinkBase = 'https://revolut.me/YOUR_REVOLUT_USERNAME/'; // Optional: Replace with your Revolut username
 
     // --- DOM ELEMENTS ---
     const giftListContainer = document.getElementById('gift-list-container');
@@ -44,14 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- FONCTION displayCategories() SUPPRIMÉE ---
-
     /**
      * Generates HTML for a single gift card (Simple/Premium design).
-     * (Fonction inchangée)
      */
     function createGiftCardHTML(gift) {
         const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
+        // Prépare la partie prix à inclure dans le titre, ou une chaîne vide si 0 ou offert
         const priceString = (!isOffered && gift.Prix > 0) ? ` - ${gift.Prix}€` : '';
 
         return `
@@ -119,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Adds event listeners to all "Offrir" buttons.
-     * (Fonction inchangée, mais importante)
      */
      function addOfferButtonListeners() {
         // Technique pour éviter les listeners dupliqués
