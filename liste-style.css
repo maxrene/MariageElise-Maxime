@@ -138,21 +138,28 @@ body {
 
 /* --- Style pour le Titre de Catégorie --- */
 .category-title {
-    font-family: var(--secondary-font);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-color-card-title);
-    margin-bottom: 25px;
-    padding-top: 20px; /* Espace AU-DESSUS pour séparer les catégories */
-    padding-bottom: 10px;
-    /* border-bottom: 1px solid var(--border-color); /* Optionnel */
-    text-align: left;
+    font-family: var(--secondary-font); /* Police moderne sans-serif */
+    font-size: 1.5rem; /* Taille assez grande */
+    font-weight: 700; /* Gras */
+    color: var(--text-color-card-title); /* Noir/Gris très foncé */
+    
+    /* --- AJOUTS/MODIFICATIONS ICI --- */
+    margin-top: 40px; /* Espace AU-DESSUS du titre (et de la ligne) */
+    margin-bottom: 25px; /* Espace avant la grille */
+    padding-top: 40px; /* Espace ENTRE la ligne et le titre */
+    border-top: 1px solid var(--border-color); /* Ligne horizontale fine */
+    /* --- FIN AJOUTS/MODIFICATIONS --- */
+    
+    text-align: left; /* Alignement à gauche */
     width: 100%;
     box-sizing: border-box;
 }
-/* Ajoute de l'espace avant le premier titre aussi */
+
+/* Retire la ligne et l'espace supérieur pour le PREMIER titre */
 .category-title:first-of-type {
+    margin-top: 0;
     padding-top: 0;
+    border-top: none; 
 }
 
 
