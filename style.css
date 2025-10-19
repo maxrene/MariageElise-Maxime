@@ -260,6 +260,8 @@ img {
 .main-nav.fixed-nav ul li a.active-nav-link::after {
     background-color: var(--accent-color);
 }
+
+/* --- Styles pour le bouton RSVP dans la Nav --- */
 /* 1. Style de base du bouton */
 .nav-rsvp-button {
     background-color: var(--accent-color);
@@ -276,7 +278,6 @@ img {
 }
 
 /* 3. Style au survol (CORRIGÉ) */
-/* Règle plus spécifique pour garantir que la couleur du texte change */
 .main-nav ul li a.nav-rsvp-button:hover {
     background-color: #fff;
     color: var(--accent-color) !important; /* Le texte devient doré sur fond blanc */
@@ -288,27 +289,24 @@ img {
 }
 
 /* 4. Gestion du trait de soulignement */
-
-/* NOUVEAU : On désactive le trait au survol UNIQUEMENT pour le bouton RSVP */
+/* On désactive le trait au survol UNIQUEMENT pour le bouton RSVP */
 .main-nav ul li a.nav-rsvp-button:hover::after {
     width: 0 !important;
 }
-
 /* On ajuste sa position verticale pour qu'il ne soit pas trop bas */
 .nav-rsvp-button::after {
     bottom: -5px; 
 }
-        
 /* On garde le trait quand la section RSVP est ACTIVE SUR LE HERO */
 .main-nav ul li a.nav-rsvp-button.active-nav-link::after {
     background-color: var(--text-color-light); /* Le trait est blanc */
     width: 70%; /* On le rend visible en permanence */
 }
-
 /* On garde le trait quand la section RSVP est ACTIVE ET que le menu est FIXE */
 .main-nav.fixed-nav ul li a.nav-rsvp-button.active-nav-link::after {
     background-color: var(--accent-color); /* Le trait redevient doré */
 }
+/* --- Fin Styles Bouton RSVP --- */
 
 .hero-content {
     position: relative;
@@ -1273,6 +1271,26 @@ img {
     font-weight: 500; /* Semi-bold link */
 }
 
+/* --- Section Liste de Mariage --- */
+#liste-de-mariage-section {
+    background-color: var(--background-alt); /* Utilise la couleur de fond alternée */
+}
+.wedding-list-intro {
+    max-width: 700px;
+    margin: 40px auto 0 auto; /* Espace après le titre et centrage */
+    text-align: center;
+}
+.wedding-list-intro p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    font-weight: 300;
+    color: var(--text-color-dark);
+}
+.wedding-list-intro .cta-button {
+    margin-top: 30px; /* Espace entre le texte et le bouton */
+}
+/* --- Fin Section Liste de Mariage --- */
+
 
 /* --- Section FAQ --- */
 #faq-section {
@@ -1516,23 +1534,333 @@ img {
   pointer-events: none;
   white-space: nowrap;
 }
-#liste-de-mariage-section {
-    background-color: var(--background-alt); /* Utilise la couleur de fond alternée de votre thème */
+
+/* --- CORRECTION ERREUR DE SYNTAXE --- */
+.martin-card .team-member-photo img {
+    transform: scale(1.5);
+}
+.shuttle-info-wrapper {
+    margin-top: 70px; /* Espace par rapport à la section du dessus */
+}
+/* --- FIN CORRECTION --- */
+
+
+/* --- Style pour les Blocs d'Information (Navette, etc.) --- */
+
+.info-block-wrapper {
+    margin-top: 70px; /* Espace par rapport à la section du dessus */
+    padding: 0 20px; /* Un peu d'aération sur les côtés */
 }
 
-.wedding-list-intro {
-    max-width: 700px;
-    margin: 40px auto 0 auto; /* Espace après le titre et centrage */
-    text-align: center;
+.info-block {
+    max-width: 800px; /* Un peu plus large pour le confort de lecture */
+    margin: 0 auto;   /* Pour le centrer sur la page */
+    padding: 30px 30px 30px 35px; /* Padding généreux, surtout à gauche */
+    
+    /* Le style principal inspiré des itinéraires */
+    border-left: 2px solid var(--accent-color); 
+    
+    /* La différenciation : un fond et une ombre pour en faire un "encart" */
+    background-color: var(--background-alt);
+    border-radius: 0 8px 8px 0; /* Arrondi les coins sauf celui de la bordure */
+    box-shadow: 0 5px 25px rgba(var(--accent-color-rgb), 0.07);
 }
 
-.wedding-list-intro p {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    font-weight: 300;
+.info-block h4 {
+    display: flex; /* Permet d'aligner l'icône et le texte */
+    align-items: center;
+    font-family: var(--primary-font);
+    font-size: 1.4em;
+    color: var(--text-color-headings);
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.info-block h4 i {
+    margin-right: 15px; /* Espace entre l'icône et le titre */
+    color: var(--accent-color);
+    font-size: 0.9em;
+}
+
+.info-block p {
+    font-family: var(--secondary-font);
+    font-size: 0.95rem;
     color: var(--text-color-dark);
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 0;
 }
 
-.wedding-list-intro .cta-button {
-    margin-top: 30px; /* Espace entre le texte et le bouton */
+/* ==========================================================================
+   STYLES MOBILES (Précédemment dans index9.html)
+========================================================================== 
+*/
+
+/* --- Styles pour le menu hamburger mobile --- */
+.mobile-nav-toggle {
+    display: none; /* Caché par défaut sur ordinateur */
+    position: fixed;
+    top: 25px;
+    right: 30px;
+    z-index: 1002; /* Au-dessus du menu (1001) et du RSVP (1001) */
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 1.6rem;
+    color: var(--text-color-light); /* Couleur initiale (sur le hero) */
+    transition: color 0.3s ease;
+}
+
+@media (max-width: 900px) {
+    
+    /* 1. On affiche le bouton hamburger */
+    .mobile-nav-toggle {
+        display: block;
+    }
+
+    /* 2. On cache le bouton RSVP fixe (il entre en conflit avec le toggle) */
+    .rsvp-cta-fixed {
+        display: none;
+    }
+
+    /* 3. On transforme la barre de navigation en panneau latéral */
+    .main-nav {
+        /* On enlève les styles de la barre de bureau */
+        background-color: transparent;
+        backdrop-filter: none;
+        box-shadow: none;
+        padding: 0;
+        
+        /* On la positionne en plein écran, cachée à droite */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh; /* 100% de la hauteur de la vue */
+        transform: translateX(100%); /* Commence hors de l'écran */
+        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        
+        /* Doit être sous le bouton toggle (1002) */
+        z-index: 1001; 
+    }
+
+    /* 4. Style du menu quand il est ouvert */
+    .main-nav.is-open {
+        transform: translateX(0); /* Le fait glisser en position */
+        background-color: var(--background-light); /* Fond solide */
+    }
+    
+    /* 5. On réinitialise le .fixed-nav (QUAND IL EST FERMÉ) */
+    .main-nav.fixed-nav:not(.is-open) {
+        background-color: transparent;
+        backdrop-filter: none;
+        box-shadow: none;
+        top: 0;
+        padding: 0;
+    }
+
+    /* 6. On centre la liste des liens verticalement */
+    .main-nav ul {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .main-nav ul li {
+        margin: 20px 0;
+    }
+
+    /* 7. On grossit les liens pour le mobile */
+    .main-nav ul li a,
+    .main-nav.fixed-nav ul li a {
+        font-size: 1.6rem;
+        font-weight: 500;
+        color: var(--text-color-headings); /* Toujours foncés */
+        padding: 10px 20px;
+    }
+    /* Style spécifique pour le bouton RSVP dans le menu mobile ouvert */
+    .main-nav.is-open ul li a.nav-rsvp-button {
+        background-color: var(--accent-color);
+        color: var(--text-color-light) !important; /* Force le texte blanc */
+        border-radius: 25px; /* Plus arrondi pour mobile */
+        padding: 12px 25px !important; /* Padding plus généreux */
+        font-weight: 600; /* Un peu plus gras */
+    }
+    .main-nav.is-open ul li a.nav-rsvp-button:hover {
+        background-color: var(--text-color-headings); /* Survol plus sombre */
+        transform: scale(1.03); /* Léger grossissement au survol */
+    }
+
+    /* 8. On simplifie l'effet de survol/actif pour les liens NORMAUX */
+    .main-nav ul li a:not(.nav-rsvp-button):hover,
+    .main-nav ul li a:not(.nav-rsvp-button).active-nav-link,
+    .main-nav.fixed-nav ul li a:not(.nav-rsvp-button):hover,
+    .main-nav.fixed-nav ul li a:not(.nav-rsvp-button).active-nav-link {
+        color: var(--accent-color);
+    }
+
+    /* 9. On cache les petits traits sous les liens */
+    .main-nav ul li a::after,
+    .main-nav.fixed-nav ul li a.active-nav-link::after {
+        display: none;
+    }
+
+    /* --- Styles pour la Timeline sur mobile --- */
+
+    /* 1. On déplace la ligne de temps sur la gauche */
+    .timeline-line {
+        left: 20px; /* Au lieu de 50% */
+        transform: translateX(0);
+    }
+
+    /* 2. On déplace les "puces" sur cette nouvelle ligne */
+    .timeline-marker {
+        left: 20px; /* Au lieu de 50% */
+        top: 20px;  /* On la place en haut de l'élément */
+        transform: translateX(-50%); /* On centre horizontalement */
+    }
+    
+    /* 3. On dit aux items de s'empiler verticalement */
+    .timeline-item {
+        display: flex;
+        flex-direction: column; /* Empiler (au lieu de côte à côte) */
+        padding-left: 55px; /* Espace pour la nouvelle ligne (20px) + un écart (35px) */
+        margin-bottom: 40px;
+    }
+
+    /* 4. On dit aux blocs de prendre 100% de la largeur */
+    .timeline-content-block {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* 5. On force le TEXTE en premier (pour PAIR ET IMPAIR) */
+    .timeline-item:nth-child(odd) .text-block,
+    .timeline-item:nth-child(even) .text-block {
+        order: 1; /* Texte en premier */
+        margin-bottom: 15px; /* Espace avant l'image */
+        text-align: left; /* Toujours aligné à gauche */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    /* 6. On force l'IMAGE en second (pour PAIR ET IMPAIR) */
+    .timeline-item:nth-child(odd) .image-block,
+    .timeline-item:nth-child(even) .image-block {
+         order: 2; /* Image en second */
+    }
+    /* --- Styles pour les Témoins (2 colonnes) --- */
+    .temoins-grid {
+        /* Force une grille de 2 colonnes, 1fr = 1 fraction (50%) */
+        grid-template-columns: 1fr 1fr;
+        gap: 20px; /* On réduit l'espace entre les cartes */
+    }
+    
+    /* Optionnel : On peut aussi réduire un peu la taille
+       des cartes pour que ça rentre mieux */
+    .team-member-card {
+        padding: 20px 15px;
+    }
+    .team-member-photo {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 15px;
+    }
+    .team-member-name {
+        font-size: 1.3rem; /* On réduit un peu la police du nom */
+    }
+    /* --- Styles pour le Programme (Mobile) --- */
+    .programme-events-grid {
+        /* On force la grille à n'avoir qu'une seule colonne */
+        grid-template-columns: 1fr; 
+        gap: 15px; /* On réduit l'écart entre les "lignes" */
+    }
+    
+    .lendemin-grid {
+        /* On s'assure que le brunch aussi est en 1 colonne */
+        grid-template-columns: 1fr;
+    }
+
+    .programme-event-card {
+        /* On transforme la carte elle-même en grille (icône à gauche, texte à droite) */
+        display: grid;
+        grid-template-columns: auto 1fr;  /* 1e col s'adapte à l'icône, 2e prend le reste */
+        grid-template-rows: auto auto auto; /* 3 rangées pour Heure, Titre, Description */
+        gap: 0px 20px; /* 0 d'écart vertical, 20px d'écart horizontal */
+        align-items: start; /* On aligne tout en haut */
+        text-align: left;   /* On aligne le texte à gauche */
+        padding: 20px;
+    }
+    
+    .programme-event-card:hover {
+        /* On désactive l'effet de "pop" sur mobile */
+        transform: none;
+    }
+
+    .event-icon {
+        /* L'icône est en 1e colonne et s'étend sur les 3 rangées */
+        grid-column: 1 / 2;
+        grid-row: 1 / 4;
+        font-size: 2.2rem;
+        margin-bottom: 0; /* Annule la marge par défaut */
+        align-self: center; /* Se centre verticalement dans la carte */
+    }
+
+    .event-time {
+        grid-column: 2 / 3; /* 2e colonne */
+        grid-row: 1 / 2;    /* 1e rangée */
+        margin-bottom: 2px; /* Petite marge sous l'heure */
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--accent-color); /* On met l'heure en couleur pour la voir */
+    }
+
+    .event-name {
+        grid-column: 2 / 3; /* 2e colonne */
+        grid-row: 2 / 3;    /* 2e rangée */
+        margin-bottom: 8px; /* Marge sous le titre */
+        font-size: 1.3rem;
+    }
+
+    .event-description {
+        grid-column: 2 / 3; /* 2e colonne */
+        grid-row: 3 / 4;    /* 3e rangée */
+        margin-bottom: 0;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    /* --- Styles for Infos Pratiques (Mobile) --- */
+    .mariage-content-grid {
+        /* On empile les deux colonnes (itinéraires et info château) */
+        grid-template-columns: 1fr;
+        gap: 50px; /* Espace entre les deux blocs */
+    }
+    
+    .mariage-chateau-info {
+         /* L'info château (colonne 2) vient en premier sur mobile */
+        grid-row: 1;
+    }
+    
+    .hebergement-grid {
+        /* On force 2 colonnes pour les suggestions d'hôtels, comme les témoins */
+        grid-template-columns: 1fr 1fr;
+        gap: 20px; /* Espace réduit */
+    }
+    
+    /* On adapte les cartes d'hôtel pour qu'elles rentrent */
+    .hebergement-card-content {
+        padding: 20px; /* Padding réduit */
+    }
+    .hebergement-card-content h4 {
+        font-size: 1.1rem; /* Police plus petite */
+    }
+    .hebergement-description {
+        font-size: 0.85rem; /* Police plus petite */
+        margin-bottom: 15px;
+    }
+    .hebergement-card-image img {
+        height: 160px; /* Image moins haute */
+    }
 }
