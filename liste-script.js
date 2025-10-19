@@ -47,17 +47,18 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Generates HTML for a single gift card (Simple/Premium design).
      */
-    function createGiftCardHTML(gift) {
+  function createGiftCardHTML(gift) {
         const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
-        // Prépare la partie prix à inclure dans le titre, ou une chaîne vide si 0 ou offert
-        const priceString = (!isOffered && gift.Prix > 0) ? ` - ${gift.Prix}€` : '';
+        const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
 
         return `
             <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
-                    </div>
+                    ${!isOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
+                </div>
                 <div class="gift-info">
-                    <p class="gift-title-price">${gift.Nom || 'Cadeau'}<span class="gift-price-value">${priceString}</span></p>
+                    {/* Le span pour le prix a été retiré d'ici */}
+                    <p class="gift-title-price">${gift.Nom || 'Cadeau'}</p>
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
