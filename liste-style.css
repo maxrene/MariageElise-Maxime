@@ -165,13 +165,35 @@ body {
     font-weight: 600;
 }
 
-/* --- Liste de cadeaux --- */
+/* --- Conteneur global de la liste (après les onglets) --- */
+/* On retire la grille de .gift-list car c'est maintenant le conteneur global */
 .gift-list {
+    display: block; /* Ou flex si besoin, mais plus grid */
+}
+
+/* --- Style pour le Titre de Catégorie --- */
+.category-title {
+    font-family: var(--secondary-font); /* Police moderne sans-serif */
+    font-size: 1.5rem; /* Taille assez grande */
+    font-weight: 700; /* Gras */
+    color: var(--text-color-card-title); /* Noir/Gris très foncé */
+    margin-bottom: 25px; /* Espace avant la grille */
+    padding-bottom: 10px; /* Espace pour une éventuelle bordure */
+    /* border-bottom: 1px solid var(--border-color); /* Optionnel: Ligne de séparation */
+    text-align: left; /* Alignement à gauche */
+    /* Assure que le titre prend toute la largeur pour repousser la grille */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* --- Style pour le Conteneur de la Grille Cadeaux --- */
+.gift-grid-wrapper {
     display: grid;
-    /* Force 4 colonnes sur les écrans larges */
+    /* Reprend les styles de l'ancienne classe .gift-list pour les colonnes */
     grid-template-columns: repeat(4, 1fr);
     gap: 30px; /* Espace entre les cartes */
 }
+
 .loading-message {
     text-align: center;
     padding: 40px;
@@ -179,6 +201,15 @@ body {
     color: var(--text-color-dark);
     grid-column: 1 / -1; /* Prend toute la largeur si affiché */
 }
+.error-message {
+     text-align: center;
+    padding: 40px;
+    font-style: italic;
+    color: #c53030; /* Red for errors */
+    font-weight: 500;
+    grid-column: 1 / -1;
+}
+
 
 /* --- Styles pour UNE carte cadeau (design épuré) --- */
 .gift-card {
@@ -468,26 +499,36 @@ body {
     border: 1px solid #f7baba;
 }
 
-/* --- Adaptation Mobile pour la Grille Cadeaux --- */
+/* --- Adaptation Mobile pour Titre + Grille --- */
+/* (Assurez-vous que ces règles sont DANS ou APRES vos media queries existantes) */
+
 @media (max-width: 960px) {
-    .gift-list {
-        /* 3 colonnes sur tablette */
+    .gift-grid-wrapper {
         grid-template-columns: repeat(3, 1fr);
         gap: 25px;
     }
+    .category-title {
+        font-size: 1.4rem; /* Un peu plus petit sur tablette */
+        margin-bottom: 20px;
+    }
 }
 @media (max-width: 768px) {
-    .gift-list {
-        /* 2 colonnes sur mobile large */
+    .gift-grid-wrapper {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
+     .category-title {
+        font-size: 1.3rem;
+    }
 }
 @media (max-width: 480px) {
-    .gift-list {
-        /* 1 colonne sur petit mobile */
+    .gift-grid-wrapper {
         grid-template-columns: 1fr;
-        gap: 25px; /* On peut remettre un peu d'espace */
+        gap: 25px;
+    }
+     .category-title {
+        font-size: 1.2rem;
+        text-align: center; /* Centrer le titre sur mobile? */
     }
 }
 
