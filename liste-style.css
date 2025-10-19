@@ -18,7 +18,7 @@
     --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Ombre plus subtile */
     --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.1); /* Ombre plus prononcée au survol */
     --text-color-card-title: #2a2a2a; /* Gris très foncé pour les titres */
-    --text-color-card-description: #6a6a6a; /* Gris moyen pour les descriptions */
+    --text-color-card-description: #7a7a7a; /* Gris un peu plus clair pour descriptions */
 }
 
 /* --- Styles Généraux (Inspirés de style9.css) --- */
@@ -28,7 +28,7 @@ body {
     color: var(--text-color-dark);
     margin: 0;
     line-height: 1.65;
-    font-weight: 300;
+    font-weight: 300; /* Texte plus léger par défaut */
 }
 
 .page-container {
@@ -47,7 +47,7 @@ body {
 }
 .site-header h2 {
     font-family: var(--primary-font);
-    font-size: clamp(2.2rem, 5vw, 2.8rem);
+    font-size: clamp(2.2rem, 5vw, 2.8rem); /* Un peu plus petit que le h1 du site principal */
     color: var(--text-color-headings);
     font-weight: 700;
     margin: 0;
@@ -55,7 +55,7 @@ body {
 .back-link {
     position: absolute;
     top: 50%;
-    left: 10px;
+    left: 10px; /* À gauche pour "retour" */
     transform: translateY(-50%);
     font-size: 0.9rem;
     color: var(--accent-color);
@@ -73,11 +73,11 @@ body {
 
 /* --- Contenu Principal --- */
 .main-content {
-    padding: 0 10px;
+    padding: 0 10px; /* Un peu d'aération */
 }
 
 .content-container {
-    max-width: 960px;
+    max-width: 960px; /* Correspond au max-w-[960px] de Tailwind */
     margin: 0 auto;
 }
 
@@ -168,52 +168,48 @@ body {
 /* --- Liste de cadeaux --- */
 .gift-list {
     display: grid;
-    /* Ajustement de la grille pour plus de colonnes sur grand écran */
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Min 220px par colonne */
-    gap: 30px; /* Plus d'espace entre les cartes */
+    /* Force 4 colonnes sur les écrans larges */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px; /* Espace entre les cartes */
 }
 .loading-message {
     text-align: center;
     padding: 40px;
     font-style: italic;
     color: var(--text-color-dark);
-    grid-column: 1 / -1;
+    grid-column: 1 / -1; /* Prend toute la largeur si affiché */
 }
 
-/* --- Styles pour UNE carte cadeau (design premium) --- */
+/* --- Styles pour UNE carte cadeau (design épuré) --- */
 .gift-card {
-    background-color: var(--card-bg-color); /* Fond blanc pur */
-    /* Suppression des bordures, utilisation d'une ombre */
+    /* Suppression du fond, bordure, ombre */
+    background-color: transparent;
     border: none;
-    border-radius: 12px; /* Coins plus arrondis pour toute la carte */
-    padding: 0; /* Suppression du padding ici, le contenu aura son propre padding */
-    box-shadow: var(--card-shadow); /* Ombre subtile */
+    border-radius: 0; /* Pas d'arrondi sur le conteneur global */
+    padding: 0; /* Pas de padding global */
+    box-shadow: none; /* Pas d'ombre */
     display: flex;
     flex-direction: column;
-    transition: box-shadow var(--base-transition-duration);
-    overflow: hidden; /* Important pour les coins arrondis de l'image */
+    transition: none; /* Pas de transition au survol */
 }
 .gift-card:hover {
-     box-shadow: var(--card-shadow-hover); /* Ombre plus prononcée au survol */
+     box-shadow: none; /* Pas d'ombre au survol */
 }
 
 .gift-image-wrapper {
     position: relative;
     width: 100%;
-    /* Utilisation de padding-top pour maintenir le ratio d'aspect */
-    padding-top: 100%; /* Ratio 1:1 */
+    aspect-ratio: 1 / 1; /* Force le ratio carré */
     background-size: cover;
     background-position: center;
-    /* Suppression de border-radius ici, géré par le parent .gift-card et overflow: hidden */
-    border-radius: 0; /* Important pour que l'image épouse les bords du parent */
-    /* Suppression de margin-bottom, le contenu info aura son padding */
-    margin-bottom: 0;
-    overflow: hidden; /* Assure que l'image prend les coins arrondis du parent */
+    border-radius: 8px; /* Coins légèrement arrondis POUR L'IMAGE */
+    margin-bottom: 12px; /* Espace avant le titre/prix */
+    overflow: hidden;
 }
 
-/* Pastille Prix (supprimée de l'image, placée en texte sous le titre) */
+/* Pastille Prix (supprimée) */
 .price-tag {
-    display: none; /* Cache la pastille prix de l'image */
+    display: none;
 }
 
 /* Overlay "Offert" sur l'image */
@@ -224,7 +220,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.75); /* Voile un peu plus opaque */
     color: var(--text-color-headings);
     font-family: var(--primary-font);
     font-size: 1.5rem;
@@ -233,110 +229,105 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 2;
+    border-radius: 8px; /* Correspond à l'arrondi de l'image */
 }
-/* Pas de prix affiché quand offert, donc pas besoin de cacher la pastille */
-.gift-card.offered .gift-price {
-    display: none; /* Cache le prix si le cadeau est offert */
+
+/* Cache le prix dans le titre si offert */
+.gift-card.offered .gift-price-value {
+    display: none;
 }
 
 
 .gift-info {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-    padding: 20px; /* Ajoute du padding interne aux infos du cadeau */
+    flex-grow: 1; /* Permet à la description de pousser le bouton en bas */
+    padding: 0; /* Pas de padding interne ici */
     text-align: left; /* Aligne le texte à gauche */
 }
 
-.gift-info h4 { /* Nom du cadeau */
-    font-family: var(--secondary-font); /* Police sans-serif pour le titre */
-    font-size: 1.1rem; /* Taille du titre */
-    font-weight: 600; /* Plus gras que la description */
-    color: var(--text-color-card-title); /* Gris très foncé */
-    margin-bottom: 8px; /* Espacement après le titre */
-    line-height: 1.3;
+/* Nouveau style pour Titre - Prix */
+.gift-title-price {
+    font-family: var(--secondary-font);
+    font-size: 1rem; /* Taille de base */
+    font-weight: 500; /* Semi-gras */
+    color: var(--text-color-card-title);
+    margin-bottom: 8px; /* Espace avant la description */
+    line-height: 1.4;
 }
-.gift-info .brand { /* Marque */
+
+/* Marque (optionnelle, si présente) */
+.gift-info .brand {
     font-size: 0.85rem;
     color: var(--text-color-card-description); /* Gris moyen */
-    font-weight: 500;
-    margin-bottom: 4px; /* Espacement entre marque et description */
+    font-weight: 400; /* Moins gras */
+    margin-bottom: 8px; /* Espacement entre marque et description */
 }
 
-/* Nouveau style pour le prix (maintenant sous le titre) */
-.gift-price {
+.gift-info .description {
     font-family: var(--secondary-font);
-    font-size: 1.05rem; /* Taille plus grande pour le prix */
-    font-weight: 700; /* Très gras */
-    color: var(--text-color-card-title); /* Gris très foncé */
-    margin-bottom: 12px; /* Espacement après le prix et avant la description */
-    display: block; /* S'assure qu'il est sur sa propre ligne */
-}
-
-
-.gift-info .description { /* Description */
-    font-family: var(--secondary-font); /* Uniformité de police */
     font-size: 0.9rem; /* Taille légèrement plus grande */
-    color: var(--text-color-card-description); /* Gris moyen */
+    color: var(--text-color-card-description); /* Texte plus clair */
     font-weight: 300;
     line-height: 1.5;
-    margin-bottom: 20px; /* Plus d'espace avant le bouton */
-    flex-grow: 1;
+    margin-bottom: 15px; /* Espace avant le bouton */
+    flex-grow: 1; /* Pousse le bouton en bas */
 }
 
-/* --- Boutons --- */
+/* --- Boutons (style épuré) --- */
 .button {
-    display: inline-flex;
+    display: inline-flex; /* Pour centrer texte/icône */
     align-items: center;
     justify-content: center;
-    border-radius: 25px; /* Plus arrondi */
-    padding: 10px 20px; /* Un peu plus grand */
-    font-size: 0.9rem; /* Taille du texte plus grande */
+    border-radius: 20px; /* Arrondi plus doux */
+    padding: 8px 16px;
+    font-size: 0.85rem;
     font-weight: 600;
     text-transform: none; /* Supprime l'uppercase */
     letter-spacing: normal; /* Supprime le letter-spacing */
     cursor: pointer;
-    border: none; /* Supprime la bordure par défaut, le fond gérera le look */
+    border: 1px solid var(--accent-color); /* Bordure fine */
     transition: all 0.3s ease;
-    text-decoration: none;
-    width: 100%;
+    text-decoration: none; /* Pour les liens stylés en bouton */
+    width: 100%; /* Prend toute la largeur de la carte */
     box-sizing: border-box;
-    margin-top: auto;
+    margin-top: auto; /* Se colle en bas de la carte */
 }
 .button i {
     margin-right: 8px;
-    font-size: 0.9em;
+    font-size: 0.9em; /* Icône légèrement plus petite */
 }
 
 .button.primary {
     background-color: var(--accent-color);
     color: white;
+    border-color: var(--accent-color);
 }
 .button.primary:hover {
-    background-color: var(--text-color-headings); /* Assombrir légèrement au survol */
+    background-color: var(--text-color-headings);
+    border-color: var(--text-color-headings);
 }
 
-.button.secondary {
-    background-color: var(--background-alt); /* Un fond plus clair pour le secondaire */
-    color: var(--text-color-dark);
-    border: 1px solid var(--border-color); /* Une fine bordure */
+.button.secondary { /* Style pour "Annuler" ou "Acheter soi-même" */
+    background-color: transparent; /* Pas de fond */
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
 }
 .button.secondary:hover {
-    background-color: var(--border-color);
-    color: var(--text-color-headings);
+    background-color: rgba(var(--accent-color-rgb), 0.1); /* Léger fond au survol */
 }
 
-/* Style pour le bouton "Offert" */
+
+/* Bouton "Offert" */
 .button.offered {
-    background-color: #f0f0f0; /* Gris très clair */
-    border-color: #e0e0e0; /* Bordure plus douce */
-    color: #9a9a9a; /* Texte gris doux */
-    cursor: default;
-    opacity: 1; /* Ne pas réduire l'opacité */
+    background-color: transparent;
+    border: 1px solid #ccc; /* Bordure grise */
+    color: #9a9a9a; /* Texte gris */
+    cursor: default; /* Non cliquable */
 }
 .button.offered:hover {
-    background-color: #f0f0f0;
-    border-color: #e0e0e0;
+    background-color: transparent; /* Reste transparent */
+    border-color: #ccc;
 }
 
 
@@ -360,8 +351,8 @@ body {
     height: 100%;
     background-color: rgba(60, 50, 40, 0.8);
     backdrop-filter: blur(5px);
-    z-index: 1010;
-    display: none;
+    z-index: 1010; /* Au-dessus de tout */
+    display: none; /* Caché par défaut */
 }
 .modal {
     position: fixed;
@@ -376,7 +367,7 @@ body {
     width: 90%;
     border: 1px solid var(--border-color);
     z-index: 1011;
-    display: none;
+    display: none; /* Caché par défaut */
 }
 .modal-close-button {
     position: absolute;
@@ -399,7 +390,7 @@ body {
     font-family: var(--primary-font);
     font-size: 1.6rem;
     color: var(--text-color-headings);
-    margin-top: 0;
+    margin-top: 0; /* Annule marge par défaut */
     margin-bottom: 15px;
     text-align: center;
 }
@@ -409,7 +400,7 @@ body {
     text-align: center;
 }
 #modal-content .modal-revolut-link {
-    display: block;
+    display: block; /* Prend toute la largeur */
     margin-bottom: 25px;
     text-align: center;
 }
@@ -418,7 +409,7 @@ body {
     margin-top: 25px;
     padding-top: 20px;
     border-top: 1px solid var(--border-color);
-    text-align: center;
+    text-align: center; /* Centre les éléments du formulaire */
 }
 #modal-content label {
     display: block;
@@ -426,7 +417,7 @@ body {
     margin-bottom: 8px;
     color: var(--text-color-headings);
     font-size: 0.9rem;
-    text-align: left;
+    text-align: left; /* Aligne le label à gauche */
 }
 #modal-content input[type="text"] {
     width: 100%;
@@ -436,32 +427,35 @@ body {
     font-family: var(--secondary-font);
     font-size: 0.9rem;
     margin-bottom: 15px;
-    box-sizing: border-box;
+    box-sizing: border-box; /* Important pour que width 100% inclue le padding */
 }
 #modal-content .modal-buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Boutons l'un sous l'autre sur mobile */
     gap: 10px;
-    align-items: center;
+    align-items: center; /* Centre les boutons */
 }
 
+/* Styles pour écrans plus larges dans la modale */
 @media (min-width: 480px) {
     #modal-content .modal-buttons {
-        flex-direction: row;
-        justify-content: center;
+        flex-direction: row; /* Boutons côte à côte */
+        justify-content: center; /* Centre horizontalement */
     }
     #modal-content .modal-buttons .button {
-        width: auto;
-        min-width: 150px;
+        width: auto; /* Largeur s'adapte au contenu */
+        min-width: 150px; /* Largeur minimale */
     }
 }
 
+
+/* Message de succès/erreur dans la modale */
 #modal-message {
     margin-top: 15px;
     padding: 10px;
     border-radius: 5px;
     font-size: 0.9rem;
-    display: none;
+    display: none; /* Caché par défaut */
 }
 #modal-message.success {
     background-color: rgba(var(--accent-color-rgb), 0.1);
@@ -469,7 +463,55 @@ body {
     border: 1px solid rgba(var(--accent-color-rgb), 0.3);
 }
 #modal-message.error {
-    background-color: #fceded;
-    color: #c53030;
+    background-color: #fceded; /* Soft red */
+    color: #c53030; /* Darker red */
     border: 1px solid #f7baba;
+}
+
+/* --- Adaptation Mobile pour la Grille Cadeaux --- */
+@media (max-width: 960px) {
+    .gift-list {
+        /* 3 colonnes sur tablette */
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+}
+@media (max-width: 768px) {
+    .gift-list {
+        /* 2 colonnes sur mobile large */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+@media (max-width: 480px) {
+    .gift-list {
+        /* 1 colonne sur petit mobile */
+        grid-template-columns: 1fr;
+        gap: 25px; /* On peut remettre un peu d'espace */
+    }
+}
+
+/* --- Adaptation Mobile pour Header/Intro --- */
+@media (max-width: 600px) {
+    .back-link {
+        position: static; /* Annule la position absolue */
+        transform: none;
+        display: block; /* Prend toute la largeur */
+        margin-top: 15px; /* Espace après le titre */
+        text-align: center;
+    }
+    .page-container {
+        padding: 10px; /* Moins de padding sur petit écran */
+    }
+    .intro-paragraph {
+        margin-left: -10px; /* Pour toucher les bords */
+        margin-right: -10px;
+        border-radius: 0; /* Pas d'arrondi si touche les bords */
+    }
+     .cagnotte-section {
+        padding: 20px;
+    }
+     .cagnotte-section h3 {
+        font-size: 1.6rem;
+    }
 }
