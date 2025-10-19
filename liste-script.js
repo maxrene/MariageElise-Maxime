@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+Fdocument.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // <--- PASTE YOUR CSV LINK HERE
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
@@ -57,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${!isOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
-                    {/* Le span pour le prix a été retiré d'ici */}
                     <p class="gift-title-price">${gift.Nom || 'Cadeau'}</p>
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
