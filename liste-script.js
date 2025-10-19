@@ -127,7 +127,6 @@ function createGiftCardHTML(gift) {
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
-                {/* Ensure button text/class/disabled state uses isOffered */}
                 <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
                     ${isOffered ? 'Offert' : '<i class="fab fa-rev"></i> Offrir via Revolut'}
                 </button>
