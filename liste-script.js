@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtHWPuy80gjnY-HuAO8K7KMxBQPEE5XEGNzJUZTsiDnE8MOG-3V9DSbp0tJ5jP7bTF1yYplsKx59p1/pub?output=csv'; // <--- PASTE YOUR CSV LINK HERE
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // <--- PASTE YOUR CSV LINK HERE
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
 
     // --- DOM ELEMENTS ---
@@ -28,19 +28,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const csvText = await response.text();
-            // Simple CSV parsing (assumes no commas within fields)
-            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
-            const headers = rows[0].split(',').map(h => h.trim());
-            allGifts = rows.slice(1).map(row => {
-                const values = row.split(',');
-                const gift = {};
-                headers.forEach((header, index) => {
-                    gift[header] = values[index] ? values[index].trim() : '';
-                });
-                // Convert price to number, default to 0 if invalid
-                gift.Prix = parseFloat(gift.Prix) || 0;
-                return gift;
-            });
+            // Simple CSV parsing (assumes no commas within fields & handles potential quotes)
+             const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
+             // Robust header parsing (handles potential quotes)
+             const headers = rows[0].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(h => h.replace(/^"|"$/g, '').trim());
+             allGifts = rows.slice(1).map(row => {
+                 // Robust value parsing (handles potential quotes and commas within quotes)
+                 const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.replace(/^"|"$/g, '').trim());
+                 const gift = {};
+                 headers.forEach((header, index) => {
+                     gift[header] = values[index] ? values[index] : ''; // Keep empty strings if needed
+                 });
+                 // Convert price to number, default to 0 if invalid
+                 gift.Prix = parseFloat(gift.Prix) || 0;
+                 return gift;
+             });
             console.log("Gifts loaded:", allGifts); // For debugging
             displayCategories();
             displayGifts('all'); // Display all gifts initially
@@ -54,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Extracts unique categories and creates filter tabs.
      */
     function displayCategories() {
-        const categories = ['all', ...new Set(allGifts.map(gift => gift.Categorie))];
+        const categories = ['all', ...new Set(allGifts.map(gift => gift.Categorie).filter(cat => cat))]; // Filter out empty categories
         tabsContainer.innerHTML = categories.map(category => `
             <a href="#" class="tab-item ${category === 'all' ? 'active' : ''}" data-category="${category}">
                 ${category === 'all' ? 'Tous' : category}
@@ -72,10 +74,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Generates HTML for a single gift card.
+   /**
+     * Displays gifts based on the selected category AND adds a title.
      */
-   function createGiftCardHTML(gift) {
+    function displayGifts(category) {
+        giftListContainer.innerHTML = ''; // Clear previous content (title + gifts)
+
+        const filteredGifts = category === 'all'
+            ? allGifts
+            : allGifts.filter(gift => gift.Categorie === category);
+
+        // --- AJOUT : Créer et insérer le titre de la catégorie ---
+        if (category !== 'all' && filteredGifts.length > 0) {
+            const categoryTitle = document.createElement('h3');
+            categoryTitle.className = 'category-title'; // Classe pour le style CSS
+            categoryTitle.textContent = category;
+            giftListContainer.appendChild(categoryTitle); // Ajoute le titre AVANT la grille
+        } else if (category === 'all' && allGifts.length > 0) { // Only show 'All' title if there are gifts
+             const allTitle = document.createElement('h3');
+             allTitle.className = 'category-title';
+             allTitle.textContent = 'Tous nos coups de cœur'; // Ou simplement "Tous les cadeaux"
+             giftListContainer.appendChild(allTitle);
+        }
+        // --- FIN AJOUT ---
+
+        // Créer un conteneur pour la grille des cadeaux (pour que le titre soit séparé)
+        const gridWrapper = document.createElement('div');
+        // Appliquer les classes de grille ici (CSS custom)
+        gridWrapper.className = 'gift-grid-wrapper'; // Classe pour le style CSS de la grille
+
+        if (filteredGifts.length === 0 && category !== 'all') {
+             gridWrapper.innerHTML = '<p class="loading-message">Aucun cadeau dans cette catégorie pour le moment.</p>';
+        } else if (allGifts.length === 0) { // Check if allGifts itself is empty
+             // This case might be handled by fetch error, but added for robustness
+             gridWrapper.innerHTML = '<p class="loading-message">La liste est vide pour le moment.</p>';
+        } else if (filteredGifts.length === 0 && category === 'all') {
+             gridWrapper.innerHTML = '<p class="loading-message">La liste est vide pour le moment.</p>';
+        } else {
+             filteredGifts.forEach(gift => {
+                gridWrapper.innerHTML += createGiftCardHTML(gift);
+            });
+        }
+
+        giftListContainer.appendChild(gridWrapper); // Ajoute la grille APRES le titre
+
+        // Add event listeners to the new buttons
+        addOfferButtonListeners();
+    }
+
+
+    /**
+     * Generates HTML for a single gift card (Simple/Premium design).
+     */
+    function createGiftCardHTML(gift) {
         const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
         // Prépare la partie prix à inclure dans le titre, ou une chaîne vide si 0 ou offert
         const priceString = (!isOffered && gift.Prix > 0) ? ` - ${gift.Prix}€` : '';
@@ -94,40 +145,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
         `;
-        // J'ai aussi changé l'icône pour le logo Revolut (fab fa-rev), mais vous pouvez garder fas fa-gift
     }
 
-
-    /**
-     * Displays gifts based on the selected category.
-     */
-    function displayGifts(category) {
-        giftListContainer.innerHTML = ''; // Clear previous gifts
-        const filteredGifts = category === 'all'
-            ? allGifts
-            : allGifts.filter(gift => gift.Categorie === category);
-
-        if (filteredGifts.length === 0 && category !== 'all') {
-             giftListContainer.innerHTML = '<p class="loading-message">Aucun cadeau dans cette catégorie pour le moment.</p>';
-        } else if (allGifts.length === 0) {
-            // This case is handled by the fetch error message or initial loading message
-             giftListContainer.innerHTML = '<p class="loading-message">La liste est vide pour le moment.</p>';
-        }
-        else {
-             filteredGifts.forEach(gift => {
-                giftListContainer.innerHTML += createGiftCardHTML(gift);
-            });
-        }
-
-
-        // Add event listeners to the new buttons
-        addOfferButtonListeners();
-    }
 
     /**
      * Adds event listeners to all "Offrir" buttons.
      */
     function addOfferButtonListeners() {
+        giftListContainer.querySelectorAll('.revolut-button[data-type="gift"]').forEach(button => {
+            // Remove existing listener to prevent duplicates if function is called multiple times
+            button.replaceWith(button.cloneNode(true));
+        });
+         // Add new listeners
         giftListContainer.querySelectorAll('.revolut-button[data-type="gift"]').forEach(button => {
             button.addEventListener('click', () => {
                 currentGiftId = button.closest('.gift-card').dataset.id;
@@ -158,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="button secondary" id="cancelOfferButton">Annuler</button>
                         <button class="button primary" id="confirmOfferButton">Marquer comme offert</button>
                     </div>
-                    <div id="modal-message" class="success" style="display: none;"></div>
+                    <div id="modal-message" style="display: none;"></div>
                 </div>
             `;
         } else { // Free contribution (cagnotte)
@@ -189,7 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmButton.addEventListener('click', handleConfirmOffer);
         }
         if (cancelButton) {
-             cancelButton.addEventListener('click', closeModal);
+             // Ensure only one listener is attached
+             cancelButton.replaceWith(cancelButton.cloneNode(true));
+             document.getElementById('cancelOfferButton').addEventListener('click', closeModal);
         }
     }
 
@@ -228,9 +259,10 @@ document.addEventListener('DOMContentLoaded', () => {
              displayModalMessage("Merci beaucoup pour votre contribution !", "success");
              // Disable form and change button after success
              nameInput.disabled = true;
-             document.getElementById('confirmOfferButton').style.display = 'none';
+             const confirmBtn = document.getElementById('confirmOfferButton');
+             if (confirmBtn) confirmBtn.style.display = 'none';
              const cancelButton = document.getElementById('cancelOfferButton');
-             cancelButton.textContent = 'Fermer'; // Change cancel to close
+             if (cancelButton) cancelButton.textContent = 'Fermer'; // Change cancel to close
             // Optional: Close modal automatically after a delay
             // setTimeout(closeModal, 2500);
         } else {
@@ -240,20 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /*
         // --- REAL IMPLEMENTATION (Requires backend/Apps Script) ---
-        // Here you would typically send the gift ID and offeredByName
-        // to a backend service (like a Google Apps Script web app)
-        // which would then update the Google Sheet.
-        // Example:
-        // markGiftAsOfferedOnSheet(currentGiftId, offeredByName)
-        //    .then(() => {
-        //        // Update UI as in simulation
-        //        displayModalMessage("Merci beaucoup !", "success");
-        //         setTimeout(closeModal, 2000); // Close after success
-        //    })
-        //    .catch(error => {
-        //        console.error("Error marking gift as offered:", error);
-        //        displayModalMessage("Erreur lors de la mise à jour.", "error");
-        //    });
+        // see previous explanation on how this would work
         */
     }
 
@@ -284,4 +303,4 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.addEventListener('click', closeModal);
     closeModalButton.addEventListener('click', closeModal);
 
-});
+}); // --- FIN DU DOMCONTENTLOADED ---
