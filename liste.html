@@ -1,58 +1,62 @@
+<!DOCTYPE html>
 <html lang="fr">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste de Mariage - Elise & Maxime</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700&family=Montserrat:ital,wght@0,300;0,400;500&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="liste-style.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 </head>
 <body>
 
     <div class="page-container">
         <header class="site-header">
             <h2>Notre Liste de Mariage</h2>
+            <a href="index9.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Retour au site principal
+            </a>
         </header>
 
         <main class="main-content">
             <div class="content-container">
 
                 <div class="intro-paragraph">
-                    <p>Votre présence à notre mariage est le plus beau des cadeaux que vous puissiez nous faire. Cependant, si vous souhaitez nous témoigner une attention supplémentaire, vous trouverez sur cette page quelques idées qui nous feraient plaisir.</p>
-                    <p>Habitant à l'étranger, nous avons opté pour une liste dématérialisée. Pour éviter les frais, deux options s'offrent à vous : un virement via l'application Revolut ou, pour les cadeaux spécifiques, la possibilité de l'acheter vous-même. Dans tous les cas, n'oubliez pas de cliquer sur le bouton de confirmation sur le site pour que votre participation soit bien enregistrée. Merci du fond du cœur pour votre générosité !</p>
+                    <p>Votre présence à notre mariage est le plus beau des cadeaux. Cependant, si vous souhaitez contribuer, voici quelques idées qui nous feraient plaisir pour démarrer notre nouvelle vie.</p>
+                     <p>Pour des raisons pratiques (nous habitons à l'étranger !), nous avons opté pour une liste dématérialisée. Vous pouvez contribuer via un lien Revolut ou acheter l'article vous-même. **Important :** N'oubliez pas de cliquer sur "Marquer comme offert" après votre contribution pour que la liste reste à jour. Merci de tout cœur !</p>
                 </div>
 
-                <div id="cagnotte-container"></div>
-          
-                <div class="tabs-container">
-                    <a href="#" class="tab-item" data-tab="kitchen">Cuisine</a>
-                    <a href="#" class="tab-item" data-tab="home">Maison</a>
-                    <a href="#" class="tab-item" data-tab="experiences">Expériences</a>
-                </div>
+                <section id="cagnotte-container" class="cagnotte-section">
+                    <h3><i class="fas fa-gift"></i> Contribution Libre</h3>
+                    <p>Si vous préférez, vous pouvez participer librement à notre cagnotte voyage de noces !</p>
+                    <button class="button primary revolut-button" data-type="libre">
+                        <i class="fas fa-coins"></i> Participer à la cagnotte
+                    </button>
+                </section>
 
-                <div class="gift-list" id="gift-list-container">
+                <div id="tabs-container" class="tabs-container">
+                    <a href="#" class="tab-item active" data-category="all">Tous</a>
+                    </div>
+
+                <div id="gift-list-container" class="gift-list">
                     <p class="loading-message">Chargement de la liste de cadeaux...</p>
-                </div>
+                    </div>
             </div>
         </main>
 
-         <footer class="site-footer">
-    <div class="footer-content-wrapper">
-        <p class="footer-names">Elise &amp; Maxime</p>
-        <p class="footer-separator">&hearts;</p> 
-        <p class="footer-date">20 Juin 2026</p>
-    </div>
-    <div class="footer-signature">
-        <p>Fait avec amour pour notre grand jour.</p>
-        <p>&copy; 2024-2026 Elise & Maxime. Tous droits réservés.</p>
-    </div>
-</footer>
+        <footer class="site-footer-liste">
+            <p>Elise & Maxime - 20 Juin 2026</p>
+        </footer>
     </div>
 
-    <div id="modal-overlay" class="modal-overlay"></div>
-    <div id="revolut-modal" class="modal">
-        </div>
+    <div id="modal-overlay" class="modal-overlay" style="display: none;"></div>
+    <div id="gift-modal" class="modal" style="display: none;">
+        <button class="modal-close-button">&times;</button>
+        <div id="modal-content">
+            </div>
+    </div>
 
-    <script src="liste-script.js" defer></script>
+    <script src="liste-script.js"></script>
 </body>
 </html>
