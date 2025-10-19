@@ -238,20 +238,12 @@ body {
 
 /* Overlay "Offert" sur l'image */
 .gift-card.offered .gift-image-wrapper::after {
-    content: 'Offert';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.75);
-    color: var(--text-color-headings);
-    font-family: var(--primary-font);
-    font-size: 1.5rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.4);   
     z-index: 2; /* Au-dessus de l'image */
     border-radius: 8px;
 }
