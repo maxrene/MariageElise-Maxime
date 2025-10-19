@@ -75,26 +75,26 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Generates HTML for a single gift card.
      */
-    function createGiftCardHTML(gift) {
+   function createGiftCardHTML(gift) {
         const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
-        const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
+        // Prépare la partie prix à inclure dans le titre, ou une chaîne vide si 0 ou offert
+        const priceString = (!isOffered && gift.Prix > 0) ? ` - ${gift.Prix}€` : '';
 
-        // Notez les changements dans la structure et les classes
         return `
             <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
                     </div>
                 <div class="gift-info">
-                    <h4>${gift.Nom || 'Cadeau'}</h4>
+                    <p class="gift-title-price">${gift.Nom || 'Cadeau'}<span class="gift-price-value">${priceString}</span></p>
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
-                    ${!isOffered && formattedPrice ? `<span class="gift-price">${formattedPrice}</span>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
                 <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
-                    ${isOffered ? `Offert par ${gift.Offert_Par}` : '<i class="fas fa-gift"></i> Offrir'}
+                    ${isOffered ? `Offert par ${gift.Offert_Par}` : '<i class="fab fa-rev"></i> Offrir via Revolut'}
                 </button>
             </div>
         `;
+        // J'ai aussi changé l'icône pour le logo Revolut (fab fa-rev), mais vous pouvez garder fas fa-gift
     }
 
 
