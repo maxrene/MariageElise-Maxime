@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // <--- PASTE YOUR CSV LINK HERE
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
+    const appsScriptUrl = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'; // <-- AJOUTEZ CETTE LIGNE (URL à venir)
 
  // --- DOM ELEMENTS ---
     const giftListContainer = document.getElementById('gift-list-container');
@@ -107,11 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Generates HTML for a single gift card (White price tag - Comments Removed).
      */
-    function createGiftCardHTML(gift) {
+  function createGiftCardHTML(gift) {
         const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
         const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
 
-        // Comments removed from inside the string
         return `
             <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
@@ -122,9 +122,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
+                {/* --- MODIFICATION ICI --- */}
                 <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
-                    ${isOffered ? `Offert par ${gift.Offert_Par}` : '<i class="fab fa-rev"></i> Offrir via Revolut'}
+                    ${isOffered ? 'Offert' : '<i class="fab fa-rev"></i> Offrir via Revolut'}
                 </button>
+                {/* --- FIN MODIFICATION --- */}
             </div>
         `;
     }
@@ -303,9 +305,11 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGiftId = null;
     }
 
-    function handleConfirmOffer() {
+    async function handleConfirmOffer() {
         const nameInput = document.getElementById('offeredByName');
         const modalMessage = document.getElementById('modal-message');
+        const confirmButton = document.getElementById('confirmOfferButton');
+        const cancelButton = document.getElementById('cancelOfferButton');
 
         if (!nameInput || !nameInput.value.trim()) {
             displayModalMessage("Veuillez entrer votre nom.", "error");
@@ -313,28 +317,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const offeredByName = nameInput.value.trim();
-        const giftIndex = allGifts.findIndex(g => g.ID === currentGiftId);
+        const giftIdToUpdate = currentGiftId; // Store ID before potential modal closure
 
-        if (giftIndex !== -1) {
-            allGifts[giftIndex].Offert_Par = offeredByName;
-            displayAllGiftsByCategory(); // Re-display everything
-            displayModalMessage("Merci beaucoup pour votre contribution !", "success");
-            nameInput.disabled = true;
-            const confirmBtn = document.getElementById('confirmOfferButton');
-            if (confirmBtn) confirmBtn.style.display = 'none';
-            const cancelButton = document.getElementById('cancelOfferButton');
-            if (cancelButton) cancelButton.textContent = 'Fermer';
-        } else {
-            console.error("Error in handleConfirmOffer: could not find gift with ID", currentGiftId);
-            displayModalMessage("Erreur lors de la mise à jour (cadeau non trouvé).", "error");
+        // Disable buttons during processing
+        if (confirmButton) confirmButton.disabled = true;
+        if (cancelButton) cancelButton.disabled = true;
+        displayModalMessage("Mise à jour en cours...", "info"); // Show processing message
+
+        try {
+            console.log("Sending to Apps Script:", { giftId: giftIdToUpdate, name: offeredByName }); // Debug log
+            
+            // --- Appel à Google Apps Script ---
+            const response = await fetch(appsScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors', // Important for simple Apps Script POST
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                 // Send data as a JSON string in the request body
+                 // Apps Script will parse this using JSON.parse(e.postData.contents)
+                body: JSON.stringify({ giftId: giftIdToUpdate, name: offeredByName }),
+             });
+             
+            // Note: With 'no-cors', we cannot directly read the response status or body here.
+            // We assume success if the request itself didn't throw an error.
+            // Apps Script needs to handle errors internally if possible.
+            console.log("Request sent to Apps Script (no-cors). Assuming success if no error thrown."); // Debug log
+
+            // --- Update UI Optimistically ---
+            const giftIndex = allGifts.findIndex(g => g.ID === giftIdToUpdate);
+            if (giftIndex !== -1) {
+                allGifts[giftIndex].Offert_Par = offeredByName; // Update local data
+                displayAllGiftsByCategory(); // Re-render the list
+                displayModalMessage("Merci beaucoup pour votre contribution !", "success");
+                nameInput.disabled = true;
+                if (confirmButton) confirmButton.style.display = 'none';
+                if (cancelButton) {
+                    cancelButton.textContent = 'Fermer';
+                    cancelButton.disabled = false; // Re-enable close button
+                }
+                 // Optional: Close modal automatically after a delay
+                // setTimeout(closeModal, 2500);
+            } else {
+                 // This case should ideally not happen if currentGiftId was valid
+                console.error("Error updating UI: could not find gift with ID", giftIdToUpdate);
+                throw new Error("Erreur locale lors de la mise à jour (cadeau non trouvé).");
+            }
+
+        } catch (error) {
+            console.error("❌ Error sending update to Apps Script or updating UI:", error);
+            displayModalMessage(`Erreur lors de la mise à jour: ${error.message}. Veuillez réessayer ou nous contacter.`, "error");
+            // Re-enable buttons on error
+            if (confirmButton) confirmButton.disabled = false;
+            if (cancelButton) cancelButton.disabled = false;
         }
     }
 
-    function displayModalMessage(message, type = 'success') {
+    // --- Add a new CSS class for the info message ---
+    function displayModalMessage(message, type = 'success') { // success, error, info
         const modalMessage = document.getElementById('modal-message');
         if (modalMessage) {
             modalMessage.textContent = message;
-            modalMessage.className = type; // 'success' or 'error' applied directly
+            // Use specific classes for styling
+            modalMessage.className = `modal-message-${type}`; // e.g., modal-message-success
             modalMessage.style.display = 'block';
         }
     }
