@@ -108,13 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Generates HTML for a single gift card (White price tag - Comments Removed).
      */
-  function createGiftCardHTML(gift) {
+ function createGiftCardHTML(gift) {
+        // Vérifie si la colonne Offert_par contient une valeur (non vide) LORS DU CHARGEMENT
         const isOffered = gift.Offert_Par && gift.Offert_Par.trim() !== '';
         const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
 
         return `
+            {/* Ajoute la classe 'offered' si isOffered est vrai */}
             <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
+                    {/* Affiche la pastille seulement si NON offert ET prix > 0 */}
                     ${!isOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
@@ -122,11 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
-                {/* --- MODIFICATION ICI --- */}
+                {/* Définit le texte et l'état du bouton en fonction de isOffered */}
                 <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
                     ${isOffered ? 'Offert' : '<i class="fab fa-rev"></i> Offrir via Revolut'}
                 </button>
-                {/* --- FIN MODIFICATION --- */}
             </div>
         `;
     }
