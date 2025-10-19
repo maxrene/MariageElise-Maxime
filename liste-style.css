@@ -132,38 +132,6 @@ body {
 }
 
 /* --- Onglets Catégories --- */
-.tabs-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-}
-.tab-item {
-    font-family: var(--secondary-font);
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-color-dark);
-    padding: 8px 16px;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all var(--base-transition-duration);
-    text-decoration: none;
-}
-.tab-item:hover {
-    background-color: rgba(var(--accent-color-rgb), 0.1);
-    border-color: rgba(var(--accent-color-rgb), 0.3);
-    color: var(--accent-color);
-}
-.tab-item.active {
-    background-color: var(--accent-color);
-    color: var(--text-color-light);
-    border-color: var(--accent-color);
-    font-weight: 600;
-}
 
 /* --- Conteneur global de la liste (après les onglets) --- */
 /* On retire la grille de .gift-list car c'est maintenant le conteneur global */
@@ -184,6 +152,10 @@ body {
     /* Assure que le titre prend toute la largeur pour repousser la grille */
     width: 100%;
     box-sizing: border-box;
+}
+/* Ajoute de l'espace avant le premier titre aussi */
+.category-title:first-of-type {
+    padding-top: 0;
 }
 
 /* --- Style pour le Conteneur de la Grille Cadeaux --- */
