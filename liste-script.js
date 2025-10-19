@@ -26,41 +26,81 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
             }
             const csvText = await response.text();
-            console.log("CSV Text received (first 200 chars):", csvText.substring(0, 200)); // Debug log
+            console.log("CSV Text received (first 300 chars):", csvText.substring(0, 300)); // Debug log - Show more data
 
              const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
              if (rows.length < 2) {
                  throw new Error("CSV data seems empty or invalid (less than 2 rows).");
              }
 
-             const headers = rows[0].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(h => h.replace(/^"|"$/g, '').trim());
-             console.log("Parsed headers:", headers); // Debug log
+            // --- Nouvelle Logique de Parsing ---
+            function parseCsvRow(rowString) {
+                const values = [];
+                let currentVal = '';
+                let inQuotes = false;
+                for (let i = 0; i < rowString.length; i++) {
+                    const char = rowString[i];
+                    if (char === '"') {
+                        // Handle escaped quotes ("") inside quoted field
+                        if (inQuotes && rowString[i+1] === '"') {
+                            currentVal += '"';
+                            i++; // Skip next quote
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(currentVal.trim());
+                        currentVal = '';
+                    } else {
+                        currentVal += char;
+                    }
+                }
+                values.push(currentVal.trim()); // Add the last value
+                return values;
+            }
 
-             allGifts = rows.slice(1).map((row, rowIndex) => {
-                 const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-                 if (!values || values.length !== headers.length) {
-                     console.warn(`Skipping row ${rowIndex + 2}: Incorrect number of columns. Expected ${headers.length}, got ${values ? values.length : 0}. Row content: ${row}`);
-                     return null;
+            const headers = parseCsvRow(rows[0]);
+            console.log("Parsed headers:", headers); // Debug log
+
+            if (headers.length === 0 || !headers.includes("ID") || !headers.includes("Nom")) {
+                 throw new Error("CSV Headers are missing or invalid. Check publication settings.");
+            }
+
+            allGifts = rows.slice(1).map((row, rowIndex) => {
+                 const values = parseCsvRow(row);
+                 // Check if the number of values matches the number of headers AFTER parsing
+                 if (values.length !== headers.length) {
+                     console.warn(`Skipping row ${rowIndex + 2}: Incorrect number of columns after parsing. Expected ${headers.length}, got ${values.length}. Row content: ${row}`);
+                     return null; // Skip this invalid row
                  }
                   const gift = {};
-                  values.map(v => v.replace(/^"|"$/g, '').trim()).forEach((value, index) => {
-                      gift[headers[index]] = value;
+                  headers.forEach((header, index) => {
+                      // Use header name (trimmed just in case) for assignment
+                      gift[header.trim()] = values[index] ? values[index] : '';
                   });
 
+
+                 // Check for essential fields (optional, but good practice)
                  if (!gift.ID || !gift.Nom) {
                     console.warn(`Skipping row ${rowIndex + 2}: Missing ID or Nom. Row content: ${row}`);
-                    return null;
+                    return null; // Skip row if essential data is missing
                  }
 
                  gift.Prix = parseFloat(gift.Prix) || 0;
                  return gift;
-             }).filter(gift => gift !== null);
+             }).filter(gift => gift !== null); // Remove skipped rows
+             // --- Fin Nouvelle Logique de Parsing ---
+
 
             console.log("Gifts parsed successfully:", allGifts); // Debug log
+            if (allGifts.length === 0 && rows.length > 1) {
+                 console.warn("Parsing resulted in zero valid gifts, although rows were present. Check row content and column matching.");
+                 throw new Error("Aucun cadeau valide n'a pu être lu. Vérifiez le format des lignes dans le Google Sheet."); // Inform user
+            }
             displayAllGiftsByCategory();
         } catch (error) {
-            console.error("❌ Error fetching or parsing gifts:", error);
-            giftListContainer.innerHTML = `<p class="error-message">Impossible de charger la liste. Erreur: ${error.message}. Vérifiez l'URL et la publication du Google Sheet.</p>`;
+            console.error("❌ Error fetching or parsing gifts:", error); // Make error more visible
+            giftListContainer.innerHTML = `<p class="error-message">Impossible de charger la liste. Erreur: ${error.message}. Vérifiez l'URL, la publication et le format du Google Sheet.</p>`; // More detailed error
         }
     }
 
