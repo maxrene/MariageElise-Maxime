@@ -1096,8 +1096,9 @@ img {
 }
 .rsvp-form input[type="text"]::placeholder,
 .rsvp-form textarea::placeholder {
-    color: #aaa;
-    font-style: italic;
+    color: #999;
+    font-style: normal;
+    opacity: 1;
 }
 .rsvp-form input[type="text"]:focus,
 .rsvp-form input[type="email"]:focus,
