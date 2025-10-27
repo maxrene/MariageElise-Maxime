@@ -243,20 +243,23 @@ document.addEventListener('DOMContentLoaded', function() {
     guestCountSelect.addEventListener('change', () => {
       const count = parseInt(guestCountSelect.value) || 1;
       let fieldsHTML = '';
-      if (count > 1) {
-        fieldsHTML += '<p class="form-label">Noms et prénoms des personnes supplémentaires :</p>';
-      }
+      // MODIFICATION : Le titre est maintenant généré pour chaque invité
       for (let i = 2; i <= count; i++) {
         fieldsHTML += `
-        <div class="form-row guest-block">
-          <div class="form-group third-width">
-            <label for="PrenomInvite${i}">Prénom invité ${i}</label>
-            <input type="text" id="PrenomInvite${i}" name="PrenomInvite${i}" placeholder="Prénom" required>
+        <div class="guest-block">
+          <p class="guest-block-title">Invité ${i}</p>
+          
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label for="PrenomInvite${i}">Prénom</label>
+              <input type="text" id="PrenomInvite${i}" name="PrenomInvite${i}" placeholder="Prénom" required>
+            </div>
+            <div class="form-group half-width">
+              <label for="NomInvite${i}">Nom</label>
+              <input type="text" id="NomInvite${i}" name="NomInvite${i}" placeholder="Nom" required>
+            </div>
           </div>
-          <div class="form-group third-width">
-            <label for="NomInvite${i}">Nom invité ${i}</label>
-            <input type="text" id="NomInvite${i}" name="NomInvite${i}" placeholder="Nom" required>
-          </div>
+          
           <div class="form-group">
             <label for="AllergiesInvite${i}">Allergies invité ${i}</label>
             <select id="AllergiesInvite${i}" name="AllergiesInvite${i}" class="rsvp-select" required onchange="toggleCustomAllergy(${i})">
@@ -268,10 +271,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </select>
           </div>
           <div class="form-group" id="allergiesGuest${i}AutreContainer" style="display: none;">
-            <label for="AllergiesInvite${i}Autre">Précisez</label>
+            <label for="AllergiesInvite${i}Autre">Précisez</labe>
             <input type="text" id="AllergiesInvite${i}Autre" name="AllergiesInvite${i}Autre" placeholder="Précisez l'allergie">
           </div>
-        </div>`;
+        </div>
+        `;
       }
       if (additionalGuestsSection) {
         additionalGuestsSection.innerHTML = fieldsHTML;
