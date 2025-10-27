@@ -1352,7 +1352,7 @@ img {
     color: var(--text-color-dark);
 }
 .wedding-list-intro .cta-button {
-    margin-top: 45px; /* Espace entre le texte et le bouton */
+    margin-top: 60px; /* Espace entre le texte et le bouton */
 }
 /* --- Fin Section Liste de Mariage --- */
 
