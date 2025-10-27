@@ -243,7 +243,7 @@ img {
     justify-content: center; /* Centre le texte horizontalement */
     text-align: center; /* S'assure que le texte multi-ligne est centré */
     box-sizing: border-box; /* Pour que le padding soit inclus */
-    min-height: 55px; /* Hauteur minimale GARANTIE pour 2 lignes */
+    min-height: 50px; /* Hauteur minimale GARANTIE pour 2 lignes */
 }
 
 .main-nav.fixed-nav ul li a {
@@ -254,7 +254,7 @@ img {
     content: '';
     position: absolute;
     /* bottom: 0; <-- MODIFIÉ */
-    bottom: 8px; /* Remonte le trait sous le texte (ajustez si besoin) */
+    bottom: 6px; /* Remonte le trait sous le texte (ajustez si besoin) */
     left: 50%;
     transform: translateX(-50%);
     width: 0;
