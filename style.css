@@ -1622,13 +1622,14 @@ img {
     margin: 0 auto;   /* Pour le centrer sur la page */
     padding: 30px 30px 30px 35px; /* Padding généreux, surtout à gauche */
     
-    /* Le style principal inspiré des itinéraires */
-    border-left: 2px solid var(--accent-color); 
+    /* Style "NB" (Nota Bene) */
+    border-left: 3px solid var(--accent-color); /* MODIFIÉ : Ligne plus épaisse */
+    border-top: 1px solid var(--border-color); /* AJOUT : Ligne supérieure */
+    border-bottom: 1px solid var(--border-color); /* AJOUT : Ligne inférieure */
     
-    /* La différenciation : un fond et une ombre pour en faire un "encart" */
     background-color: var(--background-alt);
     border-radius: 0 8px 8px 0; /* Arrondi les coins sauf celui de la bordure */
-    box-shadow: 0 5px 25px rgba(var(--accent-color-rgb), 0.07);
+    box-shadow: none; /* MODIFIÉ : Ombre retirée pour un look plus direct */
 }
 
 .info-block h4 {
@@ -1652,7 +1653,7 @@ img {
     font-size: 0.95rem;
     color: var(--text-color-dark);
     line-height: 1.7;
-    font-weight: 300;
+    font-weight: 400; /* MODIFIÉ : Texte plus lisible (était 300) */
     margin-bottom: 0;
 }
 
