@@ -231,10 +231,19 @@ img {
     font-size: 0.9rem;
     font-weight: 400; /* Bolder pour nav links */
     letter-spacing: 0.8px;
-    padding: 8px 0;
+    /* padding: 8px 0; <-- MODIFIÉ */
+    padding: 10px 0; /* Léger padding haut/bas */
     position: relative;
     transition: color var(--base-transition-duration) ease;
     text-transform: uppercase;
+    
+    /* --- AJOUTS POUR L'ALIGNEMENT --- */
+    display: flex; /* Active Flexbox */
+    align-items: center; /* Centre le texte verticalement */
+    justify-content: center; /* Centre le texte horizontalement */
+    text-align: center; /* S'assure que le texte multi-ligne est centré */
+    box-sizing: border-box; /* Pour que le padding soit inclus */
+    min-height: 55px; /* Hauteur minimale GARANTIE pour 2 lignes */
 }
 
 .main-nav.fixed-nav ul li a {
@@ -244,7 +253,8 @@ img {
 .main-nav ul li a::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    /* bottom: 0; <-- MODIFIÉ */
+    bottom: 8px; /* Remonte le trait sous le texte (ajustez si besoin) */
     left: 50%;
     transform: translateX(-50%);
     width: 0;
@@ -275,9 +285,14 @@ img {
 /* 1. Style de base du bouton */
 .nav-rsvp-button {
     background-color: var(--accent-color);
-    padding: 8px 18px !important; /* !important pour outrepasser le padding des autres liens */
+    /* padding: 8px 18px !important; <-- MODIFIÉ */
+    padding: 8px 18px; /* On enlève !important */
     border-radius: 20px; /* Forme de pilule */
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+
+    /* --- AJOUTS POUR L'ALIGNEMENT --- */
+    min-height: auto; /* Annule le min-height de 55px hérité */
+    height: auto; /* Laisse le padding gérer la hauteur */
 }
 
 /* 2. Couleur du texte (doit rester claire/blanche) */
