@@ -96,7 +96,7 @@ img {
     z-index: 1; /* Lower than hero for potential overlaps if any */
     opacity: 0;
     transform: translateY(40px);
-    transition: opacity 0.7s var(--scroll-animation-timing), transform 0.7s var(--scroll-animation-timing);
+    transition: opacity 0.6s var(--scroll-animation-timing), transform 0.6s var(--scroll-animation-timing);
 }
 /* ON EXCLUT LA SECTION RSVP DE L'ANIMATION DE TRANSFORMATION
    POUR PERMETTRE À 'BACKGROUND-ATTACHMENT: FIXED' DE FONCTIONNER. */
@@ -1678,6 +1678,11 @@ img {
 }
 
 @media (max-width: 1100px) {
+
+    /* ACCÉLÈRE L'ANIMATION D'APPARITION SUR MOBILE */
+    .content-section {
+        transition: opacity 0.4s var(--scroll-animation-timing), transform 0.4s var(--scroll-animation-timing);
+    }
     
     /* 1. On affiche le bouton hamburger */
     .mobile-nav-toggle {
@@ -1933,4 +1938,5 @@ img {
         padding: 12px 20px; /* Padding réduit pour les petits écrans */
         font-size: 0.9rem; /* Police légèrement plus petite */
     }
+    
 }
