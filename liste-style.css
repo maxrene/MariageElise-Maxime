@@ -34,7 +34,7 @@ body {
 .page-container {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
 }
 
 /* --- Header --- */
@@ -43,7 +43,6 @@ body {
     padding: 30px 0 20px 0;
     border-bottom: 1px solid var(--border-color);
     margin-bottom: 40px;
-    position: relative;
 }
 .site-header h2 {
     font-family: var(--primary-font);
@@ -53,10 +52,9 @@ body {
     margin: 0;
 }
 .back-link {
-    position: absolute;
-    top: 50%;
-    left: 10px; /* À gauche pour "retour" */
-    transform: translateY(-50%);
+    display: block;
+    margin-top: 15px;
+    text-align: center;
     font-size: 0.9rem;
     color: var(--accent-color);
     text-decoration: none;
@@ -84,12 +82,12 @@ body {
 /* --- Intro --- */
 .intro-paragraph {
     padding: 25px;
-    margin: 0 0 40px 0;
+    margin: 0 -10px 40px -10px;
     background-color: var(--background-alt);
     border-left: 3px solid var(--accent-color);
     font-size: 0.95rem;
     font-weight: 300;
-    border-radius: 0 5px 5px 0;
+    border-radius: 0;
 }
 .intro-paragraph p:last-child {
     margin-bottom: 0;
@@ -104,14 +102,14 @@ body {
     background-color: #fff;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 30px;
+    padding: 20px;
     margin-bottom: 40px;
     text-align: center;
     box-shadow: 0 5px 15px rgba(0,0,0,0.03);
 }
 .cagnotte-section h3 {
     font-family: var(--primary-font);
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color: var(--text-color-headings);
     margin-bottom: 10px;
     display: flex;
@@ -139,7 +137,7 @@ body {
 /* --- Style pour le Titre de Catégorie --- */
 .category-title {
     font-family: var(--secondary-font); /* Police moderne sans-serif */
-    font-size: 1.5rem; /* Taille assez grande */
+    font-size: 1.2rem; /* Taille assez grande */
     font-weight: 700; /* Gras */
     color: var(--text-color-card-title); /* Noir/Gris très foncé */
     
@@ -150,7 +148,7 @@ body {
     border-top: 1px solid var(--border-color); /* Ligne horizontale fine */
     /* --- FIN AJOUTS/MODIFICATIONS --- */
     
-    text-align: left; /* Alignement à gauche */
+    text-align: center; /* Alignement à gauche */
     width: 100%;
     box-sizing: border-box;
 }
@@ -166,8 +164,8 @@ body {
 /* --- Style pour le Conteneur de la Grille Cadeaux --- */
 .gift-grid-wrapper {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
+    grid-template-columns: 1fr;
+    gap: 25px;
 }
 
 .loading-message {
@@ -238,6 +236,7 @@ body {
 
 /* Overlay "Offert" sur l'image */
 .gift-card.offered .gift-image-wrapper::after {
+    content: ''; /* CORRECTION: content manquant */
     position: absolute;
     top: 0;
     left: 0;
@@ -453,16 +452,6 @@ body {
     align-items: center;
 }
 
-@media (min-width: 480px) {
-    #modal-content .modal-buttons {
-        flex-direction: row;
-        justify-content: center;
-    }
-    #modal-content .modal-buttons .button {
-        width: auto;
-        min-width: 150px;
-    }
-}
 
 #modal-message {
     margin-top: 15px;
@@ -482,61 +471,6 @@ body {
     border: 1px solid #f7baba;
 }
 
-/* --- Adaptation Mobile pour Titre + Grille --- */
-@media (max-width: 960px) {
-    .gift-grid-wrapper {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 25px;
-    }
-    .category-title {
-        font-size: 1.4rem;
-        margin-bottom: 20px;
-    }
-}
-@media (max-width: 768px) {
-    .gift-grid-wrapper {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-     .category-title {
-        font-size: 1.3rem;
-    }
-}
-@media (max-width: 480px) {
-    .gift-grid-wrapper {
-        grid-template-columns: 1fr;
-        gap: 25px;
-    }
-     .category-title {
-        font-size: 1.2rem;
-        text-align: center; /* Centrer le titre sur mobile? */
-    }
-}
-
-/* --- Adaptation Mobile pour Header/Intro --- */
-@media (max-width: 600px) {
-    .back-link {
-        position: static;
-        transform: none;
-        display: block;
-        margin-top: 15px;
-        text-align: center;
-    }
-    .page-container {
-        padding: 10px;
-    }
-    .intro-paragraph {
-        margin-left: -10px;
-        margin-right: -10px;
-        border-radius: 0;
-    }
-     .cagnotte-section {
-        padding: 20px;
-    }
-     .cagnotte-section h3 {
-        font-size: 1.6rem;
-    }
-}
 /* Message d'information dans la modale */
 #modal-message.modal-message-info {
     background-color: #e6f7ff; /* Light blue */
@@ -561,4 +495,80 @@ body {
     border-radius: 5px;
     font-size: 0.9rem;
     display: none; /* Caché par défaut */
+}
+
+/* --- Mobile First Media Queries --- */
+
+/* Base styles (mobile) are defined above */
+
+@media (min-width: 480px) {
+    #modal-content .modal-buttons {
+        flex-direction: row;
+        justify-content: center;
+    }
+    #modal-content .modal-buttons .button {
+        width: auto;
+        min-width: 150px;
+    }
+}
+
+/* Tablet and larger */
+@media (min-width: 481px) {
+    .gift-grid-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+/* Styles for header/intro on larger screens */
+@media (min-width: 601px) {
+    .site-header {
+        position: relative;
+    }
+    .back-link {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        margin-top: 0;
+        text-align: left;
+    }
+    .page-container {
+        padding: 20px;
+    }
+    .intro-paragraph {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0 5px 5px 0;
+    }
+     .cagnotte-section {
+        padding: 30px;
+    }
+     .cagnotte-section h3 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Small desktop */
+@media (min-width: 769px) {
+    .gift-grid-wrapper {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+     .category-title {
+        font-size: 1.3rem;
+        text-align: left;
+    }
+}
+
+/* Large desktop */
+@media (min-width: 961px) {
+    .gift-grid-wrapper {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+    }
+    .category-title {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
 }
