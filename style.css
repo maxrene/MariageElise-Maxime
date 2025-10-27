@@ -47,6 +47,7 @@
 html {
     scroll-behavior: smooth;
     font-size: 16px; /* Base font size */
+    overflow-x: hidden; /* EMPÊCHE LE SCROLL HORIZONTAL */
 }
 
 body {
