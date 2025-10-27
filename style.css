@@ -97,9 +97,19 @@ img {
     transform: translateY(40px);
     transition: opacity 0.7s var(--scroll-animation-timing), transform 0.7s var(--scroll-animation-timing);
 }
+/* ON EXCLUT LA SECTION RSVP DE L'ANIMATION DE TRANSFORMATION
+   POUR PERMETTRE À 'BACKGROUND-ATTACHMENT: FIXED' DE FONCTIONNER. */
+#rsvp-section.content-section {
+    transform: none;
+    opacity: 1;
+}
 .content-section.is-visible {
     opacity: 1;
     transform: translateY(0);
+}
+/* ON S'ASSURE QUE LA SECTION RSVP RESTE SANS TRANSFORMATION */
+#rsvp-section.content-section.is-visible {
+    transform: none;
 }
 .content-section:nth-of-type(even) {
     background-color: var(--background-alt);
