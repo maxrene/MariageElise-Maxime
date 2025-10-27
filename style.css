@@ -221,7 +221,7 @@ img {
 }
 
 .main-nav ul li {
-    margin: 0 15px;
+    margin: 0 25px;
 }
 
 .main-nav ul li a {
@@ -285,8 +285,7 @@ img {
 /* 1. Style de base du bouton */
 .nav-rsvp-button {
     background-color: var(--accent-color);
-    /* padding: 8px 18px !important; <-- MODIFIÉ */
-    padding: 8px 18px; /* On enlève !important */
+    padding: 8px 18px !important; /* !important RESTAURÉ pour garder la forme pilule */
     border-radius: 20px; /* Forme de pilule */
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
 
@@ -319,8 +318,8 @@ img {
     width: 0 !important;
 }
 /* On ajuste sa position verticale pour qu'il ne soit pas trop bas */
-.nav-rsvp-button::after {
-    bottom: -5px; 
+.main-nav ul li a.nav-rsvp-button::after {
+    bottom: -5px !important; /* Force la position SOUS le bouton */
 }
 /* On garde le trait quand la section RSVP est ACTIVE SUR LE HERO */
 .main-nav ul li a.nav-rsvp-button.active-nav-link::after {
