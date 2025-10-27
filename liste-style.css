@@ -1,3 +1,6 @@
+html {
+    overflow-x: hidden;
+}
 /* --- Variables (copiées de style9.css) --- */
 :root {
     --primary-font: 'Cormorant Garamond', serif;
@@ -29,6 +32,7 @@ body {
     margin: 0;
     line-height: 1.65;
     font-weight: 300; /* Texte plus léger par défaut */
+    overflow-x: hidden; /* EMPÊCHE LE SCROLL HORIZONTAL */
 }
 
 .page-container {
