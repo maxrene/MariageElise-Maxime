@@ -225,6 +225,7 @@ img {
     position: relative;
     transition: color var(--base-transition-duration) ease;
     text-transform: uppercase;
+    white-space: nowrap; /* EMPÊCHE LE TEXTE DE PASSER À LA LIGNE */
 }
 
 .main-nav.fixed-nav ul li a {
