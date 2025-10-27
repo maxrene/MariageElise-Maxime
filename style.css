@@ -1623,13 +1623,13 @@ img {
     padding: 30px 30px 30px 35px; /* Padding généreux, surtout à gauche */
     
     /* Style "NB" (Nota Bene) */
-    border-left: 3px solid var(--accent-color); /* MODIFIÉ : Ligne plus épaisse */
-    border-top: 1px solid var(--border-color); /* AJOUT : Ligne supérieure */
-    border-bottom: 1px solid var(--border-color); /* AJOUT : Ligne inférieure */
+    border-left: 4px solid var(--accent-color); /* MODIFIÉ : Ligne encore plus épaisse */
+    border-top: 1px solid var(--border-color); /* Ligne supérieure */
+    border-bottom: 1px solid var(--border-color); /* Ligne inférieure */
     
-    background-color: var(--background-alt);
-    border-radius: 0 8px 8px 0; /* Arrondi les coins sauf celui de la bordure */
-    box-shadow: none; /* MODIFIÉ : Ombre retirée pour un look plus direct */
+    background-color: transparent; /* MODIFIÉ : Fond retiré */
+    border-radius: 0; /* MODIFIÉ : Plus de coins arrondis */
+    box-shadow: none; /* Ombre retirée pour un look plus direct */
 }
 
 .info-block h4 {
@@ -1651,9 +1651,9 @@ img {
 .info-block p {
     font-family: var(--secondary-font);
     font-size: 0.95rem;
-    color: var(--text-color-dark);
+    color: var(--text-color-headings); /* MODIFIÉ : Texte plus sombre pour plus d'importance */
     line-height: 1.7;
-    font-weight: 400; /* MODIFIÉ : Texte plus lisible (était 300) */
+    font-weight: 400; /* Texte plus lisible (était 300) */
     margin-bottom: 0;
 }
 
