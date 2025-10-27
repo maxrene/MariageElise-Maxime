@@ -225,7 +225,6 @@ img {
     position: relative;
     transition: color var(--base-transition-duration) ease;
     text-transform: uppercase;
-    white-space: nowrap; /* EMPÊCHE LE TEXTE DE PASSER À LA LIGNE */
 }
 
 .main-nav.fixed-nav ul li a {
@@ -1632,7 +1631,7 @@ img {
     transition: color 0.3s ease;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
     
     /* 1. On affiche le bouton hamburger */
     .mobile-nav-toggle {
