@@ -1096,8 +1096,9 @@ img {
 }
 .rsvp-form input[type="text"]::placeholder,
 .rsvp-form textarea::placeholder {
-    color: #aaa;
-    font-style: italic;
+    color: #999;
+    font-style: normal;
+    opacity: 1;
 }
 .rsvp-form input[type="text"]:focus,
 .rsvp-form input[type="email"]:focus,
@@ -1862,5 +1863,17 @@ img {
     }
     .hebergement-card-image img {
         height: 160px; /* Image moins haute */
+    }
+
+    .rsvp-form .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    #additionalGuestsSection .guest-details {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
     }
 }
