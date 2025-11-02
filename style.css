@@ -1924,6 +1924,7 @@ img {
     /* On adapte les cartes d'hôtel pour qu'elles rentrent */
     .hebergement-card-content {
         padding: 20px; /* Padding réduit */
+        align-items: center;
     }
     .hebergement-card-content h4 {
         font-size: 1.1rem; /* Police plus petite */
