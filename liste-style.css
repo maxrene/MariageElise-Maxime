@@ -286,7 +286,7 @@ body {
 .gift-info .brand {
     font-size: 0.85rem;
     color: var(--text-color-card-description);
-    font-weight: 400;
+    font-weight: 600; /* MODIFIÉ : Mis en gras */
     margin-bottom: 8px;
 }
 
@@ -296,6 +296,7 @@ body {
     font-size: 0.9rem;
     color: var(--text-color-card-description);
     font-weight: 300;
+    font-style: italic; /* AJOUT : Mis en italique */
     line-height: 1.5;
     margin-bottom: 15px;
     flex-grow: 1;
