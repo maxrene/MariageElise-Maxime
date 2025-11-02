@@ -742,15 +742,24 @@ img {
     border-bottom: 1px solid var(--border-color);
 }
 .programme-day-title::after {
-    content: '❦'; /* Floral heart or other suitable unicode */
-    font-size: 1em; /* Relative to title */
-    color: var(--accent-color);
+    content: ''; /* MODIFIÉ: Vide pour mettre une image */
+    background-image: url('images/logo.png'); /* AJOUT: Chemin vers votre logo */
+    background-size: contain; /* AJOUT: L'image s'adapte */
+    background-repeat: no-repeat; /* AJOUT: Pas de répétition */
+    background-position: center; /* AJOUT: Centrage */
+    
+    width: 35px; /* AJOUT: Largeur de l'icône */
+    height: 35px; /* AJOUT: Hauteur de l'icône */
+
+    /* font-size: 1em; <-- SUPPRIMÉ */
+    /* color: var(--accent-color); <-- SUPPRIMÉ */
+    
     position: absolute;
-    bottom: -0.6em; /* Poussé vers le bas pour ne pas chevaucher */
+    bottom: -18px; /* MODIFIÉ: Ajusté pour la hauteur de l'image (moitié de 35px) */
     left: 50%;
     transform: translateX(-50%);
     background-color: var(--background-light); /* Match section BG */
-    padding: 0 10px;
+    padding: 0 10px; /* Gardé pour l'espace autour */
 }
 
 /* NOUVELLES RÈGLES GLOBALES (pour ordinateur ET mobile) */
