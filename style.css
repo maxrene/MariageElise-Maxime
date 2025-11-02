@@ -748,8 +748,8 @@ img {
     background-repeat: no-repeat; /* AJOUT: Pas de répétition */
     background-position: center; /* AJOUT: Centrage */
     
-    width: 35px; /* AJOUT: Largeur de l'icône */
-    height: 35px; /* AJOUT: Hauteur de l'icône */
+    width: 90px; /* AJOUT: Largeur de l'icône */
+    height: 90px; /* AJOUT: Hauteur de l'icône */
 
     /* font-size: 1em; <-- SUPPRIMÉ */
     /* color: var(--accent-color); <-- SUPPRIMÉ */
