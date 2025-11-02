@@ -1927,7 +1927,6 @@ img {
     /* On adapte les cartes d'hôtel pour qu'elles rentrent */
     .hebergement-card-content {
         padding: 20px; /* Padding réduit */
-        align-items: center;
     }
     .hebergement-card-content h4 {
         font-size: 1.1rem; /* Police plus petite */
@@ -1938,6 +1937,9 @@ img {
     }
     .hebergement-card-image img {
         height: 160px; /* Image moins haute */
+    }
+    .hebergement-link {
+        align-self: center;
     }
 
     .cta-button.rsvp-button {
