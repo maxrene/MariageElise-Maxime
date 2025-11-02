@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
     const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxpYkmQpRry9oXlBoX03eV9EIOGIi3Pj41ZLbmxdjuHY0fXJYi0ra8y5XlhdGKOeHm4bA/exec'; // <-- AJOUTEZ CETTE LIGNE (URL à venir)
     const IBAN_NUMBER = 'FR76 XXXX XXXX XXXX XXXX XXXX XXX'; // <-- VRAI IBAN ICI
-    const BIC_CODE = 'VOTREBIC'; // <-- VRAI BIC ICI
     
  // --- DOM ELEMENTS ---
    const giftListContainer = document.getElementById('gift-list-container');
@@ -237,16 +236,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- NOUVEAU BLOC HTML (pour le RIB) ---
         const ibanBlockHTML = `
-            <p class="modal-or-separator">...ou...</p>
-            <div class="iban-container">
-                <div class="iban-details">
-                    <p>Par virement :</p>
-                    <p class"iban-info" id="modal-iban-text">IBAN: ${IBAN_NUMBER}</p>
-                    <p class="iban-info" id="modal-bic-text">BIC: ${BIC_CODE}</p>
-                </div>
-                <button class="button-copy-iban" id="copyIbanButton">
-                    Copier <i class="fas fa-copy"></i>
-                </button>
+            <div class="discreet-iban-container">
+                <p class="modal-or-separator">ou par virement</p>
+                <p class="iban-info">
+                    IBAN: ${IBAN_NUMBER} 
+                    <i class="fas fa-copy icon-copy-iban" id="copyIbanIcon" title="Copier l'IBAN"></i>
+                </p>
+                <span id="copy-confirm-text" class="copy-confirm-text"></span>
             </div>
         `;
         // --- FIN NOUVEAU BLOC ---
@@ -298,27 +294,29 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Find buttons AFTER they are in the DOM
         const confirmButton = modalContent.querySelector('#confirmOfferButton');
         const cancelButton = modalContent.querySelector('#cancelOfferButton');
-        const copyButton = modalContent.querySelector('#copyIbanButton'); // <-- AJOUT
+        const copyIcon = modalContent.querySelector('#copyIbanIcon'); // <-- MODIFIÉ
+        const confirmText = modalContent.querySelector('#copy-confirm-text'); // <-- AJOUT
 
         // --- AJOUT : Logique de copie ---
-        if (copyButton) {
-            copyButton.addEventListener('click', () => {
-                const textToCopy = `IBAN: ${IBAN_NUMBER}\nBIC: ${BIC_CODE}`;
+        if (copyIcon && confirmText) {
+            copyIcon.addEventListener('click', () => {
+                const textToCopy = IBAN_NUMBER; // MODIFIÉ : Copie l'IBAN uniquement
                 try {
                     navigator.clipboard.writeText(textToCopy).then(() => {
-                        copyButton.textContent = 'Copié !';
-                        copyButton.classList.add('copied');
+                        confirmText.textContent = 'IBAN Copié !'; // MODIFIÉ : Met à jour le span
+                        confirmText.style.opacity = '1';
                         setTimeout(() => {
-                            copyButton.innerHTML = 'Copier <i class="fas fa-copy"></i>';
-                            copyButton.classList.remove('copied');
+                            confirmText.style.opacity = '0';
                         }, 2000);
                     }, (err) => {
                          console.error('Erreur de copie (async): ', err);
-                         copyButton.textContent = 'Erreur';
+                         confirmText.textContent = 'Erreur';
+                         confirmText.style.opacity = '1';
                     });
                 } catch (err) {
                     console.error('Erreur de copie (sync): ', err);
-                    copyButton.textContent = 'Erreur';
+                    confirmText.textContent = 'Erreur';
+                    confirmText.style.opacity = '1';
                 }
             });
         }
@@ -338,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelButton.addEventListener('click', closeModal, { once: true });
             console.log("Attached listener to cancelOfferButton");
         } else {
-             console.log("cancelOfferButton not found in modal");
+             console.log("cancelButton not found in modal");
         }
     }
 
