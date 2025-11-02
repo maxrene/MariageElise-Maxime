@@ -1712,6 +1712,8 @@ img {
         height: 100vh; /* 100% de la hauteur de la vue */
         transform: translateX(100%); /* Commence hors de l'écran */
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        overflow-y: auto; /* AJOUT : Permet le scroll si le contenu est trop grand */
+        /* ... */
         
         /* Doit être sous le bouton toggle (1002) */
         z-index: 1001; 
@@ -1737,7 +1739,8 @@ img {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 100%;
+        height: auto; /* MODIFIÉ : La hauteur s'adapte au contenu */
+        padding: 80px 0; /* AJOUT : Ajoute de l'espace en haut et en bas */
     }
 
     .main-nav ul li {
