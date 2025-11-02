@@ -1733,8 +1733,9 @@ img {
 
     /* 4. Style du menu quand il est ouvert */
     .main-nav.is-open {
-        transform: translateX(0); /* Le fait glisser en position */
-        background-color: var(--background-light); /* Fond solide */
+       transform: translateX(0); /* Le fait glisser en position */
+        background-color: #fdfaf6; /* MODIFIÉ: Force la couleur solide (valeur de --background-light) */
+        backdrop-filter: none; /* AJOUT: Supprime tout effet de flou hérité */
     }
     
     /* 5. On réinitialise le .fixed-nav (QUAND IL EST FERMÉ) */
