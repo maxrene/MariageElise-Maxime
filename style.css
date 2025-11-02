@@ -1942,7 +1942,7 @@ img {
 
     .cta-button.rsvp-button {
         padding: 12px 20px; /* Padding réduit pour les petits écrans */
-        font-size: 0.9rem; /* Police légèrement plus petite */
+        font-size: 1.1rem; /* Police légèrement plus petite */
     }
     
 }
