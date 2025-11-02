@@ -3,9 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // <--- PASTE YOUR CSV LINK HERE
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
     const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxpYkmQpRry9oXlBoX03eV9EIOGIi3Pj41ZLbmxdjuHY0fXJYi0ra8y5XlhdGKOeHm4bA/exec'; // <-- AJOUTEZ CETTE LIGNE (URL à venir)
-
+    const IBAN_NUMBER = 'FR76 XXXX XXXX XXXX XXXX XXXX XXX'; // <-- VRAI IBAN ICI
+    const BIC_CODE = 'VOTREBIC'; // <-- VRAI BIC ICI
+    
  // --- DOM ELEMENTS ---
-    const giftListContainer = document.getElementById('gift-list-container');
+   const giftListContainer = document.getElementById('gift-list-container');
     const cagnotteButton = document.querySelector('.cagnotte-section .revolut-button');
     const modalOverlay = document.getElementById('modal-overlay');
     const giftModal = document.getElementById('gift-modal');
@@ -232,6 +234,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Fonctions openModal, closeModal, handleConfirmOffer, displayModalMessage ---
      function openModal(gift = null) {
         let contentHTML = '';
+
+        // --- NOUVEAU BLOC HTML (pour le RIB) ---
+        const ibanBlockHTML = `
+            <p class="modal-or-separator">...ou...</p>
+            <div class="iban-container">
+                <div class="iban-details">
+                    <p>Par virement :</p>
+                    <p class"iban-info" id="modal-iban-text">IBAN: ${IBAN_NUMBER}</p>
+                    <p class="iban-info" id="modal-bic-text">BIC: ${BIC_CODE}</p>
+                </div>
+                <button class="button-copy-iban" id="copyIbanButton">
+                    Copier <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        `;
+        // --- FIN NOUVEAU BLOC ---
+
         if (gift) { // Offering a specific gift
             const revolutAmountLink = gift.Prix > 0 ? `${revolutLinkBase}${gift.Prix}` : revolutLinkBase;
             contentHTML = `
@@ -240,7 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="${revolutAmountLink}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
                    <i class="fas fa-external-link-alt"></i> Contribuer ${gift.Prix > 0 ? `de ${gift.Prix}€ ` : ''}via Revolut
                 </a>
-                <div class="confirmation-section">
+                
+                ${ibanBlockHTML} <div class="confirmation-section">
                     <p>Après avoir contribué, merci d'entrer votre nom pour marquer ce cadeau comme offert :</p>
                     <label for="offeredByName">Votre nom ou initiales :</label>
                     <input type="text" id="offeredByName" placeholder="Ex: Jean D." required>
@@ -258,7 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
                  <a href="${revolutLinkBase}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
                    <i class="fas fa-external-link-alt"></i> Contribuer via Revolut
                 </a>
-                 <div class="confirmation-section">
+
+                ${ibanBlockHTML} <div class="confirmation-section">
                     <p>Vous pouvez fermer cette fenêtre après avoir effectué votre virement.</p>
                      <div class="modal-buttons">
                          <button class="button secondary" id="cancelOfferButton">Fermer</button>
@@ -277,6 +298,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Find buttons AFTER they are in the DOM
         const confirmButton = modalContent.querySelector('#confirmOfferButton');
         const cancelButton = modalContent.querySelector('#cancelOfferButton');
+        const copyButton = modalContent.querySelector('#copyIbanButton'); // <-- AJOUT
+
+        // --- AJOUT : Logique de copie ---
+        if (copyButton) {
+            copyButton.addEventListener('click', () => {
+                const textToCopy = `IBAN: ${IBAN_NUMBER}\nBIC: ${BIC_CODE}`;
+                try {
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        copyButton.textContent = 'Copié !';
+                        copyButton.classList.add('copied');
+                        setTimeout(() => {
+                            copyButton.innerHTML = 'Copier <i class="fas fa-copy"></i>';
+                            copyButton.classList.remove('copied');
+                        }, 2000);
+                    }, (err) => {
+                         console.error('Erreur de copie (async): ', err);
+                         copyButton.textContent = 'Erreur';
+                    });
+                } catch (err) {
+                    console.error('Erreur de copie (sync): ', err);
+                    copyButton.textContent = 'Erreur';
+                }
+            });
+        }
+        // --- FIN AJOUT ---
 
         // 4. Add listeners directly using { once: true }
         if (confirmButton) {
