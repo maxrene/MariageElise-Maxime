@@ -100,13 +100,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Generates HTML for a single gift card, reflecting initial offered status (Comments Removed).
+     * Generates HTML for a single gift card.
      */
     function createGiftCardHTML(gift) {
-        const isOffered = gift.Offert_par && gift.Offert_par.trim() !== ''; // Ensure correct property name from sheet
+        const isOffered = gift.Offert_par && gift.Offert_par.trim() !== '';
         const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
 
-        // Comments removed from inside the string
+        // --- DÉBUT MODIFICATION : Bouton "Voir le produit" ---
+        let productLinkButtonHTML = '';
+        const productURL = gift.ProductLink; // MODIFIÉ : Utilise "ProductLink"
+        
+        if (productURL && productURL.trim() !== '' && !isOffered) { // N'affiche le lien que si le cadeau n'est PAS offert
+            productLinkButtonHTML = `
+                <a href="${productURL}" target="_blank" rel="noopener noreferrer" class="button product-link">
+                    <i class="fas fa-store"></i> Voir le produit
+                </a>
+            `;
+        }
+        // --- FIN MODIFICATION ---
+
+        // Bouton principal (Offrir / Offert)
+        const offerButtonHTML = `
+            <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
+                ${isOffered ? 'Offert' : '<i class="fab fa-rev"></i> Offrir via Revolut'}
+            </button>
+        `;
+
         return `
             <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
@@ -117,9 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
-                <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
-                    ${isOffered ? 'Offert' : '<i class="fab fa-rev"></i> Offrir via Revolut'}
-                </button>
+                
+                ${offerButtonHTML}
+                ${productLinkButtonHTML} 
             </div>
         `;
     }
@@ -214,8 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
          }
 
          giftListContainer.addEventListener('click', function(event) {
+             // Clic sur le bouton "Offrir"
              const button = event.target.closest('.revolut-button[data-type="gift"]:not(.offered)');
              if (button) {
+                 event.preventDefault(); // Empêche toute action par défaut (au cas où)
                  console.log("Offer button clicked");
                  currentGiftId = button.closest('.gift-card').dataset.id;
                  const gift = allGifts.find(g => g.ID === currentGiftId);
@@ -224,6 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
                  } else {
                      console.error("Could not find gift data for ID:", currentGiftId);
                  }
+             }
+             
+             // Clic sur le bouton "Voir le produit" (ne fait rien, laisse le lien <a> agir)
+             const productLink = event.target.closest('.product-link');
+             if (productLink) {
+                 console.log("Product link clicked, allowing default browser action.");
+                 // On ne fait rien ici, on laisse le 'target="_blank"' du <a> faire son travail
              }
          });
          giftListContainer.dataset.listenerAttached = 'true';
