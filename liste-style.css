@@ -497,13 +497,7 @@ body {
     color: var(--text-color-headings);
     transform: scale(1.1);
 }
-.bic-info {
-    font-size: 0.85rem;
-    color: var(--text-color-card-description);
-    font-weight: 400;
-    margin-top: -5px; /* Le rapprocher de l'IBAN */
-    margin-bottom: 0;
-}
+/* Style pour le BIC a été supprimé */
 .copy-confirm-text {
     display: block;
     font-size: 0.85rem;
