@@ -8,14 +8,14 @@
     --hero-title-font: 'Dancing Script', cursive;
 
     /* Colors */
-    --text-color-light: #f8f0e3; /* Soft cream for text on dark backgrounds */
-    --text-color-dark: #5c544b;  /* Muted brown/grey for main text */
-    --text-color-headings: #4a4137; /* Slightly darker for headings */
-    --accent-color: #c8a07d; /* Muted gold/rose gold */
-    --accent-color-rgb: 200, 160, 125; /* RGB for rgba() */
-    --background-light: #fdfaf6; /* Very light cream for general background */
-    --background-alt: #f4efea;   /* Slightly darker cream for alternate sections */
-    --border-color: #e0d8cf;     /* Soft border color */
+    --text-color-light: #f8f0e3; /* Soft cream (sur fond sombre) */
+    --text-color-dark: #5c544b;  /* Muted brown/grey (GARDÉ POUR LA LISIBILITÉ) */
+    --text-color-headings: #B05F45; /* NOUVEAU: Terre Cuite / Rouille */
+    --accent-color: #E46D37; /* NOUVEAU: Orange Vif */
+    --accent-color-rgb: 228, 109, 55; /* NOUVEAU: RGB pour Orange Vif */
+    --background-light: #fdfaf6; /* Very light cream (GARDÉ) */
+    --background-alt: #F7E0DD;   /* NOUVEAU: Rose Pâle */
+    --border-color: #DE9FA3;     /* NOUVEAU: Rose Moyen */
 
     /* Transitions & Animations */
     --base-transition-duration: 0.4s;
@@ -34,7 +34,7 @@
 
     /* Countdown */
     --countdown-text-color: var(--text-color-dark);
-    --countdown-number-color: var(--accent-color);
+    --countdown-number-color: #E68F6A; /* NOUVEAU: Orange Pêche */
 }
 
 /* Global Resets & Base Styles */
