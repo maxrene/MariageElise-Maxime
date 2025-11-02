@@ -9,18 +9,15 @@ ul, li {
 }
 /* --- Variables (copiées de style9.css) --- */
 :root {
-    --primary-font: 'Cormorant Garamond', serif;
-    --secondary-font: 'Montserrat', sans-serif;
-    --hero-title-font: 'Dancing Script', cursive; /* Peut être utile */
     --text-color-light: #f8f0e3;
-    --text-color-dark: #5c544b;
-    --text-color-headings: #4a4137; /* Utilisons un gris plus neutre pour un look premium */
-    --accent-color: #c8a07d;
-    --accent-color-rgb: 200, 160, 125;
-    --background-light: #fdfaf6;
-    --background-alt: #f4efea;
-    --border-color: #e0d8cf;
-    --base-transition-duration: 0.4s;
+    --text-color-dark: #5c544b; /* GARDÉ POUR LA LISIBILITÉ */
+    --text-color-headings: #B05F45; /* NOUVEAU: Terre Cuite / Rouille */
+    --accent-color: #E46D37; /* NOUVEAU: Orange Vif */
+    --accent-color-rgb: 228, 109, 55; /* NOUVEAU: RGB pour Orange Vif */
+    --background-light: #fdfaf6; /* GARDÉ */
+    --background-alt: #F7E0DD; /* NOUVEAU: Rose Pâle */
+    --border-color: #DE9FA3; /* NOUVEAU: Rose Moyen */
+    --base-transition-duration: 0.3s;
 
     /* Nouvelles variables pour le design premium */
     --card-bg-color: #ffffff; /* Fond de carte blanc pur */
