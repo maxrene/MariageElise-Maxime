@@ -1812,6 +1812,11 @@ img {
         top: 25px;  /* On la place en haut de l'élément */
         transform: translateX(-50%); /* On centre horizontalement */
     }
+    .timeline-item.is-visible .timeline-marker {
+    /* On garde l'animation "scale(1)" 
+       mais on force la transformation X correcte SANS le décalage Y */
+    transform: translateX(-50%) scale(1);
+}
     
     /* 3. On dit aux items de s'empiler verticalement */
     .timeline-item {
