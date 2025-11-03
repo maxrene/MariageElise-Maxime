@@ -1766,12 +1766,12 @@ img {
 
     /* 7. On grossit les liens pour le mobile */
     .main-nav ul li a,
-    .main-nav.fixed-nav ul li a {
-        font-size: 1.6rem;
-        font-weight: 500;
-        color: var(--text-color-headings); /* Toujours foncés */
-        padding: 10px 20px;
-    }
+.main-nav.fixed-nav ul li a {
+    font-size: 1.3rem; /* MODIFIÉ : Police légèrement plus petite */
+    font-weight: 500;
+    color: var(--text-color-headings); 
+    padding: 5px 10px; /* MODIFIÉ : Padding réduit */
+}
     /* Style spécifique pour le bouton RSVP dans le menu mobile ouvert */
     .main-nav.is-open ul li a.nav-rsvp-button {
         background-color: var(--accent-color);
