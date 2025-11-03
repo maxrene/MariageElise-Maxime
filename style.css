@@ -1056,7 +1056,7 @@ img {
     background-repeat: no-repeat;
     
     /* On utilise "contain" pour voir tout le château */
-    background-size: contain; 
+    background-size: cover; 
     
     /* C'est la propriété qui crée l'effet parallax ET le bug iPhone */
     background-attachment: fixed; 
