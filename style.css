@@ -1725,7 +1725,7 @@ img {
         top: 0;
         left: 0;
         width: 100%;
-        height: 100vh; /* 100% de la hauteur de la vue */
+        height: 100dvh; /* 100% de la hauteur de la vue */
         transform: translateX(100%); /* Commence hors de l'écran */
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         overflow-y: hidden;
