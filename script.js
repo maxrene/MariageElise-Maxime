@@ -134,12 +134,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  const observerCallback = (entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) entry.target.classList.add('is-visible');
-      else if (!entry.target.matches('#hero-section')) entry.target.classList.remove('is-visible');
-    });
-  };
+  const observerCallback = (entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      // On dit à l'observateur d'ARRÊTER de surveiller cet élément
+      observer.unobserve(entry.target); 
+    }
+    // On ne remet JAMAIS 'is-visible' à false.
+  });
+};
   const genericObserver = new IntersectionObserver(observerCallback, { threshold: 0.15 });
   if (contentSectionsToAnimate) {
     contentSectionsToAnimate.forEach(sec => {
