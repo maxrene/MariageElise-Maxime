@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sectionHeight = notreHistoireSection.offsetHeight;
     const lineHeight = timelineLine.offsetHeight;
     if (lineHeight === 0) return;
-    let start = sectionTop - viewportHeight * 0.5;
+    let start = sectionTop - viewportHeight * 0.25;
     let end = sectionTop + sectionHeight - viewportHeight * 0.5;
     let progress = Math.max(0, scrollY - start);
     let total = Math.max(1, end - start);
