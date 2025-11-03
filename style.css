@@ -941,7 +941,6 @@ img {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(var(--accent-color-rgb), 0.15);
-    border: 3px solid white; /* Frame effect */
 }
 .chateau-image-container img {
     border-radius: 9px; /* Inner radius */
@@ -1810,7 +1809,7 @@ img {
     /* 2. On déplace les "puces" sur cette nouvelle ligne */
     .timeline-marker {
         left: 20px; /* Au lieu de 50% */
-        top: 20px;  /* On la place en haut de l'élément */
+        top: 25px;  /* On la place en haut de l'élément */
         transform: translateX(-50%); /* On centre horizontalement */
     }
     
@@ -1836,6 +1835,7 @@ img {
         text-align: left; /* Toujours aligné à gauche */
         padding-left: 10px;
         padding-right: 10px;
+        padding-top: 25px;
     }
     
     /* 6. On force l'IMAGE en second (pour PAIR ET IMPAIR) */
