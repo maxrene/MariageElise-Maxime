@@ -1045,22 +1045,30 @@ img {
     position: relative;
 }
 #rsvp-section.rsvp-section-bg-sketch {
-    position: relative; 
+    position: relative; /* Indispensable pour la nouvelle technique */
+    z-index: 1; /* S'assure qu'elle est au-dessus du reste */
     padding-top: 60px; 
     padding-bottom: 60px;
-    
-    /* On remet l'image de fond ICI */
-    background-image: url('images/sketch chateau.png'); 
-    background-position: center center; 
-    background-repeat: no-repeat;
-    
-    /* On utilise "contain" pour voir tout le château */
-    background-size: cover; 
-    
-    /* C'est la propriété qui crée l'effet parallax ET le bug iPhone */
-    background-attachment: fixed; 
+    overflow: hidden; /* L'ASTUCE : "cadre" l'image à l'intérieur */
+    /* Toutes les lignes background-* ont été SUPPRIMÉES */
 }
-/* No ::before overlay needed if not using a busy background image */
+.rsvp-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* S'étend à toute la section parente */
+    z-index: -1;  /* Se place derrière le formulaire */
+
+    /* On remet les propriétés de l'image ici */
+    background-image: url('images/sketch chateau.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    
+    /* C'est la combinaison magique : */
+    background-attachment: fixed;
+}
 
 .rsvp-bg-overlay-text { /* This will be the header above the form box */
     position: relative;
