@@ -94,10 +94,8 @@ img {
     padding: 80px 5%;
     position: relative;
     z-index: 1; 
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.4s var(--scroll-animation-timing), transform 0.4s var(--scroll-animation-timing);
-    background-color: var(--background-light); /* <-- AJOUTEZ CETTE LIGNE */
+    background-color: var(--background-light); /* On garde le fond opaque par défaut */
+    /* Les lignes opacity, transform, et transition sont SUPPRIMÉES d'ici */
 }
 /* ON EXCLUT LA SECTION RSVP DE L'ANIMATION DE TRANSFORMATION
    POUR PERMETTRE À 'BACKGROUND-ATTACHMENT: FIXED' DE FONCTIONNER. */
@@ -105,7 +103,7 @@ img {
     transform: none;
     opacity: 1;
 }
-.content-section.is-visible {
+.content-section.is-visible > div {
     opacity: 1;
     transform: translateY(0);
 }
