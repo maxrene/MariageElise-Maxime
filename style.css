@@ -1808,8 +1808,8 @@ img {
 
     /* 2. On déplace les "puces" sur cette nouvelle ligne */
     .timeline-marker {
-        left: 20px; /* Au lieu de 50% */
-        top: 25px;  /* On la place en haut de l'élément */
+        left: 21px; /* Au lieu de 50% */
+        top: 28px;  /* On la place en haut de l'élément */
         transform: translateX(-50%); /* On centre horizontalement */
     }
     .timeline-item.is-visible .timeline-marker {
