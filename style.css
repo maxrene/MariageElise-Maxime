@@ -93,9 +93,12 @@ img {
 .content-section {
     padding: 80px 5%;
     position: relative;
-    z-index: 1; 
-    background-color: var(--background-light); /* On garde le fond opaque par défaut */
-    /* Les lignes opacity, transform, et transition sont SUPPRIMÉES d'ici */
+    z-index: 1;
+    opacity: 0;
+    transform: translateY(40px);
+    /* Voici l'animation (avec le réglage rapide à 0.4s) */
+    transition: opacity 0.4s var(--scroll-animation-timing), transform 0.4s var(--scroll-animation-timing);
+    /* background-color: var(--background-light); <-- SUPPRIMEZ ou VÉRIFIEZ que cette ligne n'y est pas */
 }
 /* ON EXCLUT LA SECTION RSVP DE L'ANIMATION DE TRANSFORMATION
    POUR PERMETTRE À 'BACKGROUND-ATTACHMENT: FIXED' DE FONCTIONNER. */
@@ -103,14 +106,9 @@ img {
     transform: none;
     opacity: 1;
 }
-.content-section.is-visible > div {
+.content-section.is-visible {
     opacity: 1;
     transform: translateY(0);
-}
-.content-section > div {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.4s var(--scroll-animation-timing), transform 0.4s var(--scroll-animation-timing);
 }
 /* ON S'ASSURE QUE LA SECTION RSVP RESTE SANS TRANSFORMATION */
 #rsvp-section.content-section.is-visible {
@@ -1053,24 +1051,6 @@ img {
     padding-top: 60px; 
     padding-bottom: 60px;
     background-color: transparent !important; /* <-- AJOUTEZ CETTE LIGNE */
-}
-#rsvp-section.rsvp-section-bg-sketch::before {
-    content: '';
-    position: fixed; /* L'image est VRAIMENT fixe par rapport à la fenêtre */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh; /* Prend 100% de la hauteur de la fenêtre */
-    z-index: -1;  /* Se place DERRIÈRE tout le contenu de la page */
-
-    /* On applique l'image de fond ici */
-    background-image: url('images/sketch chateau.png');
-
-    /* CORRECTION pour voir le château : */
-    background-size: contain; /* Assure que tout le château est visible */
-
-    background-position: center center;
-    background-repeat: no-repeat;
 }
 /* No ::before overlay needed if not using a busy background image */
 
