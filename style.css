@@ -1047,10 +1047,19 @@ img {
 }
 #rsvp-section.rsvp-section-bg-sketch {
     position: relative; 
-    z-index: 1; 
     padding-top: 60px; 
     padding-bottom: 60px;
-    background-color: transparent !important; /* <-- AJOUTEZ CETTE LIGNE */
+    
+    /* On remet l'image de fond ICI */
+    background-image: url('images/sketch chateau.png'); 
+    background-position: center center; 
+    background-repeat: no-repeat;
+    
+    /* On utilise "contain" pour voir tout le château */
+    background-size: contain; 
+    
+    /* C'est la propriété qui crée l'effet parallax ET le bug iPhone */
+    background-attachment: fixed; 
 }
 /* No ::before overlay needed if not using a busy background image */
 
@@ -1954,5 +1963,11 @@ img {
         padding: 12px 20px; /* Padding réduit pour les petits écrans */
         font-size: 1.1rem; /* Police légèrement plus petite */
     }
-    
+    #rsvp-section.rsvp-section-bg-sketch {
+        /* On désactive l'effet "fixed" qui cause le bug sur mobile */
+        background-attachment: scroll !important; 
+        
+        /* On s'assure que le fond crème est là pour combler le vide */
+        background-color: var(--background-alt); 
+    }
 }
