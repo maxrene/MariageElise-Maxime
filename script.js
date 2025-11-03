@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // On ne remet JAMAIS 'is-visible' à false.
   });
 };
-  const genericObserver = new IntersectionObserver(observerCallback, { threshold: 0.15 });
+  const genericObserver = new IntersectionObserver(observerCallback, { threshold: 0.05 });
   if (contentSectionsToAnimate) {
     contentSectionsToAnimate.forEach(sec => {
       if (!sec.matches('#hero-section')) genericObserver.observe(sec);
