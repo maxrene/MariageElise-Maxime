@@ -93,10 +93,11 @@ img {
 .content-section {
     padding: 80px 5%;
     position: relative;
-    z-index: 1; /* Lower than hero for potential overlaps if any */
+    z-index: 1; 
     opacity: 0;
     transform: translateY(40px);
-    transition: opacity 0.3s var(--scroll-animation-timing), transform 0.3s var(--scroll-animation-timing);
+    transition: opacity 0.4s var(--scroll-animation-timing), transform 0.4s var(--scroll-animation-timing);
+    background-color: var(--background-light); /* <-- AJOUTEZ CETTE LIGNE */
 }
 /* ON EXCLUT LA SECTION RSVP DE L'ANIMATION DE TRANSFORMATION
    POUR PERMETTRE À 'BACKGROUND-ATTACHMENT: FIXED' DE FONCTIONNER. */
@@ -1045,11 +1046,10 @@ img {
 }
 #rsvp-section.rsvp-section-bg-sketch {
     position: relative; 
-    z-index: 1; /* S'assure que le contenu (formulaire) reste au-dessus */
+    z-index: 1; 
     padding-top: 60px; 
     padding-bottom: 60px;
-    /* Les propriétés 'background-image' et 'background-attachment' sont supprimées d'ici */
-    /* La couleur de fond de la section (var(--background-alt)) sera visible */
+    background-color: transparent !important; /* <-- AJOUTEZ CETTE LIGNE */
 }
 #rsvp-section.rsvp-section-bg-sketch::before {
     content: '';
