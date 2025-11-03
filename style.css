@@ -1698,7 +1698,7 @@ img {
 
     /* ACCÉLÈRE L'ANIMATION D'APPARITION SUR MOBILE */
     .content-section > div {
-     transition: opacity 0.3s var(--scroll-animation-timing), transform 0.3s var(--scroll-animation-timing);
+     transition: opacity 0.2s var(--scroll-animation-timing), transform 0.2s var(--scroll-animation-timing);
 }
     
     /* 1. On affiche le bouton hamburger */
