@@ -1978,20 +1978,28 @@ img {
     }
 }
 
-/* --- Password Popup --- */
+/* --- Password Popup Corrigé Mobile --- */
 .password-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
+    right: 0;  /* Sécurité supplémentaire pour l'ancrage */
+    bottom: 0; /* Sécurité supplémentaire pour l'ancrage */
+    
+    width: 100vw;   /* 100% de la largeur de la vue */
+    height: 100vh;  /* Fallback pour vieux navigateurs */
+    height: 100dvh; /* "Dynamic Viewport Height" : La solution magique pour mobile (ignore la barre d'adresse) */
+    
+    background-color: rgba(0, 0, 0, 0.85); /* Un peu plus sombre pour mieux cacher le fond */
+    backdrop-filter: blur(10px); /* Ajoute un flou élégant sur l'arrière-plan */
+    
     display: flex;
     justify-content: center;
-    align-items: center;
-    z-index: 10000;
-    transition: opacity 0.3s ease;
+    align-items: center; /* C'est ça qui centre verticalement */
+    flex-direction: column;
+    
+    z-index: 20000; /* On s'assure d'être au-dessus de TOUT (même le menu mobile) */
+    padding: 20px; /* Pour éviter que la boîte ne touche les bords sur très petits écrans */
 }
 
 .password-modal-content {
