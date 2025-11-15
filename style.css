@@ -2101,7 +2101,8 @@ body .password-overlay {
     }
 
     /* --- Styles pour le RSVP sur mobile --- */
-    .rsvp-background-image {
-        background-attachment: scroll;
+    .rsvp-content-wrapper {
+        max-height: 85vh;
+        overflow-y: auto;
     }
 }
