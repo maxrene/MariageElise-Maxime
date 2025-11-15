@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const DISPLAY_TIME       = 2000;
     const FADE_DURATION      = 500;
     const FALL_DISTANCE      = 200;
-    const MAX_ONSCREEN       = 6;
+    const MAX_ONSCREEN       = 4;
 
     let lastMouseX = 0, lastMouseY = 0;
     let lastTime = performance.now();
