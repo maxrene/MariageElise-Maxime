@@ -636,3 +636,58 @@ body {
     font-size: 0.9rem;
     display: none; /* Caché par défaut */
 }
+
+/* --- Progress Bar Styles --- */
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-color-card-description);
+    margin-bottom: 8px;
+    padding: 0 5px;
+}
+.progress-bar-container {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    height: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 100%;
+    background-color: var(--accent-color);
+    border-radius: 10px;
+    transition: width 0.4s ease-in-out;
+}
+/* Styles for Partial Contribution Modal */
+.partial-contribution-section {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: rgba(var(--accent-color-rgb), 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(var(--accent-color-rgb), 0.1);
+}
+.partial-contribution-section p {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+.partial-contribution-section label {
+    text-align: left;
+}
+.partial-contribution-section input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.gift-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Espace entre les boutons */
+    margin-top: auto; /* Pousse les boutons en bas de la carte */
+}

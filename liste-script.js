@@ -103,44 +103,77 @@ document.addEventListener('DOMContentLoaded', () => {
      * Generates HTML for a single gift card.
      */
     function createGiftCardHTML(gift) {
-        const isOffered = gift.Offert_par && gift.Offert_par.trim() !== '';
+        const isPartial = gift.Partiel?.toLowerCase().trim() === 'partiel';
+        let totalContributed = 0;
+        let isFullyFunded = false;
+
+        if (isPartial) {
+            // Updated parsing: Handles "Name:Amount" pairs separated by semicolons
+            const contributions = gift.Offert_par.split(';').filter(p => p.trim() !== '');
+            totalContributed = contributions.reduce((acc, curr) => {
+                const parts = curr.split(':');
+                // Ensure there's a second part and it's a number
+                if (parts.length === 2) {
+                    const amount = parseFloat(parts[1]);
+                    return acc + (isNaN(amount) ? 0 : amount);
+                }
+                return acc; // If format is just "Name", add 0
+            }, 0);
+
+            if (gift.Prix > 0) {
+                isFullyFunded = totalContributed >= gift.Prix;
+            }
+        }
+
+        const isOffered = !isPartial && gift.Offert_par && gift.Offert_par.trim() !== '';
+        const finalIsOffered = isOffered || isFullyFunded;
         const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
 
-        // --- DÉBUT MODIFICATION : Bouton "Voir le produit" ---
         let productLinkButtonHTML = '';
-        const productURL = gift.ProductLink; // MODIFIÉ : Utilise "ProductLink"
-        
-        if (productURL && productURL.trim() !== '' && !isOffered) { // N'affiche le lien que si le cadeau n'est PAS offert
+        const productURL = gift.ProductLink;
+        if (productURL && productURL.trim() !== '' && !finalIsOffered) {
             productLinkButtonHTML = `
                 <a href="${productURL}" target="_blank" rel="noopener noreferrer" class="button product-link">
                     <i class="fas fa-store"></i> Voir le produit
-                </a>
-            `;
+                </a>`;
         }
-        // --- FIN MODIFICATION ---
 
-        // Bouton principal (Offrir / Offert)
+        let progressBarHTML = '';
+        if (isPartial && gift.Prix > 0) {
+            const percentage = Math.min((totalContributed / gift.Prix) * 100, 100);
+            progressBarHTML = `
+                <div class="progress-info">
+                    <span>${totalContributed.toFixed(0)}€ / ${gift.Prix.toFixed(0)}€</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${percentage}%;"></div>
+                </div>`;
+        }
+
+        const offerButtonText = isPartial ? '<i class="fas fa-coins"></i> Contribuer' : '<i class="fab fa-rev"></i> Offrir via Revolut';
+        const offeredButtonText = isPartial ? '100% financé !' : 'Offert';
+
         const offerButtonHTML = `
-            <button class="button ${isOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isOffered ? 'disabled' : ''}>
-                ${isOffered ? 'Offert' : '<i class="fab fa-rev"></i> Offrir via Revolut'}
-            </button>
-        `;
+            <button class="button ${finalIsOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${finalIsOffered ? 'disabled' : ''}>
+                ${finalIsOffered ? offeredButtonText : offerButtonText}
+            </button>`;
 
         return `
-            <div class="gift-card ${isOffered ? 'offered' : ''}" data-id="${gift.ID}">
+            <div class="gift-card ${finalIsOffered ? 'offered' : ''} ${isPartial ? 'is-partial' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
-                    ${!isOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
+                    ${!finalIsOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
                     <p class="gift-title-price">${gift.Nom || 'Cadeau'}</p>
                     ${gift.Brand ? `<p class="brand">${gift.Brand}</p>` : ''}
                     <p class="description">${gift.Description || ''}</p>
                 </div>
-                
-                ${offerButtonHTML}
-                ${productLinkButtonHTML} 
-            </div>
-        `;
+                ${progressBarHTML}
+                <div class="gift-buttons">
+                    ${offerButtonHTML}
+                    ${productLinkButtonHTML}
+                </div>
+            </div>`;
     }
 
 
@@ -261,8 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Fonctions openModal, closeModal, handleConfirmOffer, displayModalMessage ---
      function openModal(gift = null) {
         let contentHTML = '';
+        const isPartial = gift && gift.Partiel?.toLowerCase().trim() === 'partiel';
 
-        // --- NOUVEAU BLOC HTML (pour le RIB) ---
         const ibanBlockHTML = `
             <div class="discreet-iban-container">
                 <p class="modal-or-separator">ou par virement</p>
@@ -273,29 +306,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span id="copy-confirm-text" class="copy-confirm-text"></span>
             </div>
         `;
-        // --- FIN NOUVEAU BLOC ---
 
-        if (gift) { // Offering a specific gift
-            const revolutAmountLink = gift.Prix > 0 ? `${revolutLinkBase}${gift.Prix}` : revolutLinkBase;
+        if (gift) {
+            const revolutAmountLink = gift.Prix > 0 && !isPartial ? `${revolutLinkBase}${gift.Prix}` : revolutLinkBase;
+
+            // --- Contribution Amount Input (only for partial gifts) ---
+            let amountInputHTML = '';
+            if (isPartial) {
+                const contributions = gift.Offert_par.split(';').filter(p => p.trim() !== '');
+                const totalContributed = contributions.reduce((acc, curr) => {
+                    const parts = curr.split(':');
+                    if (parts.length === 2) {
+                        const amount = parseFloat(parts[1]);
+                        return acc + (isNaN(amount) ? 0 : amount);
+                    }
+                    return acc;
+                }, 0);
+                const remainingAmount = gift.Prix - totalContributed;
+
+                amountInputHTML = `
+                <div class="partial-contribution-section">
+                    <p>Ce cadeau est participatif ! Il reste <strong>${remainingAmount.toFixed(0)}€</strong> à financer.</p>
+                    <label for="contributionAmount">Montant de votre contribution (€) :</label>
+                    <input type="number" id="contributionAmount" placeholder="Ex: 50" min="1" max="${remainingAmount.toFixed(0)}" required>
+                </div>`;
+            }
+
+            const contributionButtonText = isPartial ? `Contribuer via Revolut` : `Contribuer ${gift.Prix > 0 ? `de ${gift.Prix}€ ` : ''}via Revolut`;
+
             contentHTML = `
                 <h3>${gift.Nom}</h3>
                 <p>${gift.Description || 'Pas de description.'}</p>
                 <a href="${revolutAmountLink}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
-                   <i class="fas fa-external-link-alt"></i> Contribuer ${gift.Prix > 0 ? `de ${gift.Prix}€ ` : ''}via Revolut
+                   <i class="fas fa-external-link-alt"></i> ${contributionButtonText}
                 </a>
                 
-                ${ibanBlockHTML} <div class="confirmation-section">
-                    <p>Après avoir contribué, merci d'entrer votre nom pour marquer ce cadeau comme offert :</p>
+                ${ibanBlockHTML}
+
+                <div class="confirmation-section">
+                    <p>Après votre contribution, merci de confirmer votre participation :</p>
+                    ${amountInputHTML}
                     <label for="offeredByName">Votre nom ou initiales :</label>
                     <input type="text" id="offeredByName" placeholder="Ex: Jean D." required>
                     <div class="modal-buttons">
                         <button class="button secondary" id="cancelOfferButton">Annuler</button>
-                        <button class="button primary" id="confirmOfferButton">Marquer comme offert</button>
+                        <button class="button primary" id="confirmOfferButton">Confirmer ma participation</button>
                     </div>
                     <div id="modal-message" style="display: none;"></div>
                 </div>
             `;
-        } else { // Free contribution (cagnotte)
+        } else {
              contentHTML = `
                 <h3>Contribution Libre</h3>
                 <p>Participez librement à notre cagnotte !</p>
@@ -303,7 +363,9 @@ document.addEventListener('DOMContentLoaded', () => {
                    <i class="fas fa-external-link-alt"></i> Contribuer via Revolut
                 </a>
 
-                ${ibanBlockHTML} <div class="confirmation-section">
+                ${ibanBlockHTML}
+
+                <div class="confirmation-section">
                     <p>Vous pouvez fermer cette fenêtre après avoir effectué votre virement.</p>
                      <div class="modal-buttons">
                          <button class="button secondary" id="cancelOfferButton">Fermer</button>
@@ -376,21 +438,45 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGiftId = null;
     }
 
-    async function handleConfirmOffer() { // Made async
+    async function handleConfirmOffer() {
         const nameInput = document.getElementById('offeredByName');
+        const amountInput = document.getElementById('contributionAmount');
         const modalMessage = document.getElementById('modal-message');
         const confirmButton = document.getElementById('confirmOfferButton');
         const cancelButton = document.getElementById('cancelOfferButton');
+        const giftToUpdate = allGifts.find(g => g.ID === currentGiftId);
+
+        const reattachListeners = () => {
+            if (confirmButton) confirmButton.addEventListener('click', handleConfirmOffer, { once: true });
+            if (cancelButton) cancelButton.addEventListener('click', closeModal, { once: true });
+        };
 
         if (!nameInput || !nameInput.value.trim()) {
             displayModalMessage("Veuillez entrer votre nom.", "error");
-            // Re-attach listener if validation fails, because {once: true} removed it
-            if(confirmButton) confirmButton.addEventListener('click', handleConfirmOffer, { once: true });
+            reattachListeners();
             return;
+        }
+
+        const isPartial = giftToUpdate && giftToUpdate.Partiel?.toLowerCase().trim() === 'partiel';
+        let contributionAmount = 0;
+
+        if (isPartial) {
+            if (!amountInput || !amountInput.value || parseFloat(amountInput.value) <= 0) {
+                displayModalMessage("Veuillez entrer un montant de contribution valide.", "error");
+                reattachListeners();
+                return;
+            }
+            contributionAmount = parseFloat(amountInput.value);
         }
 
         const offeredByName = nameInput.value.trim();
         const giftIdToUpdate = currentGiftId;
+
+        const dataForScript = {
+            giftId: giftIdToUpdate,
+            name: offeredByName,
+            amount: isPartial ? contributionAmount : undefined
+        };
 
         if (confirmButton) confirmButton.disabled = true;
         if (cancelButton) cancelButton.disabled = true;
@@ -399,75 +485,65 @@ document.addEventListener('DOMContentLoaded', () => {
         let scriptUpdateError = null;
 
         try {
-            console.log("Sending to Apps Script:", { giftId: giftIdToUpdate, name: offeredByName });
-
+            console.log("Sending to Apps Script:", dataForScript);
             await fetch(appsScriptUrl, {
                 method: 'POST',
                 mode: 'no-cors',
                 cache: 'no-cache',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ giftId: giftIdToUpdate, name: offeredByName }),
-             });
-
-            console.log("Request potentially sent to Apps Script (no-cors). Assuming success for UI update.");
+                body: JSON.stringify(dataForScript),
+            });
+            console.log("Request potentially sent to Apps Script (no-cors).");
 
         } catch (error) {
             scriptUpdateError = error;
             console.error("❌ Error sending update request to Apps Script:", error);
         }
 
-        // --- Update UI (Optimistically unless fetch failed) ---
         if (!scriptUpdateError) {
-             const giftIndex = allGifts.findIndex(g => g.ID === giftIdToUpdate);
-             if (giftIndex !== -1) {
-                 allGifts[giftIndex].Offert_par = offeredByName; // Update local data using correct property name
-                 try {
-                     displayAllGiftsByCategory();
-                     console.log("UI redraw attempted after potential script success.");
-                     displayModalMessage("Merci beaucoup pour votre contribution !", "success");
-                     if (nameInput) nameInput.disabled = true;
-                     if (confirmButton) confirmButton.style.display = 'none';
-                     if (cancelButton) {
-                         cancelButton.textContent = 'Fermer';
-                         cancelButton.disabled = false; // Re-enable close button
-                         // Re-attach close listener since it was {once: true}
-                         cancelButton.addEventListener('click', closeModal, { once: true });
-                     }
-                 } catch(redrawError) {
-                     console.error("❌ Error during UI redraw:", redrawError);
-                     displayModalMessage(`Cadeau marqué, mais erreur d'affichage: ${redrawError.message}. Rafraîchissez la page.`, "warning");
-                     if (cancelButton) {
-                        cancelButton.disabled = false; // Still allow closing
-                        // Re-attach close listener
-                         cancelButton.addEventListener('click', closeModal, { once: true });
-                     }
-                 }
-             } else {
-                 console.error("Error updating UI: could not find gift with ID", giftIdToUpdate);
-                 displayModalMessage("Erreur locale lors de la mise à jour (cadeau non trouvé).", "error");
-                 if (confirmButton) {
-                     confirmButton.disabled = false;
-                     // Re-attach listener
-                     confirmButton.addEventListener('click', handleConfirmOffer, { once: true });
-                 }
-                 if (cancelButton) {
-                    cancelButton.disabled = false;
-                    // Re-attach listener
-                    cancelButton.addEventListener('click', closeModal, { once: true });
-                 }
-             }
+            const giftIndex = allGifts.findIndex(g => g.ID === giftIdToUpdate);
+            if (giftIndex !== -1) {
+                if (isPartial) {
+                    const newContribution = `${offeredByName}:${contributionAmount}`;
+                    if (allGifts[giftIndex].Offert_par.trim() === '') {
+                        allGifts[giftIndex].Offert_par = newContribution;
+                    } else {
+                        allGifts[giftIndex].Offert_par += `; ${newContribution}`;
+                    }
+                } else {
+                    allGifts[giftIndex].Offert_par = offeredByName;
+                }
+
+                try {
+                    displayAllGiftsByCategory();
+                    displayModalMessage("Merci beaucoup pour votre contribution !", "success");
+                    if (nameInput) nameInput.disabled = true;
+                    if (amountInput) amountInput.disabled = true;
+                    if (confirmButton) confirmButton.style.display = 'none';
+                    if (cancelButton) {
+                        cancelButton.textContent = 'Fermer';
+                        cancelButton.disabled = false;
+                        cancelButton.addEventListener('click', closeModal, { once: true });
+                    }
+                } catch (redrawError) {
+                    console.error("❌ Error during UI redraw:", redrawError);
+                    displayModalMessage(`Cadeau marqué, mais erreur d'affichage: ${redrawError.message}. Rafraîchissez la page.`, "warning");
+                    if (cancelButton) {
+                        cancelButton.disabled = false;
+                        cancelButton.addEventListener('click', closeModal, { once: true });
+                    }
+                }
+            } else {
+                displayModalMessage("Erreur locale: cadeau non trouvé.", "error");
+                if (confirmButton) confirmButton.disabled = false;
+                if (cancelButton) cancelButton.disabled = false;
+                reattachListeners();
+            }
         } else {
-             displayModalMessage(`Erreur réseau lors de la mise à jour: ${scriptUpdateError.message}. Veuillez réessayer.`, "error");
-             if (confirmButton) {
-                confirmButton.disabled = false;
-                 // Re-attach listener
-                confirmButton.addEventListener('click', handleConfirmOffer, { once: true });
-             }
-             if (cancelButton) {
-                cancelButton.disabled = false;
-                 // Re-attach listener
-                cancelButton.addEventListener('click', closeModal, { once: true });
-             }
+            displayModalMessage(`Erreur réseau: ${scriptUpdateError.message}. Veuillez réessayer.`, "error");
+            if (confirmButton) confirmButton.disabled = false;
+            if (cancelButton) cancelButton.disabled = false;
+            reattachListeners();
         }
     }
 
