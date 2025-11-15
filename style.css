@@ -2100,4 +2100,8 @@ body .password-overlay {
         font-size: 1.1rem; /* Police légèrement plus petite */
     }
 
+    /* --- Styles pour le RSVP sur mobile --- */
+    .rsvp-background-image {
+        background-attachment: scroll;
+    }
 }
