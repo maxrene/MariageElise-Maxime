@@ -555,9 +555,12 @@ img {
 }
 .text-block p { /* Timeline event description */
     font-size: 0.95em;
-    line-height: 1.7;
+    line-height: 1.8; /* Increased line-height */
     color: var(--text-color-dark);
     font-weight: 300;
+    text-align: justify; /* Justify text */
+    hyphens: auto; /* Add hyphenation */
+    padding: 0 5px; /* Add some horizontal padding */
 }
 
 /* --- Section "Notre Équipe" --- */
