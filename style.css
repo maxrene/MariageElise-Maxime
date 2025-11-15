@@ -1978,6 +1978,50 @@ img {
     }
 }
 
+@media (max-width: 768px) {
+    /* --- Styles for RSVP Form (Mobile) --- */
+    .rsvp-content-wrapper {
+        padding: 40px 25px; /* Moins de padding horizontal sur mobile */
+    }
+
+    .rsvp-form .form-row {
+        flex-direction: column; /* Empile les champs Prénom/Nom */
+        gap: 0; /* Annule l'écart horizontal, géré par le margin-bottom du form-group */
+    }
+
+    .rsvp-form .form-group.half-width {
+        margin-bottom: 25px; /* Ajoute un écart vertical entre les champs empilés */
+    }
+
+    /* S'assure que le dernier champ du "form-row" n'a pas de marge en bas,
+       car le form-group parent en a déjà une */
+    .rsvp-form .form-row .form-group.half-width:last-child {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    /* --- Styles for RSVP Form (Mobile) --- */
+    .rsvp-content-wrapper {
+        padding: 40px 25px; /* Moins de padding horizontal sur mobile */
+    }
+
+    .rsvp-form .form-row {
+        flex-direction: column; /* Empile les champs Prénom/Nom */
+        gap: 0; /* Annule l'écart horizontal, géré par le margin-bottom du form-group */
+    }
+
+    .rsvp-form .form-group.half-width {
+        margin-bottom: 25px; /* Ajoute un écart vertical entre les champs empilés */
+    }
+
+    /* S'assure que le dernier champ du "form-row" n'a pas de marge en bas,
+       car le form-group parent en a déjà une */
+    .rsvp-form .form-row .form-group.half-width:last-child {
+        margin-bottom: 0;
+    }
+}
+
 /* --- Password Popup --- */
 .password-overlay {
     position: fixed;
