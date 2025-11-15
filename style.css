@@ -1201,11 +1201,20 @@ img {
     min-width: 0;
 }
 
+/* Add space between the name fields and the attendance question */
+.rsvp-form .form-row + .form-group {
+    margin-top: 35px;
+}
+
 /* Radio Buttons (Modernized) */
 .radio-group.attendance-group {
     display: flex;
-    gap: 15px; /* Horizontal layout for Yes/No */
+    gap: 10px; /* Reduced gap for Yes/No */
     flex-wrap: wrap;
+}
+
+.guest-block .form-row + .form-group {
+    margin-top: 20px;
 }
 .modern-radio { /* Label wrapping the input */
     display: inline-flex; /* Align custom radio and text */
@@ -1287,6 +1296,11 @@ img {
     font-weight: 600;
     color: var(--accent-color); /* Couleur accentuée pour le titre */
     margin-bottom: 10px;
+}
+
+/* Add space between guest name and their allergy dropdown */
+.guest-block .form-row + .form-group {
+    margin-top: 20px;
 }
 #allergiesAutreContainer {
     margin-top: 10px; /* Closer to select */
