@@ -1,8 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // <--- PASTE YOUR CSV LINK HERE
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // URL for the main gift list
+    const contributionsSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=123456789&single=true&output=csv'; // <-- PASTE THE URL OF YOUR "Contributions" SHEET HERE
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
-    const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxpYkmQpRry9oXlBoX03eV9EIOGIi3Pj41ZLbmxdjuHY0fXJYi0ra8y5XlhdGKOeHm4bA/exec'; // <-- AJOUTEZ CETTE LIGNE (URL à venir)
+    const appsScriptUrl = 'https://script.google.com/macros/s/YOUR_APPS_SCRIPT_ID/exec'; // <-- PASTE YOUR GOOGLE APPS SCRIPT URL HERE
     const IBAN_NUMBER = 'FR76 XXXX XXXX XXXX XXXX XXXX XXX'; // <-- VRAI IBAN ICI
     
  // --- DOM ELEMENTS ---
@@ -14,88 +15,99 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalButton = giftModal.querySelector('.modal-close-button');
 
     let allGifts = [];
+    let allContributions = []; // New array to store contributions
     let currentGiftId = null;
 
-    // --- FUNCTIONS ---
+    // --- UTILITY FUNCTIONS ---
+    function parseCsvRow(rowString) {
+        const values = [];
+        let currentVal = '';
+        let inQuotes = false;
+        for (let i = 0; i < rowString.length; i++) {
+            const char = rowString[i];
+            if (char === '"') {
+                if (inQuotes && rowString[i + 1] === '"') {
+                    currentVal += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                values.push(currentVal.trim());
+                currentVal = '';
+            } else {
+                currentVal += char;
+            }
+        }
+        values.push(currentVal.trim());
+        return values;
+    }
 
-    async function fetchGifts() {
-        console.log("Attempting to fetch gifts from:", sheetUrl);
+    // --- DATA FETCHING AND PROCESSING ---
+    async function fetchData(url, expectedHeaders) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} for ${url}`);
+        }
+        const csvText = await response.text();
+        const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
+        if (rows.length < 1) return []; // Can be empty, that's okay
+
+        const headers = parseCsvRow(rows[0]);
+        if (expectedHeaders.some(h => !headers.includes(h))) {
+            throw new Error(`CSV from ${url} is missing one of the required headers: ${expectedHeaders.join(', ')}`);
+        }
+
+        return rows.slice(1).map(row => {
+            const values = parseCsvRow(row);
+            const item = {};
+            headers.forEach((header, index) => {
+                item[header.trim()] = values[index] ? values[index] : '';
+            });
+            return item;
+        });
+    }
+
+    async function fetchAndProcessData() {
         giftListContainer.innerHTML = '<p class="loading-message">Chargement de la liste de cadeaux...</p>';
         try {
-            const response = await fetch(sheetUrl);
-             console.log("Fetch response status:", response.status);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
-            }
-            const csvText = await response.text();
-            console.log("CSV Text received (first 300 chars):", csvText.substring(0, 300));
+            // Fetch both sets of data in parallel
+            const [giftsData, contributionsData] = await Promise.all([
+                fetchData(sheetUrl, ["ID", "Nom"]),
+                fetchData(contributionsSheetUrl, ["ID_Cadeau", "Montant"])
+            ]);
 
-             const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
-             if (rows.length < 2) {
-                 throw new Error("CSV data seems empty or invalid (less than 2 rows).");
-             }
+            allContributions = contributionsData.map(c => ({
+                giftId: c.ID_Cadeau,
+                contributor: c.Nom_Contributeur || 'Anonyme',
+                amount: parseFloat(c.Montant) || 0
+            }));
 
-            function parseCsvRow(rowString) {
-                const values = [];
-                let currentVal = '';
-                let inQuotes = false;
-                for (let i = 0; i < rowString.length; i++) {
-                    const char = rowString[i];
-                    if (char === '"') {
-                        if (inQuotes && rowString[i+1] === '"') {
-                            currentVal += '"';
-                            i++;
-                        } else {
-                            inQuotes = !inQuotes;
-                        }
-                    } else if (char === ',' && !inQuotes) {
-                        values.push(currentVal.trim());
-                        currentVal = '';
-                    } else {
-                        currentVal += char;
-                    }
+            // Map contributions to gifts
+            allGifts = giftsData.map(gift => {
+                const isPartial = gift.Type_Contribution?.toLowerCase().trim() === 'partiel';
+                let totalContributed = 0;
+
+                if (isPartial) {
+                    totalContributed = allContributions
+                        .filter(c => c.giftId === gift.ID)
+                        .reduce((sum, current) => sum + current.amount, 0);
                 }
-                values.push(currentVal.trim());
-                return values;
-            }
 
-            const headers = parseCsvRow(rows[0]);
-            console.log("Parsed headers:", headers);
+                return {
+                    ...gift,
+                    Prix: parseFloat(gift.Prix) || 0,
+                    totalContributed: totalContributed,
+                    isPartial: isPartial
+                };
+            }).filter(gift => gift.ID && gift.Nom);
 
-            if (headers.length === 0 || !headers.includes("ID") || !headers.includes("Nom")) {
-                 throw new Error("CSV Headers are missing or invalid. Check publication settings.");
-            }
-
-            allGifts = rows.slice(1).map((row, rowIndex) => {
-                 const values = parseCsvRow(row);
-                 if (values.length !== headers.length) {
-                     console.warn(`Skipping row ${rowIndex + 2}: Incorrect number of columns after parsing. Expected ${headers.length}, got ${values.length}. Row content: ${row}`);
-                     return null;
-                 }
-                  const gift = {};
-                  headers.forEach((header, index) => {
-                      gift[header.trim()] = values[index] ? values[index] : '';
-                  });
-
-                 if (!gift.ID || !gift.Nom) {
-                    console.warn(`Skipping row ${rowIndex + 2}: Missing ID or Nom. Row content: ${row}`);
-                    return null;
-                 }
-
-                 gift.Prix = parseFloat(gift.Prix) || 0;
-                 return gift;
-             }).filter(gift => gift !== null);
-
-
-            console.log("Gifts parsed successfully:", allGifts);
-            if (allGifts.length === 0 && rows.length > 1) {
-                 console.warn("Parsing resulted in zero valid gifts, although rows were present. Check row content and column matching.");
-                 throw new Error("Aucun cadeau valide n'a pu être lu. Vérifiez le format des lignes dans le Google Sheet.");
-            }
+            console.log("Gifts and contributions processed successfully:", allGifts);
             displayAllGiftsByCategory();
+
         } catch (error) {
-            console.error("❌ Error fetching or parsing gifts:", error);
-            giftListContainer.innerHTML = `<p class="error-message">Impossible de charger la liste. Erreur: ${error.message}. Vérifiez l'URL, la publication et le format du Google Sheet.</p>`;
+            console.error("❌ Error fetching or processing data:", error);
+            giftListContainer.innerHTML = `<p class="error-message">Impossible de charger la liste. Erreur: ${error.message}.</p>`;
         }
     }
 
@@ -103,31 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
      * Generates HTML for a single gift card.
      */
     function createGiftCardHTML(gift) {
-        const isPartial = gift.Type_Contribution?.toLowerCase().trim() === 'partiel';
-        let totalContributed = 0;
-        let isFullyFunded = false;
-
-        if (isPartial) {
-            // Updated parsing: Handles "Name:Amount" pairs separated by semicolons
-            const contributions = gift.Offert_par.split(';').filter(p => p.trim() !== '');
-            totalContributed = contributions.reduce((acc, curr) => {
-                const parts = curr.split(':');
-                // Ensure there's a second part and it's a number
-                if (parts.length === 2) {
-                    const amount = parseFloat(parts[1]);
-                    return acc + (isNaN(amount) ? 0 : amount);
-                }
-                return acc; // If format is just "Name", add 0
-            }, 0);
-
-            if (gift.Prix > 0) {
-                isFullyFunded = totalContributed >= gift.Prix;
-            }
-        }
-
+        // Data is now pre-processed, so we just use the properties from the gift object
+        const { isPartial, totalContributed, Prix } = gift;
+        const isFullyFunded = isPartial && Prix > 0 && totalContributed >= Prix;
         const isOffered = !isPartial && gift.Offert_par && gift.Offert_par.trim() !== '';
         const finalIsOffered = isOffered || isFullyFunded;
-        const formattedPrice = gift.Prix > 0 ? `${gift.Prix}€` : '';
+
+        const formattedPrice = Prix > 0 ? `${Prix}€` : '';
 
         let productLinkButtonHTML = '';
         const productURL = gift.ProductLink;
@@ -139,11 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let progressBarHTML = '';
-        if (isPartial && gift.Prix > 0) {
-            const percentage = Math.min((totalContributed / gift.Prix) * 100, 100);
+        if (isPartial && Prix > 0) {
+            const percentage = Math.min((totalContributed / Prix) * 100, 100);
             progressBarHTML = `
                 <div class="progress-info">
-                    <span>${totalContributed.toFixed(0)}€ / ${gift.Prix.toFixed(0)}€</span>
+                    <span>${totalContributed.toFixed(0)}€ / ${Prix.toFixed(0)}€</span>
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar" style="width: ${percentage}%;"></div>
@@ -294,8 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Fonctions openModal, closeModal, handleConfirmOffer, displayModalMessage ---
      function openModal(gift = null) {
         let contentHTML = '';
-        const isPartial = gift && gift.Type_Contribution?.toLowerCase().trim() === 'partiel';
-
         const ibanBlockHTML = `
             <div class="discreet-iban-container">
                 <p class="modal-or-separator">ou par virement</p>
@@ -308,22 +300,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         if (gift) {
-            const revolutAmountLink = gift.Prix > 0 && !isPartial ? `${revolutLinkBase}${gift.Prix}` : revolutLinkBase;
+            const { isPartial, totalContributed, Prix } = gift;
+            const revolutAmountLink = Prix > 0 && !isPartial ? `${revolutLinkBase}${Prix}` : revolutLinkBase;
 
-            // --- Contribution Amount Input (only for partial gifts) ---
             let amountInputHTML = '';
             if (isPartial) {
-                const contributions = gift.Offert_par.split(';').filter(p => p.trim() !== '');
-                const totalContributed = contributions.reduce((acc, curr) => {
-                    const parts = curr.split(':');
-                    if (parts.length === 2) {
-                        const amount = parseFloat(parts[1]);
-                        return acc + (isNaN(amount) ? 0 : amount);
-                    }
-                    return acc;
-                }, 0);
-                const remainingAmount = gift.Prix - totalContributed;
-
+                const remainingAmount = Math.max(0, Prix - totalContributed);
                 amountInputHTML = `
                 <div class="partial-contribution-section">
                     <p>Ce cadeau est participatif ! Il reste <strong>${remainingAmount.toFixed(0)}€</strong> à financer.</p>
@@ -332,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             }
 
-            const contributionButtonText = isPartial ? `Contribuer via Revolut` : `Contribuer ${gift.Prix > 0 ? `de ${gift.Prix}€ ` : ''}via Revolut`;
+            const contributionButtonText = isPartial ? `Contribuer via Revolut` : `Contribuer ${Prix > 0 ? `de ${Prix}€ ` : ''}via Revolut`;
 
             contentHTML = `
                 <h3>${gift.Nom}</h3>
@@ -503,13 +485,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!scriptUpdateError) {
             const giftIndex = allGifts.findIndex(g => g.ID === giftIdToUpdate);
             if (giftIndex !== -1) {
+                // Optimistic UI Update
                 if (isPartial) {
-                    const newContribution = `${offeredByName}:${contributionAmount}`;
-                    if (allGifts[giftIndex].Offert_par.trim() === '') {
-                        allGifts[giftIndex].Offert_par = newContribution;
-                    } else {
-                        allGifts[giftIndex].Offert_par += `; ${newContribution}`;
-                    }
+                    // Add to local contributions array
+                    allContributions.push({
+                        giftId: giftIdToUpdate,
+                        contributor: offeredByName,
+                        amount: contributionAmount
+                    });
+                    // Recalculate total for the specific gift
+                    allGifts[giftIndex].totalContributed += contributionAmount;
                 } else {
                     allGifts[giftIndex].Offert_par = offeredByName;
                 }
@@ -558,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- INITIALIZATION ---
-    fetchGifts(); // Fetch data and display
+    fetchAndProcessData(); // Fetch and process gifts and contributions
 
     if (cagnotteButton) {
         cagnotteButton.addEventListener('click', () => {
