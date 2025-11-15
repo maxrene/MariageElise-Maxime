@@ -2064,3 +2064,31 @@ img {
 #main-content {
     transition: opacity 0.3s ease;
 }
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px; /* On déplace la marge de l'input vers le wrapper */
+}
+
+.password-input-wrapper #password-input {
+    margin-bottom: 0; /* On enlève la marge de l'input car le wrapper la gère */
+    padding-right: 40px; /* Espace pour ne pas écrire sur l'icône */
+}
+
+#toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-color-dark);
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    font-size: 1rem;
+}
+
+#toggle-password:hover {
+    opacity: 1;
+    color: var(--accent-color);
+}
