@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=0&single=true&output=csv'; // URL for the main gift list
-    const contributionsSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=123456789&single=true&output=csv'; // <-- PASTE THE URL OF YOUR "Contributions" SHEET HERE
+    const contributionsSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=88609421&single=true&output=csv'; // <-- PASTE THE URL OF YOUR "Contributions" SHEET HERE
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
     const appsScriptUrl = 'https://script.google.com/macros/s/YOUR_APPS_SCRIPT_ID/exec'; // <-- PASTE YOUR GOOGLE APPS SCRIPT URL HERE
     const IBAN_NUMBER = 'FR76 XXXX XXXX XXXX XXXX XXXX XXX'; // <-- VRAI IBAN ICI
