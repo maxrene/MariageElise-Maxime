@@ -663,6 +663,19 @@ document.addEventListener('DOMContentLoaded', function() {
   const passwordSubmit = document.getElementById('password-submit');
   const mainContent = document.getElementById('main-content');
   const passwordError = document.getElementById('password-error');
+  const togglePassword = document.getElementById('toggle-password');
+
+  if (togglePassword && passwordInput) {
+      togglePassword.addEventListener('click', function() {
+          // Basculer le type de l'input
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+
+          // Changer l'icône
+          this.classList.toggle('fa-eye');
+          this.classList.toggle('fa-eye-slash');
+      });
+  }
 
   function showSiteContent() {
     if (passwordModal) passwordModal.style.display = 'none';
@@ -670,6 +683,7 @@ document.addEventListener('DOMContentLoaded', function() {
       mainContent.style.display = 'block';
       mainContent.style.opacity = '1';
     }
+    document.body.classList.remove('modal-open');
   }
 
   function showPasswordPopup() {
@@ -678,6 +692,7 @@ document.addEventListener('DOMContentLoaded', function() {
       mainContent.style.display = 'none';
       mainContent.style.opacity = '0';
     }
+    document.body.classList.add('modal-open');
   }
 
   function checkPassword() {

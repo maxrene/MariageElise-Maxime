@@ -59,6 +59,10 @@ body {
     cursor: default;
 }
 
+body.modal-open {
+    overflow: hidden;
+}
+
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--primary-font);
@@ -520,7 +524,7 @@ img {
 
 
 .text-block {
-    padding: 25px; /* More padding */
+    padding: 35px; /* More padding */
 }
 .timeline-item:nth-child(odd) .image-block { order: 1; }
 .timeline-item:nth-child(odd) .text-block { order: 2; text-align: left; padding-left: 0; }
@@ -554,10 +558,11 @@ img {
     font-weight: 700;
 }
 .text-block p { /* Timeline event description */
-    font-size: 0.95em;
-    line-height: 1.7;
+    font-size: 1em;
+    line-height: 1.8;
     color: var(--text-color-dark);
     font-weight: 300;
+    text-align: justify;
 }
 
 /* --- Section "Notre Équipe" --- */
@@ -2063,4 +2068,17 @@ img {
 
 #main-content {
     transition: opacity 0.3s ease;
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#toggle-password {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    color: var(--text-color-dark);
 }
