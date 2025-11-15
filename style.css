@@ -555,12 +555,9 @@ img {
 }
 .text-block p { /* Timeline event description */
     font-size: 0.95em;
-    line-height: 1.8; /* Increased line-height */
+    line-height: 1.7;
     color: var(--text-color-dark);
     font-weight: 300;
-    text-align: justify; /* Justify text */
-    hyphens: auto; /* Add hyphenation */
-    padding: 0 5px; /* Add some horizontal padding */
 }
 
 /* --- Section "Notre Équipe" --- */
@@ -1979,4 +1976,91 @@ img {
         padding: 12px 20px; /* Padding réduit pour les petits écrans */
         font-size: 1.1rem; /* Police légèrement plus petite */
     }
+}
+
+/* --- Password Popup --- */
+.password-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+}
+
+.password-modal-content {
+    background-color: var(--background-light);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid var(--border-color);
+}
+
+.password-modal-content h2 {
+    font-family: var(--primary-font);
+    font-size: 2em;
+    color: var(--text-color-headings);
+    margin-bottom: 15px;
+}
+
+.password-modal-content p {
+    font-size: 1rem;
+    color: var(--text-color-dark);
+    margin-bottom: 25px;
+}
+
+#password-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+#password-input:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.15);
+}
+
+#password-input.error {
+    border-color: #c53030;
+}
+
+#password-submit {
+    background-color: var(--accent-color);
+    color: var(--text-color-light);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-family: var(--primary-font);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#password-submit:hover {
+    background-color: var(--text-color-headings);
+    transform: translateY(-2px);
+}
+
+.error-message {
+    color: #c53030;
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+#main-content {
+    transition: opacity 0.3s ease;
 }

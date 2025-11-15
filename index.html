@@ -10,6 +10,18 @@
 </head>
 <body>
 
+   <div id="password-modal" class="password-overlay">
+       <div class="password-modal-content">
+           <h2>Accès au site</h2>
+           <p>Veuillez entrer le mot de passe pour continuer.</p>
+           <input type="password" id="password-input" placeholder="Mot de passe">
+           <button id="password-submit">Entrer</button>
+           <p id="password-error" class="error-message" style="display: none;">Mot de passe incorrect.</p>
+       </div>
+   </div>
+
+<div id="main-content" style="display: none;">
+
    <header id="hero-section">
      <div class="hero-background"></div>
      <div id="particles-hero"></div>
@@ -621,7 +633,7 @@
         </main>
     </div>
 </section>
-
+</div>
    <script src="script.js"></script>
      <footer class="site-footer">
     <div class="footer-content-wrapper">

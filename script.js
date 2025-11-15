@@ -657,4 +657,71 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
 
+  // --- LOGIQUE pour le Popup de Mot de Passe ---
+  const passwordModal = document.getElementById('password-modal');
+  const passwordInput = document.getElementById('password-input');
+  const passwordSubmit = document.getElementById('password-submit');
+  const mainContent = document.getElementById('main-content');
+  const passwordError = document.getElementById('password-error');
+
+  function showSiteContent() {
+    if (passwordModal) passwordModal.style.display = 'none';
+    if (mainContent) {
+      mainContent.style.display = 'block';
+      mainContent.style.opacity = '1';
+    }
+  }
+
+  function showPasswordPopup() {
+    if (passwordModal) passwordModal.style.display = 'flex';
+     if (mainContent) {
+      mainContent.style.display = 'none';
+      mainContent.style.opacity = '0';
+    }
+  }
+
+  function checkPassword() {
+    // Le mot de passe est sensible à la casse. "Dublin" est correct.
+    if (passwordInput && passwordInput.value === 'Dublin') {
+      sessionStorage.setItem('isVerified', 'true');
+      showSiteContent();
+    } else {
+      if (passwordError) {
+        passwordError.style.display = 'block';
+      }
+      if (passwordInput) {
+        passwordInput.classList.add('error');
+      }
+    }
+  }
+
+  // Au chargement de la page, on vérifie si l'utilisateur est déjà passé
+  if (sessionStorage.getItem('isVerified') === 'true') {
+    showSiteContent();
+  } else {
+    showPasswordPopup();
+  }
+
+  // Écouteur pour le clic sur le bouton
+  if (passwordSubmit) {
+    passwordSubmit.addEventListener('click', checkPassword);
+  }
+
+  // Écouteur pour la touche "Entrée" dans le champ
+  if (passwordInput) {
+    passwordInput.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault(); // Empêche le rechargement/soumission de formulaire
+        checkPassword();
+      }
+    });
+    // Cache le message d'erreur dès que l'utilisateur commence à corriger
+    passwordInput.addEventListener('input', function() {
+        if (passwordError && passwordError.style.display === 'block') {
+            passwordError.style.display = 'none';
+            passwordInput.classList.remove('error');
+        }
+    });
+  }
+
 }); // --- FIN DU DOMCONTENTLOADED ---
