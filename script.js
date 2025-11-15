@@ -477,6 +477,16 @@ document.addEventListener('DOMContentLoaded', function() {
       { src:  'images/cards/card48.jpg', year: '2025' },
       { src:  'images/cards/card49.jpg', year: '2025' },
     ];
+
+    // --- MODIFICATION 1 : PRÉCHARGEMENT DES IMAGES ---
+    // On lance le chargement immédiatement, même si le mot de passe n'est pas encore entré.
+    // Le navigateur mettra les images en cache.
+    imageData.forEach(data => {
+        const imgPreload = new Image();
+        imgPreload.src = data.src;
+    });
+
+    
     const totalImages = imageData.length;
     let currentIndex = 0;
 
@@ -489,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const MIN_SPEED_DRIFT    = 0.7;
     const MAX_INITIAL_SPEED  = 14;
     const HORIZ_DAMPEN       = 0.7;
-    const DISPLAY_TIME       = 500;
+    const DISPLAY_TIME       = 2000;
     const FADE_DURATION      = 500;
     const FALL_DISTANCE      = 200;
     const MAX_ONSCREEN       = 6;
@@ -723,5 +733,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
   }
-
+// --- MODIFICATION 3 : LOGIQUE TOGGLE PASSWORD ---
+  const togglePassword = document.getElementById('toggle-password');
+  if (togglePassword && passwordInput) {
+      togglePassword.addEventListener('click', function () {
+          // Basculer le type
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          
+          // Basculer l'icône
+          this.classList.toggle('fa-eye');
+          this.classList.toggle('fa-eye-slash');
+      });
+    }
 }); // --- FIN DU DOMCONTENTLOADED ---
