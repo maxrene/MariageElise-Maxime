@@ -245,9 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
          giftListContainer.dataset.listenerAttached = 'true';
     }
 
-    // --- GESTION MODALE ---
-     function openModal(gift = null) {
+    function openModal(gift = null) {
         let contentHTML = '';
+        
+        // On s'assure que le lien de base n'a pas de slash à la fin pour éviter les doubles //
+        // Ex: https://revolut.me/maxbook
+        const cleanBaseUrl = revolutLinkBase.endsWith('/') ? revolutLinkBase.slice(0, -1) : revolutLinkBase;
+
         const ibanBlockHTML = `
             <div class="discreet-iban-container">
                 <p class="modal-or-separator">ou par virement</p>
@@ -262,25 +266,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gift) {
             const { isPartial, totalContributed, Prix } = gift;
             
-            // --- CORRECTION TEXTE BOUTON MODALE ---
             let contributionButtonText = '';
-            let revolutAmountLink = revolutLinkBase;
+            let initialRevolutLink = cleanBaseUrl; // Par défaut juste le profil
 
+            // --- LOGIQUE DES BOUTONS ET LIENS ---
             if (isPartial) {
-                 // Cas partiel : bouton standard
                  contributionButtonText = 'Contribuer via Revolut';
-                 // Pas de montant prédéfini dans le lien car c'est libre
+                 // Pour le partiel, le lien restera "de base" tant qu'on n'a rien tapé
             } else {
-                // Cas complet (unique) : Texte "Payer XX€..."
                 contributionButtonText = `Payer ${Prix}€ sur Revolut`;
                 if (Prix > 0) {
-                    revolutAmountLink = `${revolutLinkBase}${Prix}`;
+                    // Génération AUTO du lien avec montant : revolut.me/maxbook/50
+                    initialRevolutLink = `${cleanBaseUrl}/${Prix}`;
                 }
             }
-            // ---------------------------------------
 
             let amountInputHTML = '';
-            // Affichage input montant SEULEMENT si partiel
             if (isPartial) {
                 const remainingAmount = Math.max(0, Prix - totalContributed);
                 amountInputHTML = `
@@ -294,7 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
             contentHTML = `
                 <h3>${gift.Nom}</h3>
                 <p>${gift.Description || 'Pas de description.'}</p>
-                <a href="${revolutAmountLink}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
+                
+                <a href="${initialRevolutLink}" id="modalRevolutLink" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
                    <i class="fas fa-external-link-alt"></i> ${contributionButtonText}
                 </a>
                 
@@ -313,11 +315,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         } else {
-             // CAS CAGNOTTE LIBRE
+             // CAS CAGNOTTE LIBRE (Pas de montant fixe imposé)
              contentHTML = `
                 <h3>Contribution Libre</h3>
                 <p>Participez librement à notre cagnotte !</p>
-                 <a href="${revolutLinkBase}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
+                 <a href="${cleanBaseUrl}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
                    <i class="fas fa-external-link-alt"></i> Contribuer via Revolut
                 </a>
 
@@ -336,13 +338,34 @@ document.addEventListener('DOMContentLoaded', () => {
         modalOverlay.style.display = 'block';
         giftModal.style.display = 'block';
 
-        // Gestionnaire Boutons
+        // --- RÉCUPÉRATION DES ÉLÉMENTS ---
         const confirmButton = modalContent.querySelector('#confirmOfferButton');
         const cancelButton = modalContent.querySelector('#cancelOfferButton');
         const copyIcon = modalContent.querySelector('#copyIbanIcon'); 
         const confirmText = modalContent.querySelector('#copy-confirm-text');
+        
+        // Éléments spécifiques pour la mise à jour dynamique
+        const amountInput = modalContent.querySelector('#contributionAmount');
+        const revolutLinkBtn = modalContent.querySelector('#modalRevolutLink');
 
-        // Copie IBAN
+        // --- PARTIE MAGIQUE : MISE À JOUR DYNAMIQUE DU LIEN ---
+        // Si on est sur un cadeau partiel avec input, on écoute ce que l'utilisateur tape
+        if (amountInput && revolutLinkBtn) {
+            amountInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (val && val > 0) {
+                    // Met à jour le lien : revolut.me/maxbook/MontantTapé
+                    revolutLinkBtn.href = `${cleanBaseUrl}/${val}`;
+                    revolutLinkBtn.innerHTML = `<i class="fas fa-external-link-alt"></i> Payer ${val}€ sur Revolut`;
+                } else {
+                    // Revient au lien de base si vide
+                    revolutLinkBtn.href = cleanBaseUrl;
+                    revolutLinkBtn.innerHTML = `<i class="fas fa-external-link-alt"></i> Contribuer via Revolut`;
+                }
+            });
+        }
+
+        // --- LOGIQUE EXISTANTE (Copie IBAN, Fermeture...) ---
         if (copyIcon && confirmText) {
             copyIcon.addEventListener('click', () => {
                 navigator.clipboard.writeText(IBAN_NUMBER).then(() => {
