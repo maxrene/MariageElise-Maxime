@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const IBAN_NUMBER = 'FR76 XXXX XXXX XXXX XXXX XXXX XXX'; // <-- VRAI IBAN ICI
     
  // --- DOM ELEMENTS ---
-   const giftListContainer = document.getElementById('gift-list-container');
+    const giftListContainer = document.getElementById('gift-list-container');
     const cagnotteButton = document.querySelector('.cagnotte-section .revolut-button');
     const modalOverlay = document.getElementById('modal-overlay');
     const giftModal = document.getElementById('gift-modal');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalButton = giftModal.querySelector('.modal-close-button');
 
     let allGifts = [];
-    let allContributions = []; // New array to store contributions
+    let allContributions = [];
     let currentGiftId = null;
 
     // --- UTILITY FUNCTIONS ---
@@ -44,25 +44,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- DATA FETCHING AND PROCESSING ---
-    async function fetchData(url, expectedHeaders) {
-        const response = await fetch(url);
+    async function fetchData(url) {
+        // AJOUT CRUCIAL : cacheBuster pour forcer Google à donner la version à jour
+        const cacheBuster = `&t=${new Date().getTime()}`; 
+        const response = await fetch(url + cacheBuster);
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status} for ${url}`);
         }
         const csvText = await response.text();
         const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
-        if (rows.length < 1) return []; // Can be empty, that's okay
+        if (rows.length < 1) return []; 
 
         const headers = parseCsvRow(rows[0]);
-        if (expectedHeaders.some(h => !headers.includes(h))) {
-            throw new Error(`CSV from ${url} is missing one of the required headers: ${expectedHeaders.join(', ')}`);
-        }
-
+        
         return rows.slice(1).map(row => {
             const values = parseCsvRow(row);
             const item = {};
             headers.forEach((header, index) => {
-                item[header.trim()] = values[index] ? values[index] : '';
+                // Nettoyage des noms de colonnes pour éviter les erreurs d'espaces
+                const cleanHeader = header.trim();
+                item[cleanHeader] = values[index] ? values[index] : '';
             });
             return item;
         });
@@ -71,38 +73,52 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAndProcessData() {
         giftListContainer.innerHTML = '<p class="loading-message">Chargement de la liste de cadeaux...</p>';
         try {
-            // Fetch both sets of data in parallel
+            // On récupère les deux fichiers
             const [giftsData, contributionsData] = await Promise.all([
-                fetchData(sheetUrl, ["ID", "Nom"]),
-                fetchData(contributionsSheetUrl, ["ID_Cadeau", "Montant"])
+                fetchData(sheetUrl),
+                fetchData(contributionsSheetUrl)
             ]);
 
+            console.log("Données brutes Cadeaux:", giftsData);
+            console.log("Données brutes Contributions:", contributionsData);
+
+            // Préparation des contributions (Nettoyage des ID pour qu'ils soient des Textes)
             allContributions = contributionsData.map(c => ({
-                giftId: c.ID_Cadeau,
+                giftId: String(c.ID_Cadeau || '').trim(), // Force string
                 contributor: c.Nom_Contributeur || 'Anonyme',
                 amount: parseFloat(c.Montant) || 0
             }));
 
-            // Map contributions to gifts
+            // Mapping des cadeaux
             allGifts = giftsData.map(gift => {
+                const giftID = String(gift.ID || '').trim(); // Force string
                 const isPartial = gift.Type_Contribution?.toLowerCase().trim() === 'partiel';
+                
+                // 1. Calculer la somme des contributions (CORRECTION DU BUG 0€)
                 let totalContributed = 0;
-
                 if (isPartial) {
                     totalContributed = allContributions
-                        .filter(c => c.giftId === gift.ID)
+                        .filter(c => c.giftId === giftID) // Comparaison String vs String
                         .reduce((sum, current) => sum + current.amount, 0);
                 }
 
+                // 2. Vérifier si le cadeau est offert (CORRECTION DU BUG DISPO APRES REFRESH)
+                // On vérifie si la colonne "Offert_par" contient quelque chose
+                // Note : Assure-toi que l'en-tête dans ton CSV s'appelle bien "Offert_par" ou "Offert par"
+                const offerByName = gift.Offert_par || gift["Offert par"] || ''; 
+                const isOfferedInSheet = offerByName.trim() !== '';
+
                 return {
                     ...gift,
+                    ID: giftID,
                     Prix: parseFloat(gift.Prix) || 0,
                     totalContributed: totalContributed,
-                    isPartial: isPartial
+                    isPartial: isPartial,
+                    // Un cadeau est offert si : marqué dans le sheet OU totalement financé via partiel
+                    isGlobalOffered: isOfferedInSheet || (isPartial && gift.Prix > 0 && totalContributed >= parseFloat(gift.Prix))
                 };
             }).filter(gift => gift.ID && gift.Nom);
 
-            console.log("Gifts and contributions processed successfully:", allGifts);
             displayAllGiftsByCategory();
 
         } catch (error) {
@@ -115,17 +131,13 @@ document.addEventListener('DOMContentLoaded', () => {
      * Generates HTML for a single gift card.
      */
     function createGiftCardHTML(gift) {
-        // Data is now pre-processed, so we just use the properties from the gift object
-        const { isPartial, totalContributed, Prix } = gift;
-        const isFullyFunded = isPartial && Prix > 0 && totalContributed >= Prix;
-        const isOffered = !isPartial && gift.Offert_par && gift.Offert_par.trim() !== '';
-        const finalIsOffered = isOffered || isFullyFunded;
-
+        const { isPartial, totalContributed, Prix, isGlobalOffered } = gift;
+        
         const formattedPrice = Prix > 0 ? `${Prix}€` : '';
 
         let productLinkButtonHTML = '';
         const productURL = gift.ProductLink;
-        if (productURL && productURL.trim() !== '' && !finalIsOffered) {
+        if (productURL && productURL.trim() !== '' && !isGlobalOffered) {
             productLinkButtonHTML = `
                 <a href="${productURL}" target="_blank" rel="noopener noreferrer" class="button product-link">
                     <i class="fas fa-store"></i> Voir le produit
@@ -144,18 +156,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
         }
 
+        // CORRECTION DU TEXTE BOUTON
         const offerButtonText = isPartial ? '<i class="fas fa-coins"></i> Contribuer' : '<i class="fab fa-rev"></i> Offrir via Revolut';
-        const offeredButtonText = isPartial ? '100% financé !' : 'Offert';
+        const offeredButtonText = isPartial ? '100% financé !' : 'Déjà offert';
 
         const offerButtonHTML = `
-            <button class="button ${finalIsOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${finalIsOffered ? 'disabled' : ''}>
-                ${finalIsOffered ? offeredButtonText : offerButtonText}
+            <button class="button ${isGlobalOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isGlobalOffered ? 'disabled' : ''}>
+                ${isGlobalOffered ? offeredButtonText : offerButtonText}
             </button>`;
 
         return `
-            <div class="gift-card ${finalIsOffered ? 'offered' : ''} ${isPartial ? 'is-partial' : ''}" data-id="${gift.ID}">
+            <div class="gift-card ${isGlobalOffered ? 'offered' : ''} ${isPartial ? 'is-partial' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
-                    ${!finalIsOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
+                    ${!isGlobalOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
                     <p class="gift-title-price">${gift.Nom || 'Cadeau'}</p>
@@ -171,53 +184,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    /**
-     * Displays all gifts grouped by category sequentially. (Improved Logging & Structure)
-     */
     function displayAllGiftsByCategory() {
-        console.log("Running displayAllGiftsByCategory..."); // Log start
-        giftListContainer.innerHTML = ''; // Clear loading message or previous content
+        giftListContainer.innerHTML = ''; 
 
         if (!allGifts || allGifts.length === 0) {
-            console.log("No gifts found in allGifts array."); // Log empty data
-            if (!giftListContainer.querySelector('.error-message')) {
-               giftListContainer.innerHTML = '<p class="loading-message">La liste est vide ou n\'a pas pu être chargée correctement.</p>';
-            }
+            giftListContainer.innerHTML = '<p class="loading-message">La liste est vide ou n\'a pas pu être chargée correctement.</p>';
             return;
         }
 
-        // 1. Grouper les cadeaux par catégorie
-        console.log("Grouping gifts by category..."); // Log grouping step
+        // Grouper les cadeaux par catégorie
         const giftsByCategory = allGifts.reduce((acc, gift) => {
-             if (gift && typeof gift === 'object') {
-                const category = gift.Categorie ? gift.Categorie.trim() : 'Autres';
-                if (!acc[category]) {
-                    acc[category] = [];
-                }
-                acc[category].push(gift);
-             } else {
-                console.warn("Skipping invalid gift object during grouping:", gift);
-             }
-            return acc;
+             const category = gift.Categorie ? gift.Categorie.trim() : 'Autres';
+             if (!acc[category]) acc[category] = [];
+             acc[category].push(gift);
+             return acc;
         }, {});
-        console.log("Gifts grouped:", giftsByCategory); // Log the result of grouping
 
-        // 2. Déterminer l'ordre des catégories
         const categoryOrder = Object.keys(giftsByCategory);
-        console.log("Category order:", categoryOrder); // Log the category order
-
-        if (categoryOrder.length === 0) {
-             console.log("No categories found after grouping."); // Log no categories
-             giftListContainer.innerHTML = '<p class="loading-message">Aucune catégorie trouvée dans la liste.</p>';
-            return;
-        }
-
-        // 3. Afficher chaque catégorie et ses cadeaux using a fragment
         const fragment = document.createDocumentFragment();
-        let giftCount = 0; // Counter for gifts actually added
 
         categoryOrder.forEach(category => {
-            console.log("Processing category:", category); // Log each category
             const gifts = giftsByCategory[category];
             if (gifts && gifts.length > 0) {
                 const categoryTitle = document.createElement('h3');
@@ -229,63 +215,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 gridWrapper.className = 'gift-grid-wrapper';
                 let categoryGiftHTML = '';
                 gifts.forEach(gift => {
-                    if (gift && gift.ID) {
-                        categoryGiftHTML += createGiftCardHTML(gift);
-                        giftCount++;
-                    } else {
-                        console.warn("Skipping invalid gift object during HTML generation:", gift);
-                    }
+                    categoryGiftHTML += createGiftCardHTML(gift);
                 });
                 gridWrapper.innerHTML = categoryGiftHTML;
                 fragment.appendChild(gridWrapper);
-            } else {
-                console.log(`Skipping category "${category}" because it has no valid gifts.`);
             }
         });
 
         giftListContainer.appendChild(fragment);
-        console.log(`Finished displaying gifts. Total gifts added: ${giftCount}`);
-
         addOfferButtonListeners();
     }
 
 
-    /**
-     * Adds event listeners ONCE using delegation to all "Offrir" buttons present in the container.
-     */
      function addOfferButtonListeners() {
-         if (giftListContainer.dataset.listenerAttached === 'true') {
-            console.log("Delegated listener already attached.");
-            return;
-         }
+         if (giftListContainer.dataset.listenerAttached === 'true') return;
 
          giftListContainer.addEventListener('click', function(event) {
-             // Clic sur le bouton "Offrir"
              const button = event.target.closest('.revolut-button[data-type="gift"]:not(.offered)');
              if (button) {
-                 event.preventDefault(); // Empêche toute action par défaut (au cas où)
-                 console.log("Offer button clicked");
+                 event.preventDefault();
                  currentGiftId = button.closest('.gift-card').dataset.id;
-                 const gift = allGifts.find(g => g.ID === currentGiftId);
+                 // Utilisation de String() pour être sûr de trouver l'ID
+                 const gift = allGifts.find(g => String(g.ID) === String(currentGiftId));
                  if (gift) {
                      openModal(gift);
-                 } else {
-                     console.error("Could not find gift data for ID:", currentGiftId);
                  }
-             }
-             
-             // Clic sur le bouton "Voir le produit" (ne fait rien, laisse le lien <a> agir)
-             const productLink = event.target.closest('.product-link');
-             if (productLink) {
-                 console.log("Product link clicked, allowing default browser action.");
-                 // On ne fait rien ici, on laisse le 'target="_blank"' du <a> faire son travail
              }
          });
          giftListContainer.dataset.listenerAttached = 'true';
-         console.log("Offer button listeners attached via delegation.");
     }
 
-    // --- Fonctions openModal, closeModal, handleConfirmOffer, displayModalMessage ---
+    // --- GESTION MODALE ---
      function openModal(gift = null) {
         let contentHTML = '';
         const ibanBlockHTML = `
@@ -301,9 +261,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (gift) {
             const { isPartial, totalContributed, Prix } = gift;
-            const revolutAmountLink = Prix > 0 && !isPartial ? `${revolutLinkBase}${Prix}` : revolutLinkBase;
+            
+            // --- CORRECTION TEXTE BOUTON MODALE ---
+            let contributionButtonText = '';
+            let revolutAmountLink = revolutLinkBase;
+
+            if (isPartial) {
+                 // Cas partiel : bouton standard
+                 contributionButtonText = 'Contribuer via Revolut';
+                 // Pas de montant prédéfini dans le lien car c'est libre
+            } else {
+                // Cas complet (unique) : Texte "Payer XX€..."
+                contributionButtonText = `Payer ${Prix}€ sur Revolut`;
+                if (Prix > 0) {
+                    revolutAmountLink = `${revolutLinkBase}${Prix}`;
+                }
+            }
+            // ---------------------------------------
 
             let amountInputHTML = '';
+            // Affichage input montant SEULEMENT si partiel
             if (isPartial) {
                 const remainingAmount = Math.max(0, Prix - totalContributed);
                 amountInputHTML = `
@@ -313,8 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <input type="number" id="contributionAmount" placeholder="Ex: 50" min="1" max="${remainingAmount.toFixed(0)}" required>
                 </div>`;
             }
-
-            const contributionButtonText = isPartial ? `Contribuer via Revolut` : `Contribuer ${Prix > 0 ? `de ${Prix}€ ` : ''}via Revolut`;
 
             contentHTML = `
                 <h3>${gift.Nom}</h3>
@@ -338,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         } else {
+             // CAS CAGNOTTE LIBRE
              contentHTML = `
                 <h3>Contribution Libre</h3>
                 <p>Participez librement à notre cagnotte !</p>
@@ -356,59 +332,35 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        // 1. Set the HTML content FIRST
         modalContent.innerHTML = contentHTML;
-
-        // 2. Display the modal
         modalOverlay.style.display = 'block';
         giftModal.style.display = 'block';
 
-        // 3. Find buttons AFTER they are in the DOM
+        // Gestionnaire Boutons
         const confirmButton = modalContent.querySelector('#confirmOfferButton');
         const cancelButton = modalContent.querySelector('#cancelOfferButton');
-        const copyIcon = modalContent.querySelector('#copyIbanIcon'); // <-- MODIFIÉ
-        const confirmText = modalContent.querySelector('#copy-confirm-text'); // <-- AJOUT
+        const copyIcon = modalContent.querySelector('#copyIbanIcon'); 
+        const confirmText = modalContent.querySelector('#copy-confirm-text');
 
-        // --- AJOUT : Logique de copie ---
+        // Copie IBAN
         if (copyIcon && confirmText) {
             copyIcon.addEventListener('click', () => {
-                const textToCopy = IBAN_NUMBER; // MODIFIÉ : Copie l'IBAN uniquement
-                try {
-                    navigator.clipboard.writeText(textToCopy).then(() => {
-                        confirmText.textContent = 'IBAN Copié !'; // MODIFIÉ : Met à jour le span
-                        confirmText.style.opacity = '1';
-                        setTimeout(() => {
-                            confirmText.style.opacity = '0';
-                        }, 2000);
-                    }, (err) => {
-                         console.error('Erreur de copie (async): ', err);
-                         confirmText.textContent = 'Erreur';
-                         confirmText.style.opacity = '1';
-                    });
-                } catch (err) {
-                    console.error('Erreur de copie (sync): ', err);
-                    confirmText.textContent = 'Erreur';
+                navigator.clipboard.writeText(IBAN_NUMBER).then(() => {
+                    confirmText.textContent = 'IBAN Copié !';
                     confirmText.style.opacity = '1';
-                }
+                    setTimeout(() => confirmText.style.opacity = '0', 2000);
+                }).catch(err => console.error('Erreur copie:', err));
             });
         }
-        // --- FIN AJOUT ---
 
-        // 4. Add listeners directly using { once: true }
         if (confirmButton) {
-            confirmButton.disabled = false; // Ensure not disabled initially
+            confirmButton.disabled = false; 
             confirmButton.addEventListener('click', handleConfirmOffer, { once: true });
-             console.log("Attached listener to confirmOfferButton");
-        } else {
-             console.log("confirmOfferButton not found in modal");
         }
 
         if (cancelButton) {
-            cancelButton.disabled = false; // Ensure not disabled initially
+            cancelButton.disabled = false; 
             cancelButton.addEventListener('click', closeModal, { once: true });
-            console.log("Attached listener to cancelOfferButton");
-        } else {
-             console.log("cancelButton not found in modal");
         }
     }
 
@@ -423,10 +375,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleConfirmOffer() {
         const nameInput = document.getElementById('offeredByName');
         const amountInput = document.getElementById('contributionAmount');
-        const modalMessage = document.getElementById('modal-message');
         const confirmButton = document.getElementById('confirmOfferButton');
         const cancelButton = document.getElementById('cancelOfferButton');
-        const giftToUpdate = allGifts.find(g => g.ID === currentGiftId);
+        const giftToUpdate = allGifts.find(g => String(g.ID) === String(currentGiftId));
 
         const reattachListeners = () => {
             if (confirmButton) confirmButton.addEventListener('click', handleConfirmOffer, { once: true });
@@ -439,12 +390,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const isPartial = giftToUpdate && giftToUpdate.Type_Contribution?.toLowerCase().trim() === 'partiel';
+        const isPartial = giftToUpdate && giftToUpdate.isPartial;
         let contributionAmount = 0;
 
         if (isPartial) {
             if (!amountInput || !amountInput.value || parseFloat(amountInput.value) <= 0) {
-                displayModalMessage("Veuillez entrer un montant de contribution valide.", "error");
+                displayModalMessage("Veuillez entrer un montant valide.", "error");
                 reattachListeners();
                 return;
             }
@@ -452,10 +403,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const offeredByName = nameInput.value.trim();
-        const giftIdToUpdate = currentGiftId;
 
         const dataForScript = {
-            giftId: giftIdToUpdate,
+            giftId: currentGiftId,
             name: offeredByName,
             amount: isPartial ? contributionAmount : undefined
         };
@@ -464,75 +414,47 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cancelButton) cancelButton.disabled = true;
         displayModalMessage("Mise à jour en cours...", "info");
 
-        let scriptUpdateError = null;
-
         try {
-            console.log("Sending to Apps Script:", dataForScript);
             await fetch(appsScriptUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                cache: 'no-cache',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataForScript),
             });
-            console.log("Request potentially sent to Apps Script (no-cors).");
-
-        } catch (error) {
-            scriptUpdateError = error;
-            console.error("❌ Error sending update request to Apps Script:", error);
-        }
-
-        if (!scriptUpdateError) {
-            const giftIndex = allGifts.findIndex(g => g.ID === giftIdToUpdate);
-            if (giftIndex !== -1) {
-                // Optimistic UI Update
-                if (isPartial) {
-                    // Add to local contributions array
-                    allContributions.push({
-                        giftId: giftIdToUpdate,
-                        contributor: offeredByName,
-                        amount: contributionAmount
-                    });
-                    // Recalculate total for the specific gift
-                    allGifts[giftIndex].totalContributed += contributionAmount;
-                } else {
-                    allGifts[giftIndex].Offert_par = offeredByName;
-                }
-
-                try {
-                    displayAllGiftsByCategory();
-                    displayModalMessage("Merci beaucoup pour votre contribution !", "success");
-                    if (nameInput) nameInput.disabled = true;
-                    if (amountInput) amountInput.disabled = true;
-                    if (confirmButton) confirmButton.style.display = 'none';
-                    if (cancelButton) {
-                        cancelButton.textContent = 'Fermer';
-                        cancelButton.disabled = false;
-                        cancelButton.addEventListener('click', closeModal, { once: true });
-                    }
-                } catch (redrawError) {
-                    console.error("❌ Error during UI redraw:", redrawError);
-                    displayModalMessage(`Cadeau marqué, mais erreur d'affichage: ${redrawError.message}. Rafraîchissez la page.`, "warning");
-                    if (cancelButton) {
-                        cancelButton.disabled = false;
-                        cancelButton.addEventListener('click', closeModal, { once: true });
-                    }
+            
+            // UI Optimiste : on met à jour l'affichage sans recharger la page
+            if (isPartial) {
+                allContributions.push({
+                    giftId: String(currentGiftId),
+                    contributor: offeredByName,
+                    amount: contributionAmount
+                });
+                giftToUpdate.totalContributed += contributionAmount;
+                if (giftToUpdate.totalContributed >= giftToUpdate.Prix) {
+                    giftToUpdate.isGlobalOffered = true;
                 }
             } else {
-                displayModalMessage("Erreur locale: cadeau non trouvé.", "error");
-                if (confirmButton) confirmButton.disabled = false;
-                if (cancelButton) cancelButton.disabled = false;
-                reattachListeners();
+                giftToUpdate.isGlobalOffered = true;
+                giftToUpdate.Offert_par = offeredByName;
             }
-        } else {
-            displayModalMessage(`Erreur réseau: ${scriptUpdateError.message}. Veuillez réessayer.`, "error");
+
+            displayAllGiftsByCategory();
+            displayModalMessage("Merci pour votre contribution !", "success");
+            
+            setTimeout(() => {
+                closeModal();
+            }, 2000);
+
+        } catch (error) {
+            console.error("Error sending update:", error);
+            displayModalMessage("Erreur lors de l'envoi. Veuillez réessayer.", "error");
             if (confirmButton) confirmButton.disabled = false;
             if (cancelButton) cancelButton.disabled = false;
             reattachListeners();
         }
     }
 
-    function displayModalMessage(message, type = 'success') { // success, error, info
+    function displayModalMessage(message, type = 'success') {
         const modalMessage = document.getElementById('modal-message');
         if (modalMessage) {
             modalMessage.textContent = message;
@@ -541,9 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     // --- INITIALIZATION ---
-    fetchAndProcessData(); // Fetch and process gifts and contributions
+    fetchAndProcessData(); 
 
     if (cagnotteButton) {
         cagnotteButton.addEventListener('click', () => {
@@ -553,4 +474,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modalOverlay.addEventListener('click', closeModal);
     closeModalButton.addEventListener('click', closeModal);
-}); // --- FIN DU DOMCONTENTLOADED ---
+});
