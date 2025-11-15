@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Generates HTML for a single gift card.
      */
     function createGiftCardHTML(gift) {
-        const isPartial = gift.Partiel?.toLowerCase().trim() === 'partiel';
+        const isPartial = gift.Type_Contribution?.toLowerCase().trim() === 'partiel';
         let totalContributed = 0;
         let isFullyFunded = false;
 
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Fonctions openModal, closeModal, handleConfirmOffer, displayModalMessage ---
      function openModal(gift = null) {
         let contentHTML = '';
-        const isPartial = gift && gift.Partiel?.toLowerCase().trim() === 'partiel';
+        const isPartial = gift && gift.Type_Contribution?.toLowerCase().trim() === 'partiel';
 
         const ibanBlockHTML = `
             <div class="discreet-iban-container">
@@ -457,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const isPartial = giftToUpdate && giftToUpdate.Partiel?.toLowerCase().trim() === 'partiel';
+        const isPartial = giftToUpdate && giftToUpdate.Type_Contribution?.toLowerCase().trim() === 'partiel';
         let contributionAmount = 0;
 
         if (isPartial) {
