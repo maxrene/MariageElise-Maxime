@@ -244,8 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
          });
          giftListContainer.dataset.listenerAttached = 'true';
     }
-
-    function openModal(gift = null) {
+    // --- GESTION MODALE ---
+     function openModal(gift = null) {
         let contentHTML = '';
         
         // On s'assure que le lien de base n'a pas de slash à la fin pour éviter les doubles //
