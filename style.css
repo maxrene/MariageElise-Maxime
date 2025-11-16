@@ -91,6 +91,7 @@ img {
 
 /* Section Base */
 .content-section {
+    scroll-margin-top: 12vh;
     padding: 80px 5%;
     position: relative;
     z-index: 1;
