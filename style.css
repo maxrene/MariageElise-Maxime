@@ -2079,12 +2079,25 @@ img {
 
 #password-input {
     width: 100%;
-    padding: 12px;
+    padding: 12px 40px 12px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 1rem;
-    margin-bottom: 20px;
     text-align: center;
+}
+
+.password-input-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-color-dark);
 }
 #password-input:focus {
     border-color: var(--accent-color);
