@@ -70,8 +70,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- SKELETON LOADING ---
+    function renderSkeletons() {
+        const skeletonCount = 8;
+        let html = '<div class="skeleton-wrapper">';
+        for (let i = 0; i < skeletonCount; i++) {
+            html += `
+                <div class="skeleton-card">
+                    <div class="skeleton-bg skeleton-image"></div>
+                    <div class="skeleton-bg skeleton-title"></div>
+                    <div class="skeleton-bg skeleton-text"></div>
+                    <div class="skeleton-bg skeleton-text"></div>
+                    <div class="skeleton-bg skeleton-button"></div>
+                </div>`;
+        }
+        html += '</div>';
+        giftListContainer.innerHTML = html;
+    }
+
     async function fetchAndProcessData() {
-        giftListContainer.innerHTML = '<p class="loading-message">Chargement de la liste de cadeaux...</p>';
+        renderSkeletons(); // Show skeletons immediately
         try {
             // On récupère les deux fichiers
             const [giftsData, contributionsData] = await Promise.all([
@@ -167,7 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return `
             <div class="gift-card ${isGlobalOffered ? 'offered' : ''} ${isPartial ? 'is-partial' : ''}" data-id="${gift.ID}">
-                <div class="gift-image-wrapper" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')">
+                <div class="gift-image-wrapper">
+                    <img src="${gift.ImageURL || 'https://via.placeholder.com/300'}" alt="${gift.Nom}" class="gift-img-content" loading="lazy">
                     ${!isGlobalOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
@@ -183,6 +202,27 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
     }
 
+
+    function updateCategoryNav(categories) {
+        const navContainer = document.getElementById('category-nav');
+        if (!navContainer) return;
+
+        if (!categories || categories.length === 0) {
+            navContainer.style.display = 'none';
+            return;
+        }
+        navContainer.style.display = 'flex';
+
+        let navHTML = '<ul>';
+        categories.forEach(cat => {
+            const linkId = 'cat-' + cat.replace(/\s+/g, '-').toLowerCase();
+            navHTML += `<li><a href="#${linkId}" class="nav-link">${cat}</a></li>`;
+        });
+        navHTML += '</ul>';
+        navContainer.innerHTML = navHTML;
+
+        // Optional: Add active state on scroll could go here
+    }
 
     function displayAllGiftsByCategory() {
         giftListContainer.innerHTML = ''; 
@@ -201,6 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, {});
 
         const categoryOrder = Object.keys(giftsByCategory);
+
+        // --- UPDATE NAV ---
+        updateCategoryNav(categoryOrder);
+
         const fragment = document.createDocumentFragment();
 
         categoryOrder.forEach(category => {
@@ -209,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const categoryTitle = document.createElement('h3');
                 categoryTitle.className = 'category-title';
                 categoryTitle.textContent = category;
+                // Add ID for navigation
+                categoryTitle.id = 'cat-' + category.replace(/\s+/g, '-').toLowerCase();
                 fragment.appendChild(categoryTitle);
 
                 const gridWrapper = document.createElement('div');
@@ -223,7 +269,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         giftListContainer.appendChild(fragment);
+
+        // Trigger scroll animations
+        observeScrollAnimations();
+
         addOfferButtonListeners();
+    }
+
+    function observeScrollAnimations() {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                    observer.unobserve(entry.target); // Only animate once
+                }
+            });
+        }, observerOptions);
+
+        const cards = document.querySelectorAll('.gift-card');
+        cards.forEach((card, index) => {
+            card.classList.add('animate-on-scroll');
+            // Add staggering delay
+            card.style.animationDelay = `${index % 4 * 0.1}s`;
+            observer.observe(card);
+        });
     }
 
 
