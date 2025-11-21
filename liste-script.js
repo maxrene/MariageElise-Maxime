@@ -148,13 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Generates HTML for a single gift card.
      */
-    function createGiftCardHTML(gift) {
+   function createGiftCardHTML(gift) {
         const { isPartial, totalContributed, Prix, isGlobalOffered } = gift;
         
         const formattedPrice = Prix > 0 ? `${Prix}€` : '';
 
+        // --- GESTION DU LIEN PRODUIT ---
+        const productURL = gift.ProductLink || gift.ProductUrl || ''; // Vérifiez aussi cette colonne
         let productLinkButtonHTML = '';
-        const productURL = gift.ProductLink;
+        
         if (productURL && productURL.trim() !== '' && !isGlobalOffered) {
             productLinkButtonHTML = `
                 <a href="${productURL}" target="_blank" rel="noopener noreferrer" class="button product-link">
@@ -162,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </a>`;
         }
 
+        // --- GESTION DE LA BARRE DE PROGRESSION ---
         let progressBarHTML = '';
         if (isPartial && Prix > 0) {
             const percentage = Math.min((totalContributed / Prix) * 100, 100);
@@ -174,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
         }
 
-        // CORRECTION DU TEXTE BOUTON
+        // --- BOUTONS ---
         const offerButtonText = isPartial ? '<i class="fas fa-coins"></i> Contribuer' : '<i class="fab fa-rev"></i> Offrir via Revolut';
         const offeredButtonText = isPartial ? '100% financé !' : 'Déjà offert';
 
@@ -183,16 +186,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${isGlobalOffered ? offeredButtonText : offerButtonText}
             </button>`;
 
-        // Utilisation directe de l'URL de l'image
-        let finalImageUrl = 'https://via.placeholder.com/300';
-        if (gift.ImageURL) {
-            finalImageUrl = gift.ImageURL;
+
+        // --- CORRECTION CRITIQUE DES IMAGES ---
+        // 1. Récupération brute
+        let rawImage = gift.ImageURL; 
+        
+        // DEBUG : Affiche dans la console ce que le code trouve pour chaque cadeau
+        // Faites F12 sur votre navigateur onglet "Console" pour voir ça
+        console.log(`Cadeau: ${gift.Nom}, Image reçue: ${rawImage}`);
+
+        let finalImageUrl = 'https://via.placeholder.com/300?text=Image'; // Image par défaut si vide
+
+        if (rawImage && rawImage.trim() !== '') {
+            // 2. Si c'est un lien Google Drive, on le convertit
+            if (rawImage.includes('drive.google.com')) {
+                const idMatch = rawImage.match(/\/d\/(.*?)\//);
+                if (idMatch && idMatch[1]) {
+                    finalImageUrl = `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+                } else {
+                    finalImageUrl = rawImage; // Échec conversion, on tente l'original
+                }
+            } else {
+                // 3. Lien normal (Amazon, hébergement web...)
+                finalImageUrl = rawImage;
+            }
         }
 
         return `
             <div class="gift-card ${isGlobalOffered ? 'offered' : ''} ${isPartial ? 'is-partial' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper">
-                    <img src="${finalImageUrl}" alt="${gift.Nom || 'Cadeau'}" class="gift-image" loading="lazy">
+                    <img src="${finalImageUrl}" 
+                         alt="${gift.Nom || 'Cadeau'}" 
+                         class="gift-image" 
+                         loading="lazy" 
+                         onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=Lien+Casse'; console.error('Erreur chargement image pour:', '${gift.Nom}')">
                     ${!isGlobalOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
@@ -207,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
     }
-
 
     function updateCategoryNav(categories) {
         const navContainer = document.getElementById('category-nav');
