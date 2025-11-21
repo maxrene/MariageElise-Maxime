@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </select>
           </div>
           <div class="form-group" id="allergiesGuest${i}AutreContainer" style="display: none;">
-            <label for="AllergiesInvite${i}Autre">Précisez</labe>
+            <label for="AllergiesInvite${i}Autre">Précisez</label>
             <input type="text" id="AllergiesInvite${i}Autre" name="AllergiesInvite${i}Autre" placeholder="Précisez l'allergie">
           </div>
         </div>
