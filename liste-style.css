@@ -980,3 +980,37 @@ body {
 .animate-in {
     animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
+/* --- CORRECTIF FORCE POUR LES IMAGES --- */
+
+/* 1. On nettoie le conteneur de l'image */
+.gift-image-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important; /* Carré parfait */
+    overflow: hidden !important;
+    background: #f0f0f0 !important; /* Fond gris clair si pas d'image */
+    display: block !important;
+    padding: 0 !important;
+    height: auto !important;
+}
+
+/* 2. IMPORTANT : On supprime le bloc invisible qui "pousse" l'image dehors */
+.gift-image-wrapper::before,
+.gift-image-wrapper::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* 3. On force l'image à prendre toute la place */
+.gift-image {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; /* L'image remplit le carré sans être déformée */
+    display: block !important;
+    z-index: 10; /* On s'assure qu'elle est au-dessus */
+    opacity: 1 !important;
+    transform: none !important; /* On annule les effets de zoom temporairement */
+}
