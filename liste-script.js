@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
              // CAS CAGNOTTE LIBRE (Pas de montant fixe imposé)
              contentHTML = `
-                <h3>Contribution Libre</h3>
+                <h3>Contribution libre</h3>
                 <p>Participez librement à notre cagnotte !</p>
                  <a href="${cleanBaseUrl}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
                    <i class="fas fa-external-link-alt"></i> Contribuer via Revolut
