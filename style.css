@@ -1671,6 +1671,48 @@ img {
     box-shadow: none; /* Ombre retirée pour un look plus direct */
 }
 
+/* --- Style Spécifique "Navettes" (Rupture visuelle / Night Mode) --- */
+.info-block.shuttle-info {
+    background-color: var(--text-color-headings); /* Fond sombre */
+    border: none; /* On enlève les bordures par défaut */
+    border-left: 4px solid var(--accent-color); /* On garde juste une touche dorée à gauche ou on l'enlève ? Allons pour un style "Carte" complet */
+    border-left: none; /* Finalement, pas de bordure gauche */
+
+    border-radius: 12px; /* Coins arrondis */
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2); /* Ombre portée marquée */
+    padding: 40px;
+    text-align: center; /* Centrer le texte pour l'effet "Annonce importante" */
+}
+
+.info-block.shuttle-info h4 {
+    color: var(--accent-color); /* Titre doré */
+    justify-content: center; /* Centre l'icône et le titre */
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.info-block.shuttle-info h4 i {
+    color: #fff; /* Icône blanche pour contraster */
+    background-color: rgba(255,255,255,0.1);
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 50%;
+    text-align: center;
+    margin-right: 15px;
+}
+
+.info-block.shuttle-info p {
+    color: var(--text-color-light); /* Texte clair */
+    font-size: 1.05rem;
+}
+
+.info-block.shuttle-info p strong {
+    color: #fff;
+    font-weight: 600;
+    border-bottom: 1px solid var(--accent-color); /* Soulignement subtil */
+}
+
 .info-block h4 {
     display: flex; /* Permet d'aligner l'icône et le texte */
     align-items: center;
