@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="gift-card ${isGlobalOffered ? 'offered' : ''} ${isPartial ? 'is-partial' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper">
-                    <img src="${gift.ImageURL || 'https://via.placeholder.com/300'}" alt="${gift.Nom}" class="gift-img-content" loading="lazy">
+                    <div class="gift-image-bg" style="background-image: url('${gift.ImageURL || 'https://via.placeholder.com/300'}')"></div>
                     ${!isGlobalOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">
