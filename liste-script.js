@@ -183,18 +183,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${isGlobalOffered ? offeredButtonText : offerButtonText}
             </button>`;
 
-        // PROXY IMAGES pour contourner la protection hotlink (Le Creuset, Vorwerk...)
+        // Utilisation directe de l'URL de l'image
         let finalImageUrl = 'https://via.placeholder.com/300';
         if (gift.ImageURL) {
-            // On enlève le protocole https:// pour weserv
-            const cleanUrl = gift.ImageURL.replace(/^https?:\/\//, '');
-            finalImageUrl = `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&w=400&h=400&fit=cover`;
+            finalImageUrl = gift.ImageURL;
         }
 
         return `
             <div class="gift-card ${isGlobalOffered ? 'offered' : ''} ${isPartial ? 'is-partial' : ''}" data-id="${gift.ID}">
                 <div class="gift-image-wrapper">
-                    <div class="gift-image-bg" style="background-image: url('${finalImageUrl}')"></div>
+                    <img src="${finalImageUrl}" alt="${gift.Nom || 'Cadeau'}" class="gift-image" loading="lazy">
                     ${!isGlobalOffered && formattedPrice ? `<span class="price-tag">${formattedPrice}</span>` : ''}
                 </div>
                 <div class="gift-info">

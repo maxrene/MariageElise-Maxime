@@ -1,0 +1,3 @@
+127.0.0.1 - - [21/Nov/2025 17:04:51] "GET /liste.html HTTP/1.1" 200 -
+127.0.0.1 - - [21/Nov/2025 17:04:51] "GET /liste-style.css HTTP/1.1" 200 -
+127.0.0.1 - - [21/Nov/2025 17:04:51] "GET /liste-script.js HTTP/1.1" 200 -
