@@ -591,19 +591,48 @@ body {
 /* --- Adaptation Mobile pour Navigation --- */
 @media (max-width: 768px) {
     .sticky-nav {
-        justify-content: flex-start !important; /* FORCE le scroll depuis le début sur mobile */
-        text-align: left;
-        padding-left: 20px; /* Espace pour ne pas coller au bord */
-        padding-right: 20px;
+        /* Transformation en liste verticale (non sticky pour ne pas bloquer la vue) */
+        position: static !important;
+        display: block;
+        height: auto;
+        overflow-x: visible;
+        white-space: normal;
+
+        text-align: center;
+        padding: 20px;
 
         /* Optimisation Mobile: Pleine largeur */
         /* Correction des marges pour compenser le padding parent (.page-container + .main-content) */
         margin-left: -30px;
         margin-right: -30px;
         width: calc(100% + 60px);
-        border-radius: 0; /* Carré sur les bords pour faire "barre d'outils" */
+
+        border-radius: 0;
         border-left: none;
         border-right: none;
+        background: rgba(255, 255, 255, 0.5); /* Plus transparent pour fondre dans la page */
+        box-shadow: none; /* Enlever l'ombre de "barre flottante" */
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .sticky-nav ul {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .sticky-nav li {
+        display: block;
+        width: 100%;
+    }
+
+    .nav-link {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+        border: 1px solid rgba(0,0,0,0.05);
+        background-color: rgba(255, 255, 255, 0.8);
     }
 
     /* Si l'écran est très petit (<600px), le padding container est de 10px */
