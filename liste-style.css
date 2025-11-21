@@ -1,5 +1,6 @@
 html {
     overflow-x: hidden;
+    scroll-behavior: smooth; /* Ajout pour la navigation fluide */
 }
 /* AJOUT : Réinitialisation pour supprimer les "points" */
 ul, li {
@@ -584,6 +585,15 @@ body {
      .category-title {
         font-size: 1.2rem;
         text-align: center; /* Centrer le titre sur mobile? */
+    }
+}
+
+/* --- Adaptation Mobile pour Navigation --- */
+@media (max-width: 768px) {
+    .sticky-nav {
+        justify-content: flex-start; /* Permet le scroll depuis le début sur mobile */
+        padding-left: 20px; /* Espace pour ne pas coller au bord */
+        padding-right: 20px;
     }
 }
 
