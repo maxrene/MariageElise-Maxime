@@ -691,3 +691,293 @@ body {
     gap: 8px; /* Espace entre les boutons */
     margin-top: auto; /* Pousse les boutons en bas de la carte */
 }
+
+/* --- SKELETON LOADING --- */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton-wrapper {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.skeleton-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skeleton-bg {
+    background: #f0f0f0;
+    background-image: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+.skeleton-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 80%;
+    margin-top: 10px;
+}
+
+.skeleton-text {
+    height: 16px;
+    width: 60%;
+}
+
+.skeleton-button {
+    height: 40px;
+    width: 100%;
+    border-radius: 20px;
+    margin-top: auto;
+}
+
+@media (max-width: 960px) {
+    .skeleton-wrapper {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 768px) {
+    .skeleton-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 480px) {
+    .skeleton-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* --- REVAMPED HEADER --- */
+.site-header {
+    background-image: radial-gradient(circle at 50% 50%, #ffffff 0%, #fdfaf6 100%);
+    padding: 60px 20px 40px 20px; /* Increased padding */
+    border-bottom: none; /* Removing the border for a cleaner look */
+    margin-bottom: 20px;
+}
+
+.site-header h2 {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 400; /* More elegant, lighter weight */
+    letter-spacing: -0.02em;
+    color: var(--text-color-headings);
+}
+
+/* --- STICKY CATEGORY NAVIGATION --- */
+.sticky-nav {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 15px 10px;
+    margin-bottom: 30px;
+    border-radius: 0 0 12px 12px;
+
+    /* Glassmorphism Effect */
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+
+    display: flex;
+    justify-content: center;
+    overflow-x: auto; /* Allow horizontal scroll on mobile */
+    white-space: nowrap;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.sticky-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.sticky-nav ul {
+    display: flex;
+    gap: 15px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sticky-nav li {
+    display: inline-block;
+}
+
+.nav-link {
+    display: block;
+    padding: 8px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    color: var(--text-color-dark);
+    font-family: var(--secondary-font);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.nav-link:hover {
+    color: var(--accent-color);
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.nav-link.active {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(228, 109, 55, 0.3); /* Shadow matching accent color */
+}
+
+/* Adjusting scroll offset for anchors so the title isn't hidden behind the sticky nav */
+.category-title {
+    scroll-margin-top: 100px;
+}
+
+/* --- CARD INTERACTIONS & GLASSMORPHISM --- */
+
+/* 1. Enhanced Card Hover Effects */
+.gift-card {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    border-radius: 12px; /* Softer corners */
+    padding: 15px; /* More breathing room inside card */
+    background-color: var(--card-bg-color);
+    box-shadow: var(--card-shadow);
+}
+
+.gift-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+/* Image Zoom Effect */
+.gift-image-wrapper {
+    overflow: hidden; /* Keep image inside bounds */
+    border-radius: 8px;
+}
+
+.gift-image-wrapper::before { /* Preload a zoom layer */
+    content: "";
+    display: block;
+    padding-top: 100%; /* Aspect Ratio 1:1 */
+}
+
+/* Targeting the background image directly isn't possible since it's set via inline style.
+   We need to change how the image is rendered or hack it.
+   Wait, the current code uses background-image on .gift-image-wrapper.
+   To zoom, we need a child element or change background-size.
+   Changing background-size is jerky.
+   Better approach: The JS creates <div class="gift-image-wrapper" style="background-image...">
+   I will modify the CSS to use background-size transition, which might be acceptable,
+   OR I will update JS in the next step to use an actual <img> tag for better accessibility and animation.
+   For now, let's try background-size transition.
+*/
+.gift-image-wrapper {
+    transition: background-size 0.5s ease;
+    background-size: 100%; /* Start normal cover */
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.gift-card:hover .gift-image-wrapper {
+    /* Scaling background image is tricky with 'cover'.
+       Let's switch strategy in JS to use <img> for better animation.
+       For now, let's just add a subtle brightness lift. */
+    filter: brightness(1.02);
+}
+
+
+/* 2. Modern Typography for Cards */
+.gift-title-price {
+    font-family: var(--primary-font); /* Switching to Serif for titles adds elegance */
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 10px;
+    color: var(--text-color-headings);
+}
+
+.price-tag {
+    /* Refined pill */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-family: var(--secondary-font);
+    letter-spacing: 0.5px;
+}
+
+
+/* 3. Glassmorphism Modal */
+.modal {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-overlay {
+    background-color: rgba(60, 50, 40, 0.6); /* Lighter, warmer overlay */
+    backdrop-filter: blur(3px);
+}
+
+/* --- NEW IMAGE STYLES FOR ZOOM (Replaces old background-image approach) --- */
+.gift-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #f0f0f0; /* Placeholder color */
+    /* Remove old background properties if any remain via cascade */
+    background-image: none !important;
+}
+
+.gift-img-content {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+    display: block;
+}
+
+.gift-card:hover .gift-img-content {
+    transform: scale(1.1); /* The Zoom Effect */
+}
+
+.gift-card.offered .gift-img-content {
+    filter: grayscale(100%) opacity(0.6);
+}
+
+/* --- SCROLL ANIMATIONS --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 30px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate-on-scroll {
+    opacity: 0; /* Hidden by default */
+}
+
+.animate-in {
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
