@@ -232,7 +232,7 @@ body {
     font-weight: 600; /* Plus gras */
     padding: 5px 10px; /* Ajuster pour la taille souhaitée */
     border-radius: 15px; /* Pour un effet "pilule" ou 50% pour rond */
-    z-index: 1;
+    z-index: 20; /* Z-INDEX MODIFIÉ : Doit être > 10 (image) */
     transition: opacity 0.3s ease;
     /* Optionnel: petite ombre pour détacher */
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
