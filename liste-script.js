@@ -110,6 +110,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mapping des cadeaux
             allGifts = giftsData.map(gift => {
                 const giftID = String(gift.ID || '').trim(); // Force string
+
+                // --- MODIFICATION 1: Détection des prix "Libre" ---
+                // Si le prix est "libre" (insensible à la casse) ou vide, on le considère comme infini
+                const rawPrice = gift.Prix ? gift.Prix.toString().toLowerCase().trim() : '';
+                const isInfinite = rawPrice === 'libre';
+                const price = isInfinite ? 0 : (parseFloat(gift.Prix) || 0);
+
                 const isPartial = gift.Type_Contribution?.toLowerCase().trim() === 'partiel';
                 
                 // 1. Calculer la somme des contributions (CORRECTION DU BUG 0€)
@@ -122,18 +129,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 2. Vérifier si le cadeau est offert (CORRECTION DU BUG DISPO APRES REFRESH)
                 // On vérifie si la colonne "Offert_par" contient quelque chose
-                // Note : Assure-toi que l'en-tête dans ton CSV s'appelle bien "Offert_par" ou "Offert par"
                 const offerByName = gift.Offert_par || gift["Offert par"] || ''; 
                 const isOfferedInSheet = offerByName.trim() !== '';
 
                 return {
                     ...gift,
                     ID: giftID,
-                    Prix: parseFloat(gift.Prix) || 0,
+                    Prix: price,
+                    isInfinite: isInfinite, // Nouveau flag
                     totalContributed: totalContributed,
                     isPartial: isPartial,
                     // Un cadeau est offert si : marqué dans le sheet OU totalement financé via partiel
-                    isGlobalOffered: isOfferedInSheet || (isPartial && gift.Prix > 0 && totalContributed >= parseFloat(gift.Prix))
+                    // Si c'est infini (libre), ce n'est jamais "offert" (toujours ouvert)
+                    isGlobalOffered: !isInfinite && (isOfferedInSheet || (isPartial && price > 0 && totalContributed >= price))
                 };
             }).filter(gift => gift.ID && gift.Nom);
 
@@ -149,9 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * Generates HTML for a single gift card.
      */
    function createGiftCardHTML(gift) {
-        const { isPartial, totalContributed, Prix, isGlobalOffered } = gift;
+        const { isPartial, totalContributed, Prix, isGlobalOffered, isInfinite } = gift;
         
-        const formattedPrice = Prix > 0 ? `${Prix}€` : '';
+        let formattedPrice = '';
+        if (isInfinite) {
+            formattedPrice = 'Libre';
+        } else if (Prix > 0) {
+            formattedPrice = `${Prix}€`;
+        }
 
         // --- GESTION DU LIEN PRODUIT ---
         const productURL = gift.ProductLink || gift.ProductUrl || ''; // Vérifiez aussi cette colonne
@@ -166,15 +179,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- GESTION DE LA BARRE DE PROGRESSION ---
         let progressBarHTML = '';
-        if (isPartial && Prix > 0) {
-            const percentage = Math.min((totalContributed / Prix) * 100, 100);
-            progressBarHTML = `
+        if (isPartial) {
+            if (isInfinite) {
+                // Barre spéciale pour "Participation Libre" (Pas de max)
+                 progressBarHTML = `
                 <div class="progress-info">
-                    <span>${totalContributed.toFixed(0)}€ / ${Prix.toFixed(0)}€</span>
+                    <span>Montant récolté : ${totalContributed.toFixed(0)}€</span>
                 </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: ${percentage}%;"></div>
+                    <div class="progress-bar infinite-bar" style="width: 100%;"></div>
                 </div>`;
+            } else if (Prix > 0) {
+                const percentage = Math.min((totalContributed / Prix) * 100, 100);
+                progressBarHTML = `
+                    <div class="progress-info">
+                        <span>${totalContributed.toFixed(0)}€ / ${Prix.toFixed(0)}€</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${percentage}%;"></div>
+                    </div>`;
+            }
         }
 
         // --- BOUTONS ---
@@ -191,10 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Récupération brute
         let rawImage = gift.ImageURL; 
         
-        // DEBUG : Affiche dans la console ce que le code trouve pour chaque cadeau
-        // Faites F12 sur votre navigateur onglet "Console" pour voir ça
-        console.log(`Cadeau: ${gift.Nom}, Image reçue: ${rawImage}`);
-
         let finalImageUrl = 'https://via.placeholder.com/300?text=Image'; // Image par défaut si vide
 
         if (rawImage && rawImage.trim() !== '') {
@@ -282,12 +302,42 @@ document.addEventListener('DOMContentLoaded', () => {
         categoryOrder.forEach(category => {
             const gifts = giftsByCategory[category];
             if (gifts && gifts.length > 0) {
+                // --- MODIFICATION 2: Category Header & Progress Bar ---
+                const categoryHeaderWrapper = document.createElement('div');
+                categoryHeaderWrapper.className = 'category-header-wrapper';
+
                 const categoryTitle = document.createElement('h3');
                 categoryTitle.className = 'category-title';
                 categoryTitle.textContent = category;
                 // Add ID for navigation
                 categoryTitle.id = 'cat-' + category.replace(/\s+/g, '-').toLowerCase();
-                fragment.appendChild(categoryTitle);
+
+                categoryHeaderWrapper.appendChild(categoryTitle);
+
+                // Si c'est "Voyage de Noce", on ajoute la barre de progression globale
+                if (category === 'Voyage de Noce') {
+                    // Calcul des totaux pour cette catégorie
+                    const categoryTotalGoal = gifts.reduce((sum, g) => sum + (g.isInfinite ? 0 : g.Prix), 0);
+                    const categoryTotalRaised = gifts.reduce((sum, g) => sum + g.totalContributed, 0);
+
+                    if (categoryTotalGoal > 0) {
+                         const percentage = Math.min((categoryTotalRaised / categoryTotalGoal) * 100, 100);
+
+                         const progressContainer = document.createElement('div');
+                         progressContainer.className = 'category-progress-container';
+                         progressContainer.innerHTML = `
+                            <div class="category-progress-info">
+                                <span>${categoryTotalRaised.toFixed(0)}€ / ${categoryTotalGoal.toFixed(0)}€</span>
+                            </div>
+                            <div class="category-progress-bar-bg">
+                                <div class="category-progress-bar-fill" style="width: ${percentage}%;"></div>
+                            </div>
+                         `;
+                         categoryHeaderWrapper.appendChild(progressContainer);
+                    }
+                }
+
+                fragment.appendChild(categoryHeaderWrapper);
 
                 const gridWrapper = document.createElement('div');
                 gridWrapper.className = 'gift-grid-wrapper';
@@ -371,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         if (gift) {
-            const { isPartial, totalContributed, Prix } = gift;
+            const { isPartial, totalContributed, Prix, isInfinite } = gift;
             
             let contributionButtonText = '';
             let initialRevolutLink = cleanBaseUrl; // Par défaut juste le profil
@@ -390,12 +440,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let amountInputHTML = '';
             if (isPartial) {
-                const remainingAmount = Math.max(0, Prix - totalContributed);
+                // --- MODIFICATION 3: Logic modal pour prix infini/libre ---
+                let labelText = '';
+                let maxAttr = '';
+                let placeholderText = 'Ex: 50';
+
+                if (isInfinite) {
+                    labelText = `Ce cadeau est en participation libre.`;
+                    // Pas de max
+                } else {
+                    const remainingAmount = Math.max(0, Prix - totalContributed);
+                    labelText = `Ce cadeau est participatif ! Il reste <strong>${remainingAmount.toFixed(0)}€</strong> à financer.`;
+                    maxAttr = `max="${remainingAmount.toFixed(0)}"`;
+                }
+
                 amountInputHTML = `
                 <div class="partial-contribution-section">
-                    <p>Ce cadeau est participatif ! Il reste <strong>${remainingAmount.toFixed(0)}€</strong> à financer.</p>
+                    <p>${labelText}</p>
                     <label for="contributionAmount">Montant de votre contribution (€) :</label>
-                    <input type="number" id="contributionAmount" placeholder="Ex: 50" min="1" max="${remainingAmount.toFixed(0)}" required>
+                    <input type="number" id="contributionAmount" placeholder="${placeholderText}" min="1" ${maxAttr} required>
                 </div>`;
             }
 
@@ -560,7 +623,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     amount: contributionAmount
                 });
                 giftToUpdate.totalContributed += contributionAmount;
-                if (giftToUpdate.totalContributed >= giftToUpdate.Prix) {
+                // Si c'est infini, on ne ferme jamais
+                if (!giftToUpdate.isInfinite && giftToUpdate.totalContributed >= giftToUpdate.Prix) {
                     giftToUpdate.isGlobalOffered = true;
                 }
             } else {
