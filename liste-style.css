@@ -209,6 +209,30 @@ body {
     transition: width 1s ease-out;
 }
 
+/* --- Styles spécifiques Voyage de Noce (Avion) --- */
+.honeymoon-container .category-progress-bar-bg {
+    overflow: visible; /* Permet à l'avion de dépasser */
+}
+
+.honeymoon-container .category-progress-bar-fill {
+    position: relative;
+    border-radius: 5px; /* Pour garder l'arrondi si bar remplie */
+}
+
+.honeymoon-container .category-progress-bar-fill::after {
+    content: "\f072"; /* FontAwesome Plane Icon */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    right: -10px; /* Décale l'avion vers la droite */
+    top: 50%;
+    transform: translateY(-50%) rotate(-15deg); /* Centre verticalement + légère rotation */
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
 /* --- Style pour le Conteneur de la Grille Cadeaux --- */
 .gift-grid-wrapper {
     display: grid;
