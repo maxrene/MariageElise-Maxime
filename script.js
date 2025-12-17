@@ -751,3 +751,250 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 }); // --- FIN DU DOMCONTENTLOADED ---
+
+  // --- QUIZ LOGIC ---
+  const QUIZ_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZQX2yR4FONbibYjZlYNUxSDciU1S03aGdRWPvMu43TbZjDuOcgToqanXf2cl7Z5_k/exec';
+  const quizQuestions = [
+      {
+          question: "Quelle est la destination de leur voyage de noces ?",
+          options: ["Japon", "Tanzanie", "Pérou", "Nouvelle-Zélande"],
+          answer: 1 // Index of the correct answer (Tanzanie)
+      },
+      {
+          question: "En quelle année se sont-ils rencontrés ?",
+          options: ["2016", "2017", "2018", "2019"],
+          answer: 1 // 2017
+      },
+      {
+          question: "Où a eu lieu la demande en mariage ?",
+          options: ["Sur une plage", "Au sommet d'une montagne", "Dans le désert", "Sous l'eau"],
+          answer: 2 // Dans le désert
+      },
+      {
+          question: "Quel est le nom de leur chat (imaginaire ou réel) ?",
+          options: ["Guinness", "Cheddar", "Mallow", "Ils n'ont pas de chat"],
+          answer: 3 // Ils n'ont pas de chat
+      },
+      {
+          question: "Quelle est leur ville de cœur (après Paris) ?",
+          options: ["Londres", "Dublin", "New York", "Bordeaux"],
+          answer: 1 // Dublin
+      },
+      {
+          question: "Qui est le meilleur cuisinier ?",
+          options: ["Elise", "Maxime", "C'est 50/50", "Uber Eats"],
+          answer: 1 // Elise (Assumption!)
+      },
+      {
+          question: "Quel est leur péché mignon commun ?",
+          options: ["Le chocolat", "Le fromage", "Les voyages", "Le vin"],
+          answer: 2 // Les voyages
+      },
+      {
+          question: "Combien d'années ont-ils vécu à l'étranger ensemble ?",
+          options: ["1 an", "2 ans", "3 ans", "4 ans"],
+          answer: 1 // 2 ans (Dublin)
+      },
+      {
+          question: "Quel sport Maxime pratique-t-il ?",
+          options: ["Tennis", "Football", "Rugby", "Course à pied"],
+          answer: 0 // Tennis
+      },
+      {
+          question: "Quelle est la date exacte du mariage ?",
+          options: ["10 Mai 2026", "20 Juin 2026", "15 Juillet 2026", "20 Juin 2025"],
+          answer: 1 // 20 Juin 2026
+      }
+  ];
+
+  let currentQuestionIndex = 0;
+  let quizScore = 0;
+  let quizPlayerName = "";
+  let userAnswers = new Array(quizQuestions.length).fill(null);
+
+  const quizContainer = document.getElementById('quiz-container');
+  const startScreen = document.getElementById('quiz-start-screen');
+  const questionScreen = document.getElementById('quiz-question-screen');
+  const resultScreen = document.getElementById('quiz-result-screen');
+  const startBtn = document.getElementById('start-quiz-btn');
+  const nameInput = document.getElementById('quiz-player-name');
+  const questionText = document.getElementById('quiz-question-text');
+  const optionsGrid = document.getElementById('quiz-options-grid');
+  const progressText = document.getElementById('quiz-progress-text');
+  const progressFill = document.getElementById('quiz-progress-fill');
+  const prevBtn = document.getElementById('quiz-prev-btn');
+  const finalScoreEl = document.getElementById('quiz-final-score');
+  const resultMessage = document.getElementById('quiz-result-message');
+
+  if (quizContainer) {
+      startBtn.addEventListener('click', startQuiz);
+      prevBtn.addEventListener('click', prevQuestion);
+  }
+
+  function startQuiz() {
+      const name = nameInput.value.trim();
+      if (!name) {
+          nameInput.style.borderColor = "red";
+          return;
+      }
+      quizPlayerName = name;
+      currentQuestionIndex = 0;
+      quizScore = 0;
+      userAnswers.fill(null);
+
+      startScreen.style.display = 'none';
+      questionScreen.style.display = 'block';
+      loadQuestion();
+  }
+
+  function loadQuestion() {
+      const q = quizQuestions[currentQuestionIndex];
+      questionText.textContent = q.question;
+      progressText.textContent = `Question ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+      progressFill.style.width = `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%`;
+
+      optionsGrid.innerHTML = '';
+      q.options.forEach((opt, index) => {
+          const btn = document.createElement('button');
+          btn.className = 'quiz-option-btn';
+          btn.textContent = opt;
+          btn.onclick = () => selectOption(index);
+          optionsGrid.appendChild(btn);
+      });
+
+      if (currentQuestionIndex === 0) {
+          prevBtn.style.visibility = 'hidden';
+      } else {
+          prevBtn.style.visibility = 'visible';
+      }
+  }
+
+  function selectOption(selectedIndex) {
+      userAnswers[currentQuestionIndex] = selectedIndex;
+
+      if (currentQuestionIndex < quizQuestions.length - 1) {
+          currentQuestionIndex++;
+          // Petit délai pour l'effet visuel si besoin, ici instantané comme demandé
+          loadQuestion();
+      } else {
+          finishQuiz();
+      }
+  }
+
+  function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          loadQuestion();
+      }
+  }
+
+  function finishQuiz() {
+      // Calculate Score
+      quizScore = 0;
+      userAnswers.forEach((ans, idx) => {
+          if (ans === quizQuestions[idx].answer) {
+              quizScore++;
+          }
+      });
+
+      questionScreen.style.display = 'none';
+      resultScreen.style.display = 'block';
+
+      // Animation du score
+      let currentDisplayScore = 0;
+      const scoreInterval = setInterval(() => {
+          finalScoreEl.textContent = currentDisplayScore;
+          if (currentDisplayScore >= quizScore) {
+              clearInterval(scoreInterval);
+              triggerConfetti();
+          } else {
+              currentDisplayScore++;
+          }
+      }, 100);
+
+      // Message personnalisé
+      if (quizScore === 10) resultMessage.textContent = "Incroyable ! Vous savez tout !";
+      else if (quizScore >= 7) resultMessage.textContent = "Bravo ! Très belle performance !";
+      else if (quizScore >= 4) resultMessage.textContent = "Pas mal, mais peut mieux faire !";
+      else resultMessage.textContent = "Oups... Il va falloir réviser !";
+
+      sendQuizResult();
+  }
+
+  function sendQuizResult() {
+      const payload = {
+          type: 'quiz_result',
+          name: quizPlayerName,
+          score: quizScore,
+          timestamp: new Date().toISOString()
+      };
+
+      fetch(QUIZ_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+      }).then(() => {
+          console.log("Quiz result sent");
+      }).catch(err => {
+          console.error("Error sending quiz result", err);
+      });
+  }
+
+  // Confetti Effect (Simple Canvas Implementation)
+  function triggerConfetti() {
+      const canvasContainer = document.getElementById('confetti-canvas-container');
+      if (!canvasContainer) return;
+
+      const canvas = document.createElement('canvas');
+      canvasContainer.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvasContainer.offsetWidth;
+      canvas.height = canvasContainer.offsetHeight;
+
+      const particles = [];
+      const colors = ['#f2d74e', '#95c3de', '#ff9a9e', '#a18cd1', '#fbc2eb'];
+
+      for (let i = 0; i < 100; i++) {
+          particles.push({
+              x: Math.random() * canvas.width,
+              y: Math.random() * canvas.height - canvas.height,
+              r: Math.random() * 6 + 2,
+              d: Math.random() * 10 + 10,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              tilt: Math.floor(Math.random() * 10) - 10,
+              tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+              tiltAngle: 0
+          });
+      }
+
+      let animationId;
+      function draw() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          let finished = true;
+
+          particles.forEach(p => {
+              p.tiltAngle += p.tiltAngleIncremental;
+              p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+              p.x += Math.sin(p.d);
+              p.tilt = Math.sin(p.tiltAngle) * 15;
+
+              if (p.y < canvas.height) finished = false;
+
+              ctx.beginPath();
+              ctx.lineWidth = p.r;
+              ctx.strokeStyle = p.color;
+              ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+              ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+              ctx.stroke();
+          });
+
+          if (!finished) {
+              animationId = requestAnimationFrame(draw);
+          } else {
+             // Cleanup
+             canvas.remove();
+          }
+      }
+      draw();
+  }
