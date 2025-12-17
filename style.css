@@ -1865,6 +1865,11 @@ img {
 
     /* --- Styles pour la Timeline sur mobile --- */
 
+    /* 0. On permet aux images de s'afficher en entier (iPad et Mobile) */
+    .timeline-content-block.image-block img {
+        max-height: none;
+    }
+
     /* 1. On déplace la ligne de temps sur la gauche */
     .timeline-line {
         left: 20px; /* Au lieu de 50% */
