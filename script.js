@@ -372,6 +372,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (allergiesAutreContainerPrincipal && allergiesAutreContainerPrincipal.querySelector('input')) {
               allergiesAutreContainerPrincipal.querySelector('input').value = '';
             }
+            // --- AJOUT : Scroll vers le message de confirmation ---
+            if (rsvpMessage) {
+              rsvpMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
           }
         })
         .catch(err => {
