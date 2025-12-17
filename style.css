@@ -2060,6 +2060,29 @@ img {
     .rsvp-form .form-row .form-group.half-width:last-child {
         margin-bottom: 0;
     }
+
+    /* --- Styles for Countdown (Mobile) --- */
+    /* Adjusts the countdown to fit smaller screens (avoiding edge sticking) */
+    .countdown-timer-flex {
+        gap: 5px; /* Reduced from 20px */
+    }
+
+    .countdown-block {
+        min-width: 70px; /* Reduced from 90px */
+        padding: 10px 5px; /* Reduced from 15px 20px */
+    }
+
+    .countdown-number {
+        font-size: 2rem; /* Override clamp min of 2.8rem */
+    }
+
+    .countdown-label {
+        font-size: 0.7rem; /* Slightly smaller label */
+    }
+
+    .countdown-separator {
+        font-size: 1.5rem; /* Smaller separator */
+    }
 }
 
 @media (max-width: 768px) {
