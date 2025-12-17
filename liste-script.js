@@ -323,11 +323,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (categoryTotalGoal > 0) {
                          const percentage = Math.min((categoryTotalRaised / categoryTotalGoal) * 100, 100);
 
+                         // Logic for specific message and icon
+                         let infoText = `${categoryTotalRaised.toFixed(0)}€ / ${categoryTotalGoal.toFixed(0)}€`;
+                         if (percentage >= 100) {
+                             infoText += ' - Merci à tous !';
+                         }
+
                          const progressContainer = document.createElement('div');
-                         progressContainer.className = 'category-progress-container';
+                         progressContainer.className = 'category-progress-container honeymoon-container';
                          progressContainer.innerHTML = `
                             <div class="category-progress-info">
-                                <span>${categoryTotalRaised.toFixed(0)}€ / ${categoryTotalGoal.toFixed(0)}€</span>
+                                <span>${infoText}</span>
                             </div>
                             <div class="category-progress-bar-bg">
                                 <div class="category-progress-bar-fill" style="width: ${percentage}%;"></div>
