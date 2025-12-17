@@ -144,32 +144,70 @@ body {
     display: block; /* Conteneur simple pour titres + grilles */
 }
 
-/* --- Style pour le Titre de Catégorie --- */
-.category-title {
-    font-family: var(--secondary-font); /* Police moderne sans-serif */
-    font-size: 1.5rem; /* Taille assez grande */
-    font-weight: 700; /* Gras */
-    color: var(--text-color-card-title); /* Noir/Gris très foncé */
+/* --- CATEGORY HEADER WRAPPER (Titre + Progress Bar) --- */
+.category-header-wrapper {
+    display: flex;
+    align-items: center; /* Vertical alignment */
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: 20px; /* Space between title and bar */
     
-    /* --- AJOUTS/MODIFICATIONS ICI --- */
-    margin-top: 40px; /* Espace AU-DESSUS du titre (et de la ligne) */
-    margin-bottom: 25px; /* Espace avant la grille */
-    padding-top: 40px; /* Espace ENTRE la ligne et le titre */
-    border-top: 1px solid var(--border-color); /* Ligne horizontale fine */
-    /* --- FIN AJOUTS/MODIFICATIONS --- */
-    
-    text-align: left; /* Alignement à gauche */
+    margin-top: 40px;
+    margin-bottom: 25px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border-color);
     width: 100%;
-    box-sizing: border-box;
 }
 
-/* Retire la ligne et l'espace supérieur pour le PREMIER titre */
-.category-title:first-of-type {
+.category-header-wrapper:first-of-type {
     margin-top: 0;
     padding-top: 0;
     border-top: none; 
 }
 
+
+/* --- Style pour le Titre de Catégorie --- */
+.category-title {
+    font-family: var(--secondary-font);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color-card-title);
+    margin: 0; /* Margins handled by wrapper */
+    white-space: nowrap;
+    scroll-margin-top: 100px; /* IMPORTANT pour le sticky nav */
+}
+
+/* --- Category Global Progress Bar --- */
+.category-progress-container {
+    flex-grow: 1; /* Take remaining space */
+    max-width: 400px; /* Limit width */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.category-progress-info {
+    font-size: 0.85rem;
+    color: var(--text-color-headings);
+    margin-bottom: 5px;
+    font-weight: 500;
+    text-align: right; /* Align text to right of the bar */
+}
+
+.category-progress-bar-bg {
+    width: 100%;
+    height: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.category-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), #ff9f75);
+    width: 0%;
+    transition: width 1s ease-out;
+}
 
 /* --- Style pour le Conteneur de la Grille Cadeaux --- */
 .gift-grid-wrapper {
@@ -183,15 +221,13 @@ body {
     padding: 40px;
     font-style: italic;
     color: var(--text-color-dark);
-    /* S'applique maintenant au gridWrapper si vide, pas besoin de grid-column */
 }
 .error-message {
      text-align: center;
     padding: 40px;
     font-style: italic;
-    color: #c53030; /* Red for errors */
+    color: #c53030;
     font-weight: 500;
-    /* S'applique maintenant au gridWrapper si erreur */
 }
 
 
@@ -565,7 +601,10 @@ body {
     }
     .category-title {
         font-size: 1.4rem;
-        margin-bottom: 20px;
+        /* margin-bottom handled by wrapper */
+    }
+    .category-header-wrapper {
+        justify-content: space-between; /* Spread them out */
     }
 }
 @media (max-width: 768px) {
@@ -576,6 +615,18 @@ body {
      .category-title {
         font-size: 1.3rem;
     }
+    .category-header-wrapper {
+        flex-direction: column; /* Stack on mobile */
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .category-progress-container {
+        width: 100%; /* Full width bar on mobile */
+        max-width: none;
+    }
+    .category-progress-info {
+        text-align: left;
+    }
 }
 @media (max-width: 480px) {
     .gift-grid-wrapper {
@@ -584,7 +635,6 @@ body {
     }
      .category-title {
         font-size: 1.2rem;
-        text-align: center; /* Centrer le titre sur mobile? */
     }
 }
 
@@ -719,6 +769,19 @@ body {
     border-radius: 10px;
     transition: width 0.4s ease-in-out;
 }
+
+/* Infinite bar style (striped or something) */
+.progress-bar.infinite-bar {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--accent-color),
+        var(--accent-color) 10px,
+        #ff9f75 10px,
+        #ff9f75 20px
+    );
+    opacity: 0.8;
+}
+
 /* Styles for Partial Contribution Modal */
 .partial-contribution-section {
     margin-bottom: 15px;
@@ -905,7 +968,7 @@ body {
 
 /* Adjusting scroll offset for anchors so the title isn't hidden behind the sticky nav */
 .category-title {
-    scroll-margin-top: 100px;
+    /* scroll-margin-top: 100px;  Moved to specific block above */
 }
 
 /* --- CARD INTERACTIONS & GLASSMORPHISM --- */
