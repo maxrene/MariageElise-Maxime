@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const rsvpMessage = document.getElementById('rsvpMessage');
   const presenceRadios = document.querySelectorAll('input[name="Presence"]');
   const detailsContainer = document.getElementById('rsvp-details-container');
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6oT1lBUfcjtKmSCYYAwAmvvVPfLYeC0ayP52gQUU1bukbgj4CnvuV39p0-ce49wsS/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzl9lPzM8Un2QPza_LrqeZbbQb2H3oKCJgvE7Qg9iKmFiPU5fc1YpicETUe9D1ZCmG4Mw/exec';
 
   function showDetailsSection(show) {
     if (!detailsContainer) return;
