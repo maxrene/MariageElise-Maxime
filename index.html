@@ -154,6 +154,44 @@
              </div>
 
          </div>
+
+         <!-- QUIZ SECTION -->
+         <div id="quiz-container" class="quiz-wrapper">
+             <div id="quiz-start-screen" class="quiz-screen active">
+                 <h3 class="quiz-title">Connaissez-vous bien les mariés ?</h3>
+                 <p class="quiz-subtitle">Petite folie ! Testez vos connaissances avec ce petit quizz.</p>
+                 <div class="quiz-input-group">
+                     <input type="text" id="quiz-player-name" placeholder="Votre prénom" required />
+                     <button id="start-quiz-btn" class="cta-button-small">Commencer</button>
+                 </div>
+             </div>
+
+             <div id="quiz-question-screen" class="quiz-screen" style="display: none;">
+                 <div class="quiz-header">
+                     <span id="quiz-progress-text">Question 1/10</span>
+                     <div class="quiz-progress-bar"><div id="quiz-progress-fill"></div></div>
+                 </div>
+                 <h4 id="quiz-question-text">Question text goes here?</h4>
+                 <div id="quiz-options-grid" class="quiz-options">
+                     <!-- Options injected by JS -->
+                 </div>
+                 <div class="quiz-navigation">
+                     <button id="quiz-prev-btn" class="quiz-nav-btn" style="visibility: hidden;"><i class="fas fa-arrow-left"></i> Précédent</button>
+                 </div>
+             </div>
+
+             <div id="quiz-result-screen" class="quiz-screen" style="display: none;">
+                 <h3 class="quiz-title">Résultats !</h3>
+                 <div class="quiz-score-container">
+                     <span id="quiz-final-score" class="score-animate">0</span>
+                     <span class="quiz-score-total">/ 10</span>
+                 </div>
+                 <p id="quiz-result-message" class="quiz-message">Pas mal !</p>
+                 <div id="confetti-canvas-container"></div>
+             </div>
+         </div>
+         <!-- END QUIZ SECTION -->
+
      </div>
    </section>
 
