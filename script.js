@@ -753,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }); // --- FIN DU DOMCONTENTLOADED ---
 
   // --- QUIZ LOGIC ---
-  const QUIZ_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZQX2yR4FONbibYjZlYNUxSDciU1S03aGdRWPvMu43TbZjDuOcgToqanXf2cl7Z5_k/exec';
+  const QUIZ_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4CMTsy3OIbsu_zQ6on_yLmqrXWavDggnbWTL6I768pTRoEQVQMlPuyOPaOsdBJW9B/exec';
   const quizQuestions = [
       {
           question: "Quelle est la destination de leur voyage de noces ?",
