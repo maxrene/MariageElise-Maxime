@@ -922,24 +922,27 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function sendQuizResult() {
-      const payload = {
-          type: 'quiz_result',
-          name: quizPlayerName,
-          score: quizScore,
-          timestamp: new Date().toISOString()
-      };
+    const payload = {
+        type: 'quiz_result',
+        name: quizPlayerName,
+        score: quizScore,
+        timestamp: new Date().toISOString()
+    };
 
-      fetch(QUIZ_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-      }).then(() => {
-          console.log("Quiz result sent");
-      }).catch(err => {
-          console.error("Error sending quiz result", err);
-      });
-  }
+    // On envoie en 'text/plain' pour contourner les blocages CORS
+    fetch(QUIZ_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', 
+        headers: { 'Content-Type': 'text/plain' }, 
+        body: JSON.stringify(payload)
+    })
+    .then(() => {
+        console.log("Résultat du quiz envoyé avec succès !");
+    })
+    .catch(err => {
+        console.error("Erreur lors de l'envoi du quiz", err);
+    });
+}
 
   // Confetti Effect (Simple Canvas Implementation)
   function triggerConfetti() {
