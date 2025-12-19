@@ -1640,9 +1640,6 @@ img {
 }
 
 /* --- CORRECTION ERREUR DE SYNTAXE --- */
-.martin-card .team-member-photo img {
-    transform: scale(1.5);
-}
 .shuttle-info-wrapper {
     margin-top: 70px; /* Espace par rapport à la section du dessus */
 }
