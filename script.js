@@ -750,6 +750,21 @@ document.addEventListener('DOMContentLoaded', function() {
           this.classList.toggle('fa-eye-slash');
       });
     }
+
+  // --- LOGIQUE PHOTO TEAM (X, Y, ZOOM) ---
+  function applyTeamPhotoSettings() {
+      const images = document.querySelectorAll('.team-member-photo img');
+      images.forEach(img => {
+          const x = img.getAttribute('data-x') || 50;
+          const y = img.getAttribute('data-y') || 50;
+          const zoom = img.getAttribute('data-zoom') || 1;
+
+          img.style.objectPosition = `${x}% ${y}%`;
+          img.style.transform = `scale(${zoom})`;
+      });
+  }
+  applyTeamPhotoSettings();
+
 }); // --- FIN DU DOMCONTENTLOADED ---
 
   // --- QUIZ LOGIC ---
