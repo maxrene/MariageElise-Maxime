@@ -426,6 +426,14 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
+        // Helper to create Revolut link
+        const createRevolutLink = (amount) => {
+             if (amount && amount > 0) {
+                 return `${cleanBaseUrl}?currency=EUR&amount=${amount}`;
+             }
+             return cleanBaseUrl;
+        };
+
         if (gift) {
             const { isPartial, totalContributed, Prix, isInfinite } = gift;
             
@@ -439,8 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 contributionButtonText = `Payer ${Prix}€ sur Revolut`;
                 if (Prix > 0) {
-                    // Génération AUTO du lien avec montant : revolut.me/maxbook/50
-                    initialRevolutLink = `${cleanBaseUrl}/${Prix}`;
+                    // Génération AUTO du lien avec montant : ?currency=EUR&amount=50
+                    initialRevolutLink = createRevolutLink(Prix);
                 }
             }
 
@@ -492,20 +500,33 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         } else {
              // CAS CAGNOTTE LIBRE (Pas de montant fixe imposé)
+             // On ajoute l'input pour définir le montant du lien et la confirmation
+             const amountInputHTML = `
+                <div class="partial-contribution-section">
+                    <p>Ce cadeau est en participation libre.</p>
+                    <label for="contributionAmount">Montant de votre contribution (€) :</label>
+                    <input type="number" id="contributionAmount" placeholder="Ex: 50" min="1" required>
+                </div>`;
+
              contentHTML = `
                 <h3>Contribution libre</h3>
                 <p>Participez librement à notre cagnotte !</p>
-                 <a href="${cleanBaseUrl}" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
+                 <a href="${cleanBaseUrl}" id="modalRevolutLink" target="_blank" rel="noopener noreferrer" class="button primary modal-revolut-link">
                    <i class="fas fa-external-link-alt"></i> Contribuer via Revolut
                 </a>
 
                 ${ibanBlockHTML}
 
                 <div class="confirmation-section">
-                    <p>Vous pouvez fermer cette fenêtre après avoir effectué votre virement.</p>
+                     <p>Après votre contribution, merci de confirmer votre participation :</p>
+                    ${amountInputHTML}
+                    <label for="offeredByName">Votre nom ou initiales :</label>
+                    <input type="text" id="offeredByName" placeholder="Ex: Jean D." required>
                      <div class="modal-buttons">
-                         <button class="button secondary" id="cancelOfferButton">Fermer</button>
+                         <button class="button secondary" id="cancelOfferButton">Annuler</button>
+                         <button class="button primary" id="confirmOfferButton">Confirmer ma participation</button>
                     </div>
+                    <div id="modal-message" style="display: none;"></div>
                 </div>
             `;
         }
@@ -530,8 +551,8 @@ document.addEventListener('DOMContentLoaded', () => {
             amountInput.addEventListener('input', (e) => {
                 const val = e.target.value;
                 if (val && val > 0) {
-                    // Met à jour le lien : revolut.me/maxbook/MontantTapé
-                    revolutLinkBtn.href = `${cleanBaseUrl}/${val}`;
+                    // Met à jour le lien : revolut.me/maxbook?currency=EUR&amount=MontantTapé
+                    revolutLinkBtn.href = createRevolutLink(val);
                     revolutLinkBtn.innerHTML = `<i class="fas fa-external-link-alt"></i> Payer ${val}€ sur Revolut`;
                 } else {
                     // Revient au lien de base si vide
@@ -576,7 +597,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const amountInput = document.getElementById('contributionAmount');
         const confirmButton = document.getElementById('confirmOfferButton');
         const cancelButton = document.getElementById('cancelOfferButton');
+
+        // Find the gift OR handle the generic cagnotte case
         const giftToUpdate = allGifts.find(g => String(g.ID) === String(currentGiftId));
+        const isCagnotte = String(currentGiftId) === 'CAGNOTTE';
 
         const reattachListeners = () => {
             if (confirmButton) confirmButton.addEventListener('click', handleConfirmOffer, { once: true });
@@ -589,7 +613,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const isPartial = giftToUpdate && giftToUpdate.isPartial;
+        // It is partial if it's the cagnotte or a partial gift
+        const isPartial = isCagnotte || (giftToUpdate && giftToUpdate.isPartial);
         let contributionAmount = 0;
 
         if (isPartial) {
@@ -628,12 +653,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     contributor: offeredByName,
                     amount: contributionAmount
                 });
-                giftToUpdate.totalContributed += contributionAmount;
-                // Si c'est infini, on ne ferme jamais
-                if (!giftToUpdate.isInfinite && giftToUpdate.totalContributed >= giftToUpdate.Prix) {
-                    giftToUpdate.isGlobalOffered = true;
+
+                if (giftToUpdate) {
+                    giftToUpdate.totalContributed += contributionAmount;
+                    // Si c'est infini, on ne ferme jamais
+                    if (!giftToUpdate.isInfinite && giftToUpdate.totalContributed >= giftToUpdate.Prix) {
+                        giftToUpdate.isGlobalOffered = true;
+                    }
                 }
-            } else {
+            } else if (giftToUpdate) {
                 giftToUpdate.isGlobalOffered = true;
                 giftToUpdate.Offert_par = offeredByName;
             }
@@ -668,6 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (cagnotteButton) {
         cagnotteButton.addEventListener('click', () => {
+            currentGiftId = 'CAGNOTTE';
             openModal();
         });
     }
