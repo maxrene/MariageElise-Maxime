@@ -802,28 +802,28 @@ document.addEventListener('DOMContentLoaded', function() {
           answer: 1 // Resto
       },
       {
-          question: "Quel ingrédient Maxime desteste-t-il ?",
+          question: "Quel ingrédient Maxime déteste-t-il ?",
           options: ["Concombre", "Courgette", "Basilic", "Pomme de terre"],
           answer: 2 // Courgette
       },
       {
           question: "Quelle boisson Elise commande-t-elle au barista ?",
-          options: ["Matcha lait de coco", "Mocha Double espresso", "Chaï lait d'avoine", "Une Camomille"],
+          options: ["Matcha lait de coco", "Mocha Double espresso", "Chaï lait d'avoine", "Iced Latte"],
           answer: 1 // Matcha
       },
       {
           question: "Qui a pleuré en premier lors de la demande en mariage ?",
-          options: ["Maxime, on le sait tous", " Elise, à ne plus en voir la bague", "Les deux, un vrai torrent de larmes", "Personne"],
+          options: ["Maxime, on le sait tous.", "Elise, à ne plus en voir la bague", "Les deux, un vrai torrent de larmes", "Personne"],
           answer: 2 // elise
       },
       {
-          question: "quelle(s) langue(s) les mariés apprennent- ils ?",
+          question: "Quelle(s) langue(s) les mariés apprennent-ils ?",
           options: ["Gaélique & espagnol", "Allemand & italien", "Espagnol & italien", "Italien tous les deux"],
           answer: 3 // esp it
       },
       {
           question: "Quelle est la date exacte du mariage ?",
-          options: ["10 Mai 2026", "20 Juin 2026", "15 Juillet 2026", "20 Juin 2025"],
+          options: ["18 Mai 2026", "20 Juin 2026", "15 Juillet 2026", "20 Aout 2026"],
           answer: 2 // 20 Juin 2026
       }
   ];
