@@ -771,54 +771,54 @@ document.addEventListener('DOMContentLoaded', function() {
   const QUIZ_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTA9h3QEZYCQgvbTR_Qe2y6yaJVIHgdw0RlbGfP7BNNImdWKN6G3hRq4uPUXxES8Xg/exec';
   const quizQuestions = [
       {
-          question: "Quelle est la destination de leur voyage de noces ?",
-          options: ["Japon", "Tanzanie", "Pérou", "Nouvelle-Zélande"],
-          answer: 1 // Index of the correct answer (Tanzanie)
-      },
-      {
           question: "En quelle année se sont-ils rencontrés ?",
           options: ["2016", "2017", "2018", "2019"],
-          answer: 1 // 2017
+          answer: 2 // 2017
       },
       {
           question: "Où a eu lieu la demande en mariage ?",
           options: ["Sur une plage", "Au sommet d'une montagne", "Dans le désert", "Sous l'eau"],
-          answer: 2 // Dans le désert
+          answer: 3 // Desert
       },
       {
-          question: "Quel est le nom de leur chat (imaginaire ou réel) ?",
-          options: ["Guinness", "Cheddar", "Mallow", "Ils n'ont pas de chat"],
-          answer: 3 // Ils n'ont pas de chat
+          question: "Où se sont-ils rencontrés ?",
+          options: ["À Rouen", "À Reims", "À Paris", "À Dublin"],
+          answer: 2 // Reims
       },
       {
-          question: "Quelle est leur ville de cœur (après Paris) ?",
-          options: ["Londres", "Dublin", "New York", "Bordeaux"],
-          answer: 1 // Dublin
+          question: "Quel pays ont-ils le plus visité ?",
+          options: ["Espagne", "États-Unis", "Angleterre", "Italie"],
+          answer: 4 // Italie
       },
       {
-          question: "Qui est le meilleur cuisinier ?",
-          options: ["Elise", "Maxime", "C'est 50/50", "Uber Eats"],
-          answer: 1 // Elise (Assumption!)
+          question: "Quelle est leur activité commune préferée ?",
+          options: ["Aller au restaurant", "Faire une randonnée", "Se baigner à Sandymount", "Lire des livres"],
+          answer: 1 // Resto
       },
       {
-          question: "Quel est leur péché mignon commun ?",
-          options: ["Le chocolat", "Le fromage", "Les voyages", "Le vin"],
-          answer: 2 // Les voyages
+          question: "Quel ingrédient Maxime desteste-t-il ?",
+          options: ["Concombre", "Courgette", "Basilic", "Pomme de terre"],
+          answer: 2 // Courgette
       },
       {
-          question: "Combien d'années ont-ils vécu à l'étranger ensemble ?",
-          options: ["1 an", "2 ans", "3 ans", "4 ans"],
-          answer: 1 // 2 ans (Dublin)
+          question: "Quelle boisson Elise commande-t-elle au barista ?",
+          options: ["Matcha lait de coco", "Mocha Double espresso", "Chaï lait d'avoine", "Une Camomille"],
+          answer: 1 // Matcha
       },
       {
-          question: "Quel sport Maxime pratique-t-il ?",
-          options: ["Tennis", "Football", "Rugby", "Course à pied"],
-          answer: 0 // Tennis
+          question: "Qui a pleuré en premier lors de la demande en mariage ?",
+          options: ["Maxime, on le sait tous", " Elise, à ne plus en voir la bague", "Les deux, un vrai torrent de larmes", "Personne"],
+          answer: 2 // elise
+      },
+      {
+          question: "quelle(s) langue(s) les mariés apprennent- ils ?",
+          options: ["Gaélique & espagnol", "Allemand & italien", "Espagnol & italien", "Italien tous les deux"],
+          answer: 3 // esp it
       },
       {
           question: "Quelle est la date exacte du mariage ?",
           options: ["10 Mai 2026", "20 Juin 2026", "15 Juillet 2026", "20 Juin 2025"],
-          answer: 1 // 20 Juin 2026
+          answer: 2 // 20 Juin 2026
       }
   ];
 
@@ -928,10 +928,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 100);
 
       // Message personnalisé
-      if (quizScore === 10) resultMessage.textContent = "Incroyable ! Vous savez tout !";
-      else if (quizScore >= 7) resultMessage.textContent = "Bravo ! Très belle performance !";
-      else if (quizScore >= 4) resultMessage.textContent = "Pas mal, mais peut mieux faire !";
-      else resultMessage.textContent = "Oups... Il va falloir réviser !";
+      if (quizScore === 10) resultMessage.textContent = "Incroyable ! Vous connaissez bien Elise & Maxime ! Felicitations, vous êtes l'élu(e)";
+      else if (quizScore >= 9) resultMessage.textContent = "Vous y étiez presque. On vous laisse trouver quelqu'un au mariage qui aura la réponse qui vous manque.";
+      else if (quizScore > 4) resultMessage.textContent = "B+, peut faire mieux. Qu'avez-vous raté ? Demandez aux autres invités !";
+      else resultMessage.textContent = "On vous laisse discuter avec les autres invités, vous avez des choses à rattraper ! 😬";
 
       sendQuizResult();
   }
