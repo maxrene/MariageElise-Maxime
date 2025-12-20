@@ -603,7 +603,7 @@
                 </div>
             </div>
 
-            <div id="rsvp-details-container" style="display: none;">
+            <div id="sunday-question-container" style="display: none;">
                 <div class="form-group">
                     <p class="form-label">Serez-vous également présent au brunch le dimanche 21 juin ?</p>
                     <div class="radio-group attendance-group">
@@ -612,12 +612,14 @@
                             <span class="radio-custom-design"></span> Oui
                         </label>
                         <label class="radio-custom-label modern-radio">
-                            <input type="radio" name="Brunch" value="Non">
+                            <input type="radio" name="Brunch" value="Non" required data-original-required="true">
                             <span class="radio-custom-design"></span> Non
                         </label>
                     </div>
                 </div>
+            </div>
 
+            <div id="rsvp-details-container" style="display: none;">
                 <div class="form-group">
                     <label for="guestCount">Nombre de personnes (vous y compris)</label>
                     <select id="guestCount" name="NombredePersonnes" class="rsvp-select" required data-original-required="true">
