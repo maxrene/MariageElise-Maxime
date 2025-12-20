@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const rsvpMessage = document.getElementById('rsvpMessage');
   const presenceRadios = document.querySelectorAll('input[name="Presence"]');
   const detailsContainer = document.getElementById('rsvp-details-container');
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4CMTsy3OIbsu_zQ6on_yLmqrXWavDggnbWTL6I768pTRoEQVQMlPuyOPaOsdBJW9B/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTA9h3QEZYCQgvbTR_Qe2y6yaJVIHgdw0RlbGfP7BNNImdWKN6G3hRq4uPUXxES8Xg/exec';
 
   function showDetailsSection(show) {
     if (!detailsContainer) return;
@@ -768,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }); // --- FIN DU DOMCONTENTLOADED ---
 
   // --- QUIZ LOGIC ---
-  const QUIZ_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4CMTsy3OIbsu_zQ6on_yLmqrXWavDggnbWTL6I768pTRoEQVQMlPuyOPaOsdBJW9B/exec';
+  const QUIZ_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTA9h3QEZYCQgvbTR_Qe2y6yaJVIHgdw0RlbGfP7BNNImdWKN6G3hRq4uPUXxES8Xg/exec';
   const quizQuestions = [
       {
           question: "Quelle est la destination de leur voyage de noces ?",
