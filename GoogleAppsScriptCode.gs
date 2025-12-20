@@ -1,70 +1,100 @@
 // ------------------------------------------------------------------------------------------------------------------
 // --- INSTRUCTIONS: ------------------------------------------------------------------------------------------------
-// 1. Ouvrez votre Google Sheet (Cadeaux & Contributions).
+// 1. Ouvrez votre Google Sheet (Cadeaux & Contributions & RSVP).
 // 2. Allez dans Extensions > Apps Script.
 // 3. Remplacez TOUT le code existant par celui-ci.
-// 4. Cliquez sur "Déployer" > "Nouveau déploiement".
-// 5. Choisissez "Application Web".
-// 6. Accès: "Tout le monde" (IMPORTANT).
-// 7. Cliquez sur "Déployer".
-// 8. IMPORTANT: Si l'URL du script change, vous devrez mettre à jour 'appsScriptUrl' dans 'liste-script.js'.
-//    (Mais normalement si vous faites "Gérer les déploiements" > "Modifier" > "Nouvelle version", l'URL reste la même).
+// 4. Cliquez sur "Déployer" > "Gérer les déploiements" > "Modifier" (icône crayon).
+// 5. Version: Sélectionnez "Nouvelle version".
+// 6. Cliquez sur "Déployer".
+// 7. IMPORTANT: L'URL doit rester la même.
 // ------------------------------------------------------------------------------------------------------------------
 
 // --- CONFIGURATION ---
-// Remplacez ces valeurs par les IDs de VOS onglets si besoin.
-// Vous pouvez trouver le 'gid' dans l'URL de votre sheet (ex: #gid=123456789)
-// Ou juste utiliser le nom de l'onglet.
-const SHEET_NAME_CONTRIBUTIONS = "Contributions"; // Nom de l'onglet pour les cadeaux
-const SHEET_NAME_QUIZ = "Quizz";                  // Nom de l'onglet pour le quiz
+const SHEET_NAME_CONTRIBUTIONS = "Contributions"; // Onglet pour les cadeaux
+const SHEET_NAME_QUIZ = "Quizz";                  // Onglet pour le quiz
+const SHEET_NAME_RSVP = "RSVP";                   // Onglet pour les RSVP
 
 function doPost(e) {
   try {
-    // 1. Parsing des données reçues (JSON)
-    const data = JSON.parse(e.postData.contents);
     const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // --- CAS 1: RÉSULTAT DU QUIZ ---
-    if (data.type === 'quiz_result') {
-      let quizSheet = ss.getSheetByName(SHEET_NAME_QUIZ);
+    // -----------------------------------------------------
+    // CAS 1: Données JSON (Quiz ou Contributions Cadeaux)
+    // -----------------------------------------------------
+    // On vérifie si postData.contents existe et commence par "{" (indice de JSON)
+    // ou si le type est application/json
+    if (e.postData && e.postData.contents && (e.postData.type === 'application/json' || e.postData.contents.trim().startsWith('{'))) {
+      const data = JSON.parse(e.postData.contents);
 
-      // Créer l'onglet s'il n'existe pas
-      if (!quizSheet) {
-        quizSheet = ss.insertSheet(SHEET_NAME_QUIZ);
-        quizSheet.appendRow(["Date", "Nom", "Score"]); // En-têtes
+      // --- SOUS-CAS 1.A : RÉSULTAT DU QUIZ ---
+      if (data.type === 'quiz_result') {
+        let quizSheet = ss.getSheetByName(SHEET_NAME_QUIZ);
+        if (!quizSheet) {
+          quizSheet = ss.insertSheet(SHEET_NAME_QUIZ);
+          quizSheet.appendRow(["Date", "Nom", "Score"]);
+        }
+        quizSheet.appendRow([new Date(), data.name, data.score]);
+        return ContentService.createTextOutput(JSON.stringify({ result: 'success', message: 'Quiz enregistré' })).setMimeType(ContentService.MimeType.JSON);
       }
 
-      // Ajouter le résultat
-      quizSheet.appendRow([
-        new Date(),       // Date actuelle
-        data.name,        // Nom du joueur
-        data.score        // Score sur 10
-      ]);
-
-      return ContentService.createTextOutput(JSON.stringify({ result: 'success', message: 'Quiz enregistré' }))
-        .setMimeType(ContentService.MimeType.JSON);
+      // --- SOUS-CAS 1.B : CONTRIBUTION CADEAU ---
+      else {
+        let contributionSheet = ss.getSheetByName(SHEET_NAME_CONTRIBUTIONS);
+        if (!contributionSheet) {
+          contributionSheet = ss.insertSheet(SHEET_NAME_CONTRIBUTIONS);
+          contributionSheet.appendRow(["Timestamp", "ID_Cadeau", "Nom_Contributeur", "Montant"]);
+        }
+        contributionSheet.appendRow([new Date(), data.giftId, data.name, data.amount]);
+        return ContentService.createTextOutput(JSON.stringify({ result: 'success', message: 'Contribution enregistrée' })).setMimeType(ContentService.MimeType.JSON);
+      }
     }
 
-    // --- CAS 2: CONTRIBUTION CADEAU (Logique existante) ---
-    // (Par défaut si pas de type spécifié ou type != quiz_result)
+    // -----------------------------------------------------
+    // CAS 2: Données Formulaire (RSVP)
+    // -----------------------------------------------------
+    // Si ce n'est pas du JSON, c'est probablement du FormData (multipart/form-data)
     else {
-      let contributionSheet = ss.getSheetByName(SHEET_NAME_CONTRIBUTIONS);
-
-      // Créer l'onglet s'il n'existe pas
-      if (!contributionSheet) {
-        contributionSheet = ss.insertSheet(SHEET_NAME_CONTRIBUTIONS);
-        contributionSheet.appendRow(["Timestamp", "ID_Cadeau", "Nom_Contributeur", "Montant"]);
+      let rsvpSheet = ss.getSheetByName(SHEET_NAME_RSVP);
+      if (!rsvpSheet) {
+        rsvpSheet = ss.insertSheet(SHEET_NAME_RSVP);
+        // Création des en-têtes si nouvelle feuille
+        // Structure ajustée pour correspondre aux attentes (Presence Group à la colonne G, Brunch à la colonne H)
+        // A: Timestamp, B: Prénom, C: Nom, D: Email, E: Téléphone, F: Présence, G: Nb Personnes, H: Brunch, ...
+        rsvpSheet.appendRow(["Timestamp", "Prénom", "Nom", "Email", "Téléphone", "Présence", "Nb Personnes", "Brunch", "Allergies", "Musique", "Invités Supp."]);
       }
 
-      // Ajouter la contribution
-      contributionSheet.appendRow([
+      const params = e.parameter; // Contient les champs du formulaire (Prenom, Nom, Presence, Brunch...)
+
+      // Construction de la liste des invités supplémentaires (si applicable)
+      let invitesSupp = [];
+      for (let i = 2; i <= 10; i++) {
+        if (params[`PrenomInvite${i}`] && params[`NomInvite${i}`]) {
+          let inviteStr = `${params[`PrenomInvite${i}`]} ${params[`NomInvite${i}`]}`;
+           if (params[`AllergiesInvite${i}`] && params[`AllergiesInvite${i}`] !== 'Aucune') {
+             inviteStr += ` (${params[`AllergiesInvite${i}`]})`;
+           }
+           invitesSupp.push(inviteStr);
+        }
+      }
+
+      // Ajout de la ligne RSVP
+      // Note: On ajoute des champs vides pour Email et Téléphone car ils ne sont pas dans le formulaire actuel
+      // mais cela permet de maintenir l'alignement des colonnes demandé.
+      rsvpSheet.appendRow([
         new Date(),
-        data.giftId,
-        data.name,
-        data.amount
+        params.Prenom || "",
+        params.Nom || "",
+        "", // Email (placeholder)
+        "", // Téléphone (placeholder)
+        params.Presence || "",
+        params.NombredePersonnes || "", // Colonne G
+        params.Brunch || "",            // Colonne H (Nouveau champ Brunch)
+        params.Allergies || "",
+        params.Musique || "",
+        invitesSupp.join(", ")
       ]);
 
-      return ContentService.createTextOutput(JSON.stringify({ result: 'success', message: 'Contribution enregistrée' }))
+      return ContentService.createTextOutput(JSON.stringify({ result: 'success', message: 'RSVP bien reçu !' }))
         .setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -74,7 +104,6 @@ function doPost(e) {
   }
 }
 
-// Fonction pour gérer les requêtes OPTIONS (CORS pré-flight)
 function doOptions(e) {
   return ContentService.createTextOutput("")
     .setMimeType(ContentService.MimeType.TEXT)
