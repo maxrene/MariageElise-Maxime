@@ -318,7 +318,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (category === 'Voyage de Noce') {
                     // Calcul des totaux pour cette catégorie
                     const categoryTotalGoal = gifts.reduce((sum, g) => sum + (g.isInfinite ? 0 : g.Prix), 0);
-                    const categoryTotalRaised = gifts.reduce((sum, g) => sum + g.totalContributed, 0);
+
+                    // CORRECTION: On compte les partiels (déjà fait via totalContributed)
+                    // ET les cadeaux "uniques" s'ils sont offerts (ce qui manquait)
+                    const categoryTotalRaised = gifts.reduce((sum, g) => {
+                         let contribution = 0;
+                         if (g.isPartial) {
+                             contribution = g.totalContributed;
+                         } else if (g.isGlobalOffered) {
+                             contribution = g.Prix;
+                         }
+                         return sum + contribution;
+                    }, 0);
 
                     if (categoryTotalGoal > 0) {
                          const percentage = Math.min((categoryTotalRaised / categoryTotalGoal) * 100, 100);
