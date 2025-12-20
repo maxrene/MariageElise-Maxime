@@ -779,52 +779,52 @@ document.addEventListener('DOMContentLoaded', function() {
       {
           question: "En quelle année se sont-ils rencontrés ?",
           options: ["2016", "2017", "2018", "2019"],
-          answer: 2 // 2017
+          answer: 1 // 2017
       },
       {
           question: "Où a eu lieu la demande en mariage ?",
           options: ["Sur une plage", "Au sommet d'une montagne", "Dans le désert", "Sous l'eau"],
-          answer: 3 // Desert
+          answer: 2 // Desert
       },
       {
           question: "Où se sont-ils rencontrés ?",
           options: ["À Rouen", "À Reims", "À Paris", "À Dublin"],
-          answer: 2 // Reims
+          answer: 1 // Reims
       },
       {
           question: "Quel pays ont-ils le plus visité ?",
           options: ["Espagne", "États-Unis", "Angleterre", "Italie"],
-          answer: 4 // Italie
+          answer: 3 // Italie
       },
       {
           question: "Quelle est leur activité commune préferée ?",
           options: ["Aller au restaurant", "Faire une randonnée", "Se baigner à Sandymount", "Lire des livres"],
-          answer: 1 // Resto
+          answer: 0 // Resto
       },
       {
           question: "Quel ingrédient Maxime déteste-t-il ?",
           options: ["Concombre", "Courgette", "Basilic", "Pomme de terre"],
-          answer: 2 // Courgette
+          answer: 1 // Courgette
       },
       {
           question: "Quelle boisson Elise commande-t-elle au barista ?",
           options: ["Matcha lait de coco", "Mocha Double espresso", "Chaï lait d'avoine", "Iced Latte"],
-          answer: 1 // Matcha
+          answer: 0 // Matcha
       },
       {
           question: "Qui a pleuré en premier lors de la demande en mariage ?",
-          options: ["Maxime, on le sait tous.", "Elise, à ne plus en voir la bague", "Les deux, un vrai torrent de larmes", "Personne"],
-          answer: 2 // elise
+          options: ["Maxime, on le sait tous !", "Elise, à ne plus en voir la bague", "Les deux, un vrai torrent de larmes", "Personne"],
+          answer: 1 // elise
       },
       {
           question: "Quelle(s) langue(s) les mariés apprennent-ils ?",
           options: ["Gaélique & espagnol", "Allemand & italien", "Espagnol & italien", "Italien tous les deux"],
-          answer: 3 // esp it
+          answer: 2 // esp it
       },
       {
           question: "Quelle est la date exacte du mariage ?",
           options: ["18 Mai 2026", "20 Juin 2026", "15 Juillet 2026", "20 Aout 2026"],
-          answer: 2 // 20 Juin 2026
+          answer: 1 // 20 Juin 2026
       }
   ];
 
