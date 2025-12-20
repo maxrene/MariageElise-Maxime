@@ -2338,11 +2338,13 @@ img {
     justify-content: center;
 }
 
-.quiz-option-btn:hover {
-    background: var(--text-color-headings);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+@media (hover: hover) {
+    .quiz-option-btn:hover {
+        background: var(--text-color-headings);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
 }
 
 .quiz-option-btn.selected {
