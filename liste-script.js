@@ -428,8 +428,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Helper to create Revolut link
         const createRevolutLink = (amount) => {
-             if (amount && amount > 0) {
-                 return `${cleanBaseUrl}?currency=EUR&amount=${amount}`;
+             const numAmount = parseFloat(amount);
+             if (numAmount && numAmount > 0) {
+                 const amountToSend = Math.round(numAmount * 100);
+                 return `${cleanBaseUrl}?currency=EUR&amount=${amountToSend}`;
              }
              return cleanBaseUrl;
         };
