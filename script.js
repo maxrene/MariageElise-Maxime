@@ -210,12 +210,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const rsvpMessage = document.getElementById('rsvpMessage');
   const presenceRadios = document.querySelectorAll('input[name="Presence"]');
   const detailsContainer = document.getElementById('rsvp-details-container');
+  const sundayContainer = document.getElementById('sunday-question-container');
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTA9h3QEZYCQgvbTR_Qe2y6yaJVIHgdw0RlbGfP7BNNImdWKN6G3hRq4uPUXxES8Xg/exec';
 
-  function showDetailsSection(show) {
-    if (!detailsContainer) return;
-    detailsContainer.style.display = show ? 'block' : 'none';
-    const inputs = detailsContainer.querySelectorAll('input, select, textarea');
+  function toggleContainerLogic(container, show) {
+    if (!container) return;
+    container.style.display = show ? 'block' : 'none';
+    const inputs = container.querySelectorAll('input, select, textarea');
     inputs.forEach(el => {
       const originalRequired = el.dataset.originalRequired === 'true';
       if (show && originalRequired) {
@@ -227,6 +228,11 @@ document.addEventListener('DOMContentLoaded', function() {
         el.removeAttribute('required');
       }
     });
+  }
+
+  function showDetailsSection(show) {
+    toggleContainerLogic(detailsContainer, show);
+    toggleContainerLogic(sundayContainer, show);
   }
 
   if (presenceRadios && presenceRadios.length > 0) {
