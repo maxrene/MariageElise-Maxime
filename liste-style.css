@@ -1073,6 +1073,9 @@ body {
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.8);
     box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    /* Mobile scrolling fix */
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 .modal-overlay {
