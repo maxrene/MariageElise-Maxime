@@ -12,12 +12,12 @@ ul, li {
 :root {
     --text-color-light: #f8f0e3;
     --text-color-dark: #5c544b; /* GARDÉ POUR LA LISIBILITÉ */
-    --text-color-headings: #B05F45; /* NOUVEAU: Terre Cuite / Rouille */
-    --accent-color: #E46D37; /* NOUVEAU: Orange Vif */
-    --accent-color-rgb: 228, 109, 55; /* NOUVEAU: RGB pour Orange Vif */
-    --background-light: #fdfaf6; /* GARDÉ */
-    --background-alt: #F7E0DD; /* NOUVEAU: Rose Pâle */
-    --border-color: #DE9FA3; /* NOUVEAU: Rose Moyen */
+    --text-color-headings: #4a4137; /* Marron foncé harmonisé */
+    --accent-color: #c8a07d; /* Or doux harmonisé */
+    --accent-color-rgb: 200, 160, 125;
+    --background-light: #fdfaf6;
+    --background-alt: #f4efea; /* Crème harmonisé */
+    --border-color: #e0d8cf; /* Bordure douce harmonisée */
     --base-transition-duration: 0.3s;
 
     /* Nouvelles variables pour le design premium */
@@ -204,7 +204,7 @@ body {
 
 .category-progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-color), #ff9f75);
+    background: linear-gradient(90deg, var(--accent-color), #e0c3a5);
     width: 0%;
     transition: width 1s ease-out;
 }
@@ -800,8 +800,8 @@ body {
         45deg,
         var(--accent-color),
         var(--accent-color) 10px,
-        #ff9f75 10px,
-        #ff9f75 20px
+        #e0c3a5 10px,
+        #e0c3a5 20px
     );
     opacity: 0.8;
 }
