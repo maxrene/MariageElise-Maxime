@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const contributionsSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1Yxt6ZVzvn-OpDJUvKgia2zj8xc7iI-9bUsGydW8ZS-d86GbXLgET10xwy1KLB4CvMQlfLCJw3xL/pub?gid=88609421&single=true&output=csv'; // <-- PASTE THE URL OF YOUR "Contributions" SHEET HERE
     const revolutLinkBase = 'https://revolut.me/maxbook/'; // Optional: Replace with your Revolut username
     const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyZQX2yR4FONbibYjZlYNUxSDciU1S03aGdRWPvMu43TbZjDuOcgToqanXf2cl7Z5_k/exec'; // <-- PASTE YOUR GOOGLE APPS SCRIPT URL HERE
-    const IBAN_NUMBER = 'FR76 XXXX XXXX XXXX XXXX XXXX XXX'; // <-- VRAI IBAN ICI
+    const IBAN_NUMBER = 'FR41 3000 2033 3400 0002 0836 W50'; // <-- VRAI IBAN ICI
     
  // --- DOM ELEMENTS ---
     const giftListContainer = document.getElementById('gift-list-container');
