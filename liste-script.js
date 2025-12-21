@@ -433,6 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     IBAN: ${IBAN_NUMBER} 
                     <i class="fas fa-copy icon-copy-iban" id="copyIbanIcon" title="Copier l'IBAN"></i>
                 </p>
+                <p class="beneficiary-info">Bénéficiaire : Elise SMUTKO ou Maxime RENE</p>
                 <span id="copy-confirm-text" class="copy-confirm-text"></span>
             </div>
         `;
