@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
  // --- DOM ELEMENTS ---
     const giftListContainer = document.getElementById('gift-list-container');
-    const cagnotteButton = document.querySelector('.cagnotte-section .revolut-button');
     const modalOverlay = document.getElementById('modal-overlay');
     const giftModal = document.getElementById('gift-modal');
     const modalContent = document.getElementById('modal-content');
@@ -182,13 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPartial) {
             if (isInfinite) {
                 // Barre spéciale pour "Participation Libre" (Pas de max)
-                 progressBarHTML = `
-                <div class="progress-info">
-                    <span>Montant récolté : ${totalContributed.toFixed(0)}€</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar infinite-bar" style="width: 100%;"></div>
-                </div>`;
+                // MODIF: On n'affiche rien pour les participations libres
+                 progressBarHTML = '';
             } else if (Prix > 0) {
                 const percentage = Math.min((totalContributed / Prix) * 100, 100);
                 progressBarHTML = `
@@ -319,9 +313,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Calcul des totaux pour cette catégorie
                     const categoryTotalGoal = gifts.reduce((sum, g) => sum + (g.isInfinite ? 0 : g.Prix), 0);
 
-                    // CORRECTION: On compte les partiels (déjà fait via totalContributed)
-                    // ET les cadeaux "uniques" s'ils sont offerts (ce qui manquait)
-                    const categoryTotalRaised = gifts.reduce((sum, g) => {
+                    // 1. Contributions directes aux cadeaux
+                    let categoryTotalRaised = gifts.reduce((sum, g) => {
                          let contribution = 0;
                          if (g.isPartial) {
                              contribution = g.totalContributed;
@@ -330,6 +323,13 @@ document.addEventListener('DOMContentLoaded', () => {
                          }
                          return sum + contribution;
                     }, 0);
+
+                    // 2. AJOUT CAGNOTTE LIBRE AU VOYAGE DE NOCE
+                    const cagnotteTotal = allContributions
+                        .filter(c => c.giftId === 'CAGNOTTE')
+                        .reduce((sum, c) => sum + c.amount, 0);
+
+                    categoryTotalRaised += cagnotteTotal;
 
                     if (categoryTotalGoal > 0) {
                          const percentage = Math.min((categoryTotalRaised / categoryTotalGoal) * 100, 100);
@@ -355,6 +355,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 fragment.appendChild(categoryHeaderWrapper);
+
+                // --- INTEGRATION DE LA CAGNOTTE AU SEIN DE VOYAGE DE NOCE ---
+                if (category === 'Voyage de Noce') {
+                    const cagnotteSection = document.createElement('section');
+                    cagnotteSection.className = 'cagnotte-section';
+                    // On l'ajoute juste avant la grille
+                    cagnotteSection.innerHTML = `
+                        <h3><i class="fas fa-gift"></i> Contribution libre</h3>
+                        <p>Si vous préférez, vous pouvez participer librement à notre cagnotte voyage de noces !</p>
+                        <button class="button primary revolut-button" data-type="libre">
+                            <i class="fas fa-coins"></i> Participer à la cagnotte
+                        </button>
+                    `;
+                    fragment.appendChild(cagnotteSection);
+                }
 
                 const gridWrapper = document.createElement('div');
                 gridWrapper.className = 'gift-grid-wrapper';
@@ -405,15 +420,24 @@ document.addEventListener('DOMContentLoaded', () => {
          if (giftListContainer.dataset.listenerAttached === 'true') return;
 
          giftListContainer.addEventListener('click', function(event) {
-             const button = event.target.closest('.revolut-button[data-type="gift"]:not(.offered)');
-             if (button) {
+             // 1. Boutons Cadeaux classiques
+             const giftButton = event.target.closest('.revolut-button[data-type="gift"]:not(.offered)');
+             if (giftButton) {
                  event.preventDefault();
-                 currentGiftId = button.closest('.gift-card').dataset.id;
-                 // Utilisation de String() pour être sûr de trouver l'ID
+                 currentGiftId = giftButton.closest('.gift-card').dataset.id;
                  const gift = allGifts.find(g => String(g.ID) === String(currentGiftId));
                  if (gift) {
                      openModal(gift);
                  }
+                 return;
+             }
+
+             // 2. Bouton Cagnotte Libre (intégré dans la liste)
+             const cagnotteButton = event.target.closest('.revolut-button[data-type="libre"]');
+             if (cagnotteButton) {
+                 event.preventDefault();
+                 currentGiftId = 'CAGNOTTE';
+                 openModal(); // Appel sans argument pour le mode "Cagnotte"
              }
          });
          giftListContainer.dataset.listenerAttached = 'true';
@@ -708,12 +732,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZATION ---
     fetchAndProcessData(); 
 
-    if (cagnotteButton) {
-        cagnotteButton.addEventListener('click', () => {
-            currentGiftId = 'CAGNOTTE';
-            openModal();
-        });
-    }
+    // L'ancien listener sur 'cagnotteButton' n'est plus nécessaire car le bouton est généré dynamiquement
+    // et géré par la délégation d'événement dans addOfferButtonListeners.
 
     modalOverlay.addEventListener('click', closeModal);
     closeModalButton.addEventListener('click', closeModal);
