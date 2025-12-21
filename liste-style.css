@@ -107,36 +107,53 @@ body {
     color: var(--text-color-headings);
 }
 
-/* --- Section Cagnotte Libre --- */
+/* --- Section Cagnotte Libre (Version Compacte) --- */
 .cagnotte-section {
     background-color: #fff;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 30px;
+    padding: 20px 25px; /* Padding réduit pour le côté compact */
     margin-bottom: 40px;
-    text-align: center;
+    text-align: left;
     box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+
+    /* Layout Flexbox Horizontal */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
+
+.cagnotte-info {
+    flex: 1; /* Prend l'espace disponible */
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Espace entre titre et description */
+}
+
+.cagnotte-action {
+    flex-shrink: 0; /* Ne rétrécit pas */
+}
+
 .cagnotte-section h3 {
     font-family: var(--primary-font);
-    font-size: 1.8rem;
+    font-size: 1.5rem; /* Taille un peu réduite */
     color: var(--text-color-headings);
-    margin-bottom: 10px;
+    margin: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
 }
 .cagnotte-section h3 i {
     color: var(--accent-color);
-    margin-right: 15px;
+    margin-right: 12px;
     font-size: 0.9em;
 }
 .cagnotte-section p {
-    font-size: 0.95rem;
-    margin-bottom: 20px;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 0.9rem;
+    color: var(--text-color-card-description);
+    margin: 0;
+    max-width: none;
+    line-height: 1.4;
 }
 
 /* --- Conteneur global de la liste (après les onglets) --- */
@@ -720,7 +737,7 @@ body {
     }
 }
 
-/* --- Adaptation Mobile pour Header/Intro --- */
+/* --- Adaptation Mobile pour Header/Intro/Cagnotte --- */
 @media (max-width: 600px) {
     .back-link {
         position: static;
@@ -737,11 +754,26 @@ body {
         margin-right: -10px;
         border-radius: 0;
     }
-     .cagnotte-section {
+
+    /* Adaptation Mobile de la Cagnotte Compacte */
+    .cagnotte-section {
+        flex-direction: column; /* Empilement vertical */
+        text-align: center;
+        gap: 15px;
         padding: 20px;
     }
-     .cagnotte-section h3 {
-        font-size: 1.6rem;
+    .cagnotte-info {
+        align-items: center; /* Centrage du titre et texte */
+    }
+    .cagnotte-section h3 {
+        font-size: 1.4rem;
+        justify-content: center; /* Centrage de l'icône */
+    }
+    .cagnotte-action {
+        width: 100%;
+    }
+    .cagnotte-action button {
+        width: 100%; /* Bouton pleine largeur */
     }
 }
 /* Message d'information dans la modale */
