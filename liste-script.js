@@ -362,11 +362,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     cagnotteSection.className = 'cagnotte-section';
                     // On l'ajoute juste avant la grille
                     cagnotteSection.innerHTML = `
-                        <h3><i class="fas fa-gift"></i> Contribution libre</h3>
-                        <p>Si vous préférez, vous pouvez participer librement à notre cagnotte voyage de noces !</p>
-                        <button class="button primary revolut-button" data-type="libre">
-                            <i class="fas fa-coins"></i> Participer à la cagnotte
-                        </button>
+                        <div class="cagnotte-info">
+                            <h3><i class="fas fa-gift"></i> Contribution libre</h3>
+                            <p>Si vous préférez, vous pouvez participer librement à notre cagnotte voyage de noces !</p>
+                        </div>
+                        <div class="cagnotte-action">
+                            <button class="button primary revolut-button" data-type="libre">
+                                <i class="fas fa-coins"></i> Participer à la cagnotte
+                            </button>
+                        </div>
                     `;
                     fragment.appendChild(cagnotteSection);
                 }
