@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Barre spéciale pour "Participation Libre" (Pas de max)
                 // MODIF: On n'affiche rien pour les participations libres
                  progressBarHTML = '';
-            } else if (Prix > 0) {
+            } else if (Prix > 0 && !isGlobalOffered) {
                 const percentage = Math.min((totalContributed / Prix) * 100, 100);
                 progressBarHTML = `
                     <div class="progress-info">
