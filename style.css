@@ -2400,3 +2400,31 @@ img {
     pointer-events: none;
     z-index: 10;
 }
+
+/* --- Hebergement Visibility & Animation --- */
+.hebergement-hidden {
+    display: none !important;
+}
+
+.hebergement-fade-in {
+    /* display property is restored when removing hidden class */
+    animation: fadeInUpDynamic 0.6s ease forwards;
+    opacity: 0; /* Start hidden for animation */
+    transform: translateY(20px); /* Start slightly lower */
+}
+
+.hebergement-button-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+@keyframes fadeInUpDynamic {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
