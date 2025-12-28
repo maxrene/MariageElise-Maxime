@@ -771,6 +771,46 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   applyTeamPhotoSettings();
 
+  // --- LOGIQUE "VOIR PLUS" HEBERGEMENTS ---
+  const hebergementGrid = document.querySelector('.hebergement-grid');
+  const loadMoreBtn = document.getElementById('loadMoreAccommodations');
+
+  if (hebergementGrid && loadMoreBtn) {
+      const allCards = hebergementGrid.querySelectorAll('.hebergement-card');
+      const isMobile = window.innerWidth <= 768; // Même breakpoint que CSS
+      const itemsToShow = isMobile ? 4 : 6;
+      let hiddenCount = 0;
+
+      // Masquer initialement
+      allCards.forEach((card, index) => {
+          if (index >= itemsToShow) {
+              card.classList.add('hebergement-hidden');
+              hiddenCount++;
+          }
+      });
+
+      // Si rien n'est caché, on masque le bouton
+      if (hiddenCount === 0) {
+          loadMoreBtn.style.display = 'none';
+      }
+
+      // Au clic
+      loadMoreBtn.addEventListener('click', () => {
+          const hiddenCards = hebergementGrid.querySelectorAll('.hebergement-hidden');
+
+          hiddenCards.forEach((card, index) => {
+              card.classList.remove('hebergement-hidden');
+              card.classList.add('hebergement-fade-in');
+
+              // Délai dynamique pour l'effet cascade
+              card.style.animationDelay = `${index * 100}ms`;
+          });
+
+          // On fait disparaître le bouton
+          loadMoreBtn.style.display = 'none';
+      });
+  }
+
 }); // --- FIN DU DOMCONTENTLOADED ---
 
   // --- QUIZ LOGIC ---
