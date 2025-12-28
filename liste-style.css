@@ -1205,3 +1205,12 @@ body {
     margin-bottom: 10px;
     font-style: italic;
 }
+
+/* --- Fix iOS Zoom on Input Focus --- */
+@media (max-width: 768px) {
+    #modal-content input[type="text"],
+    #modal-content input[type="number"],
+    .partial-contribution-section input[type="number"] {
+        font-size: 16px; /* Force 16px to prevent zoom */
+    }
+}
