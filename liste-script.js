@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- BOUTONS ---
         const offerButtonText = isPartial ? '<i class="fas fa-coins"></i> Contribuer' : '<i class="fab fa-rev"></i> Offrir via Revolut';
-        const offeredButtonText = isPartial ? '100% financé !' : 'Déjà offert';
+        const offeredButtonText = isPartial ? 'Offert !' : 'Offert';
 
         const offerButtonHTML = `
             <button class="button ${isGlobalOffered ? 'offered' : 'primary revolut-button'}" data-type="gift" ${isGlobalOffered ? 'disabled' : ''}>
