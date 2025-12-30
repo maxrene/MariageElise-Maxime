@@ -31,9 +31,9 @@ function doPost(e) {
         let quizSheet = ss.getSheetByName(SHEET_NAME_QUIZ);
         if (!quizSheet) {
           quizSheet = ss.insertSheet(SHEET_NAME_QUIZ);
-          quizSheet.appendRow(["Date", "Nom", "Score"]);
+          quizSheet.appendRow(["Date", "Nom", "Score", "Détails"]);
         }
-        quizSheet.appendRow([new Date(), data.name, data.score]);
+        quizSheet.appendRow([new Date(), data.name, data.score, data.details || ""]);
         return ContentService.createTextOutput(JSON.stringify({ result: 'success', message: 'Quiz enregistré' })).setMimeType(ContentService.MimeType.JSON);
       }
 

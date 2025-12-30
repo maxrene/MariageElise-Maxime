@@ -983,10 +983,24 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function sendQuizResult() {
+    // Construction de la chaîne de détails (Vrai/Faux)
+    const details = userAnswers.map((userAnswerIndex, questionIndex) => {
+        const question = quizQuestions[questionIndex];
+        if (userAnswerIndex === question.answer) {
+            return "V";
+        } else {
+            const answerText = (userAnswerIndex !== null && userAnswerIndex >= 0 && question.options[userAnswerIndex])
+                ? question.options[userAnswerIndex]
+                : "Pas de réponse";
+            return `F(${answerText})`;
+        }
+    }).join(", ");
+
     const payload = {
         type: 'quiz_result',
         name: quizPlayerName,
         score: quizScore,
+        details: details,
         timestamp: new Date().toISOString()
     };
 
