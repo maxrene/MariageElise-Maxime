@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const presenceRadios = document.querySelectorAll('input[name="Presence"]');
   const detailsContainer = document.getElementById('rsvp-details-container');
   const sundayContainer = document.getElementById('sunday-question-container');
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTA9h3QEZYCQgvbTR_Qe2y6yaJVIHgdw0RlbGfP7BNNImdWKN6G3hRq4uPUXxES8Xg/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-Q_bcWoFBeLWYS6bRccoAbXMIrUSGgXbgA5ESCdSB69iuSQqIS-CtfKBpXW2wiLtW/exec';
 
   function toggleContainerLogic(container, show) {
     if (!container) return;
@@ -814,7 +814,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }); // --- FIN DU DOMCONTENTLOADED ---
 
   // --- QUIZ LOGIC ---
-  const QUIZ_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTA9h3QEZYCQgvbTR_Qe2y6yaJVIHgdw0RlbGfP7BNNImdWKN6G3hRq4uPUXxES8Xg/exec';
+  const QUIZ_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-Q_bcWoFBeLWYS6bRccoAbXMIrUSGgXbgA5ESCdSB69iuSQqIS-CtfKBpXW2wiLtW/exec';
   const quizQuestions = [
       {
           question: "En quelle année se sont-ils rencontrés ?",
