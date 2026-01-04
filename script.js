@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const count = parseInt(guestCountSelect.value) || 1;
       let fieldsHTML = '';
       if (count > 1) {
-        fieldsHTML += '<p class="rsvp-guest-warning">( MERCI D\'INSCRIRE UNIQUEMENT LES PERSONNES INVITÉS SUR L\'ENVELOPPE )</p>';
+        fieldsHTML += '<p class="rsvp-guest-warning">( MERCI D\'INSCRIRE UNIQUEMENT LES PERSONNES INVITEÉS SUR L\'ENVELOPPE )</p>';
       }
       // MODIFICATION : Le titre est maintenant généré pour chaque invité
       for (let i = 2; i <= count; i++) {
