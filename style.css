@@ -1296,6 +1296,17 @@ img {
     color: var(--chateau-primary-color);
     margin-bottom: 15px;
 }
+
+.rsvp-guest-warning {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--text-color-dark);
+    margin-bottom: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
 .guest-block {
     border-top: 1px solid var(--border-color);
     padding-top: 20px;
