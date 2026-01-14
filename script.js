@@ -835,7 +835,7 @@ document.addEventListener('DOMContentLoaded', function() {
           answer: 1 // Reims
       },
       {
-          question: "Quel pays ont-ils le plus visité ?",
+          question: "Dans quel pays sont-ils allés le plus de fois ?",
           options: ["Espagne", "États-Unis", "Angleterre", "Italie"],
           answer: 3 // Italie
       },
