@@ -17,95 +17,32 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-
-        /* Custom scrollbar for a cleaner look */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        /* Smooth drop transitions */
         .seat-droppable { transition: all 0.2s ease; }
         .seat-droppable.drag-over { background-color: #dcfce7; border-color: #22c55e; transform: scale(1.1); box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
-
-        /* Print styles to hide UI and only show the floorplan */
         @media print {
             body { background-color: white; }
             .no-print { display: none !important; }
             .print-canvas { width: 100% !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
             .table-container { page-break-inside: avoid; }
-            /* Force exact background colors for print */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
-
-        /* Password Modal Styling (Similar to index.html) */
-        #password-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #f8f0e3; /* Light beige matching site theme */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            font-family: Arial, sans-serif;
-        }
-        .password-container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        .password-container h2 {
-            color: #4a4137;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-        .password-input-wrapper {
-            margin-bottom: 15px;
-        }
-        .password-container input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        .password-container button {
-            background-color: #c8a07d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-        }
-        .password-container button:hover {
-            background-color: #b58d6b;
-        }
-        #password-error {
-            color: #d32f2f;
-            display: none;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        #app-wrapper {
-            display: none; /* Hidden by default until password is correct */
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-        }
+        #password-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f8f0e3; display: flex; justify-content: center; align-items: center; z-index: 9999; font-family: Arial, sans-serif; }
+        .password-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; }
+        .password-container h2 { color: #4a4137; margin-top: 0; margin-bottom: 20px; }
+        .password-input-wrapper { margin-bottom: 15px; }
+        .password-container input[type="password"] { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .password-container button { background-color: #c8a07d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
+        .password-container button:hover { background-color: #b58d6b; }
+        #password-error { color: #d32f2f; display: none; margin-bottom: 10px; font-size: 14px; }
+        #app-wrapper { display: none; height: 100vh; width: 100vw; overflow: hidden; }
     </style>
 </head>
 <body class="text-slate-800 m-0">
 
-    <!-- Password Protection Modal -->
     <div id="password-modal">
         <div class="password-container">
             <h2>Plan de table</h2>
@@ -118,15 +55,12 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
     <div id="app-wrapper">
         <div id="root" class="h-full w-full"></div>
     </div>
 
-    <!-- Password Logic -->
     <script>
         const correctPassword = "Table";
-
         function checkPassword() {
             const input = document.getElementById("password-input").value;
             if (input === correctPassword) {
@@ -136,119 +70,63 @@
                 document.getElementById("password-error").style.display = "block";
             }
         }
-
-        // Allow pressing Enter to submit
         document.getElementById("password-input").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                checkPassword();
-            }
+            if (event.key === "Enter") checkPassword();
         });
     </script>
 
-    <!-- React App -->
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
 
-        // --- CONFIGURATION DE SAUVEGARDE ---
-        // Votre vraie URL de l'application web de votre Google Apps Script
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXFF4qfByrw0pPzOUk-LDOXXNLu0sL0uJ6sB7LBnd7uy7QVMs95qQLf0qB_vJrdIjsMw/exec";
+        // L'URL de votre Google Apps Script a bien été intégrée ici
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwr0IOEauPNkajOtCLxnS6gvSqO42GzKVA9bu3_A5cFwIV1aFZZHTFgIIc1ONc32XWyEw/exec";
 
-        // Utility Icons
         const Icons = {
-            User: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
             Users: () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
             Plus: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
             Printer: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>,
-            Trash: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
+            Trash: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"/></svg>,
             Wand: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.4 2.4 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z"/><path d="m5 12 7-7"/><path d="M8 9h.01"/><path d="M12 5h.01"/><path d="M16 9h.01"/></svg>,
             Pencil: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>,
-            Save: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Save: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>,
+            Settings: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         };
 
-        // Initial Data Generation
-        const generateInitialGuests = () => {
-            const names = [
-                "Maxime (Marié)", "Elise (Mariée)",
-                "Hugo René", "Julie Soenen", "Maman Flo Smutko", "Philippe Sabot", "Océane Edely",
-                "Fiona Coco", "Matthieu Nachez", "Martin Moncarré", "Elise Faverger", "Dimitri Macé",
-                "Ludo Perrin", "Virginie Perrin", "Léna Perrin", "Éloïse Perrin", "Dorian Pereira",
-                "Nadia Djoukitch-Pinêtre", "Sébastien Djoukitch", "Radjma Mlanao", "Nicolas Godinaud",
-                "Marie-Sophie Cuinet", "Quentin Chaleard", "Alix Massé", "Marc Thuillier", "Aïssata Diop",
-                "Antton Bodin", "Théo Penchet", "Manon Roussel", "Maxime Charousset", "Isabelle Lechevallier",
-                "Cedric Lechevallier", "Christophe Guichon", "Carole Blin", "Laure Badet", "Gazeres Marc",
-                "Emmanuelle Gazeres Djoukitch", "Caroline Arles", "Clément Virenque", "Florent Ponnoussamy",
-                "Luc Vigier", "Emma Ogden", "Julie Smutko", "Maxime Bechade", "Juliette Chaucho",
-                "Robin Bjalon", "Aude Guillon", "Lucie Davail", "Johan Vincenzotto", "Clemence Jolly",
-                "Camille Toussaint", "Nicolas Arlès", "Amélie Arlès", "Thomas Gounot", "Clara Robert Muhlke",
-                "Arthur Guillemot", "Chloé Guillemot", "Emilie Koch", "Bastien Usquelis", "Lauranne Jousse",
-                "Thibault Quiquet", "Mustaf Ahmed", "Clélie Cornu", "Louis Badet", "Maxence Riou",
-                "Claude Smutko", "Martine Smutko Djoukitch", "Thomas Cuinet", "Alice Cuinet", "Christiane Arles",
-                "Jacques Arles", "Arthur Lauriau", "Eleonore Lauriau", "Marion René", "Josh Woodcock",
-                "Gaël Mosenego", "Nolwenn Loison", "Alexandre Cheraki", "Alexis Perrin", "Lise Macé",
-                "Nicole Descotte", "Gerard Descotte", "Noemie Pérès", "Benjamin De la Gueldre",
-                "Marion De La Gueldre", "Valentin Jolly", "Claudine Djoukitch", "Giulia Di marco",
-                "Patrick René", "Baptiste Massy", "Alexandre Ayache"
-            ];
-            return names.map((name, index) => ({
-                id: `g-${index + 1}`,
-                name: name,
-                tableId: null,
-                seatIndex: null
-            }));
-        };
-
-        const initialTables = [
-            { id: 't-head', type: 'rect', name: 'Table d\'Honneur', capacity: 18, x: 550, y: 150 },
-            { id: 't-round-1', type: 'round', name: 'Table 1', capacity: 10, x: 200, y: 550 },
-            { id: 't-round-2', type: 'round', name: 'Table 2', capacity: 10, x: 700, y: 550 },
-            { id: 't-round-3', type: 'round', name: 'Table 3', capacity: 10, x: 1200, y: 550 },
-            { id: 't-round-4', type: 'round', name: 'Table 4', capacity: 10, x: 200, y: 1050 },
-            { id: 't-round-5', type: 'round', name: 'Table 5', capacity: 10, x: 700, y: 1050 },
-            { id: 't-round-6', type: 'round', name: 'Table 6', capacity: 10, x: 1200, y: 1050 },
-            { id: 't-round-7', type: 'round', name: 'Table 7', capacity: 10, x: 450, y: 1550 },
-            { id: 't-round-8', type: 'round', name: 'Table 8', capacity: 10, x: 950, y: 1550 },
-        ];
+        const generateInitialGuests = () => []; // Vide par défaut
+        const initialTables = []; // Vide par défaut pour vous laisser dessiner
 
         function App() {
             const [isInitializing, setIsInitializing] = useState(true);
             const [dataLoaded, setDataLoaded] = useState(false);
             const [guests, setGuests] = useState([]);
             const [tables, setTables] = useState([]);
-            const [saveStatus, setSaveStatus] = useState("ready"); // ready, saving, success, error
+            const [saveStatus, setSaveStatus] = useState("ready");
 
             const [newGuestName, setNewGuestName] = useState("");
             const [editingGuest, setEditingGuest] = useState(null);
-
-            // État pour gérer le déplacement des tables
+            const [editingItem, setEditingItem] = useState(null); // Pour modifier les tables/tentes
             const [draggingTable, setDraggingTable] = useState(null);
 
-            // 1. Chargement des données au démarrage
             useEffect(() => {
                 const loadData = async () => {
                     try {
                         if (APPS_SCRIPT_URL === "URL_APPS_SCRIPT_ICI") {
-                            console.log("URL Apps Script non configurée, chargement des données par défaut.");
                             setGuests(generateInitialGuests());
                             setTables(initialTables);
                             setDataLoaded(true);
                             setIsInitializing(false);
                             return;
                         }
-
                         const response = await fetch(APPS_SCRIPT_URL);
                         const data = await response.json();
-
                         if (data && data.guests && data.tables) {
                             setGuests(data.guests);
                             setTables(data.tables);
                         } else {
-                            // Données initiales si le sheet est vide
                             setGuests(generateInitialGuests());
                             setTables(initialTables);
                         }
                     } catch (error) {
-                        console.error("Erreur lors du chargement des données:", error);
-                        // Fallback sur les données par défaut en cas d'erreur
                         setGuests(generateInitialGuests());
                         setTables(initialTables);
                     } finally {
@@ -256,98 +134,60 @@
                         setIsInitializing(false);
                     }
                 };
-
                 loadData();
             }, []);
 
-            // 2. Sauvegarde automatique (Debounced pour la performance)
             const isFirstLoad = React.useRef(true);
             useEffect(() => {
                 if (!dataLoaded) return;
-
-                if (isFirstLoad.current) {
-                    isFirstLoad.current = false;
-                    return;
-                }
-
-                // Délais de 1.5s pour regrouper les écritures
-                const timer = setTimeout(() => {
-                    saveData();
-                }, 1500);
-
+                if (isFirstLoad.current) { isFirstLoad.current = false; return; }
+                const timer = setTimeout(() => saveData(), 1500);
                 return () => clearTimeout(timer);
             }, [guests, tables, dataLoaded]);
 
             const saveData = async () => {
                 if (APPS_SCRIPT_URL === "URL_APPS_SCRIPT_ICI") return;
-
                 setSaveStatus("saving");
                 try {
                     const response = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
                         body: JSON.stringify({ guests, tables }),
-                        headers: {
-                            'Content-Type': 'text/plain;charset=utf-8', // Contourne le preflight CORS
-                        }
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                     });
-
                     const result = await response.json();
                     if (result.status === "success") {
                         setSaveStatus("success");
                         setTimeout(() => setSaveStatus("ready"), 2000);
-                    } else {
-                        throw new Error(result.message);
-                    }
+                    } else throw new Error(result.message);
                 } catch (error) {
-                    console.error("Erreur de sauvegarde:", error);
                     setSaveStatus("error");
                 }
             };
 
-            // Derived state
             const unassignedGuests = useMemo(() => guests.filter(g => g.tableId === null), [guests]);
-
             const seatedCount = guests.length - unassignedGuests.length;
-            const totalCapacity = tables.reduce((sum, table) => sum + table.capacity, 0);
+            const totalCapacity = tables.filter(t => t.type === 'round' || t.type === 'rect').reduce((sum, table) => sum + table.capacity, 0);
 
+            // Drag Guests
             const handleDragStart = (e, guestId) => {
                 e.dataTransfer.setData('guestId', guestId);
-                // Slight delay to allow drag image to capture before we optionally style the source
-                setTimeout(() => {
-                    e.target.classList.add('opacity-50');
-                }, 0);
+                setTimeout(() => e.target.classList.add('opacity-50'), 0);
             };
-
-            const handleDragEnd = (e) => {
-                e.target.classList.remove('opacity-50');
-            };
+            const handleDragEnd = (e) => e.target.classList.remove('opacity-50');
 
             const handleDropOnSeat = (guestId, targetTableId, targetSeatIndex) => {
                 setGuests(prev => {
                     const newGuests = [...prev];
                     const draggedIndex = newGuests.findIndex(g => g.id === guestId);
                     if (draggedIndex === -1) return prev;
-
                     const draggedGuest = newGuests[draggedIndex];
                     const existingGuestIndex = newGuests.findIndex(g => g.tableId === targetTableId && g.seatIndex === targetSeatIndex);
 
-                    // If target seat is occupied, perform a swap
                     if (existingGuestIndex !== -1) {
                         const existingGuest = newGuests[existingGuestIndex];
-                        newGuests[existingGuestIndex] = {
-                            ...existingGuest,
-                            tableId: draggedGuest.tableId,
-                            seatIndex: draggedGuest.seatIndex
-                        };
+                        newGuests[existingGuestIndex] = { ...existingGuest, tableId: draggedGuest.tableId, seatIndex: draggedGuest.seatIndex };
                     }
-
-                    // Move dragged guest to new seat
-                    newGuests[draggedIndex] = {
-                        ...draggedGuest,
-                        tableId: targetTableId,
-                        seatIndex: targetSeatIndex
-                    };
-
+                    newGuests[draggedIndex] = { ...draggedGuest, tableId: targetTableId, seatIndex: targetSeatIndex };
                     return newGuests;
                 });
             };
@@ -355,345 +195,188 @@
             const handleDropUnassigned = (e) => {
                 e.preventDefault();
                 const guestId = e.dataTransfer.getData('guestId');
-                if (!guestId) return;
-
-                setGuests(prev => prev.map(g =>
-                    g.id === guestId ? { ...g, tableId: null, seatIndex: null } : g
-                ));
+                if (guestId) setGuests(prev => prev.map(g => g.id === guestId ? { ...g, tableId: null, seatIndex: null } : g));
             };
 
-            const handleDragOver = (e) => {
-                e.preventDefault();
-            };
-
-            // Gestionnaires pour déplacer les tables
+            // Drag Tables
             const handleTableMouseDown = (e, tableId) => {
-                if (e.button !== 0) return; // Uniquement le clic gauche
+                if (e.button !== 0) return;
                 const table = tables.find(t => t.id === tableId);
-                setDraggingTable({
-                    id: tableId,
-                    startX: e.pageX,
-                    startY: e.pageY,
-                    origX: table.x,
-                    origY: table.y
-                });
+                setDraggingTable({ id: tableId, startX: e.pageX, startY: e.pageY, origX: table.x, origY: table.y });
             };
-
             const handleCanvasMouseMove = (e) => {
                 if (!draggingTable) return;
                 const dx = e.pageX - draggingTable.startX;
                 const dy = e.pageY - draggingTable.startY;
-
-                // Empêche la table de sortir par le haut/gauche (limite de la zone)
-                const newX = Math.max(50, draggingTable.origX + dx);
-                const newY = Math.max(50, draggingTable.origY + dy);
-
-                setTables(prev => prev.map(t =>
-                    t.id === draggingTable.id
-                        ? { ...t, x: newX, y: newY }
-                        : t
-                ));
+                setTables(prev => prev.map(t => t.id === draggingTable.id ? { ...t, x: Math.max(50, draggingTable.origX + dx), y: Math.max(50, draggingTable.origY + dy) } : t));
             };
+            const handleCanvasMouseUp = () => setDraggingTable(null);
 
-            const handleCanvasMouseUp = () => {
-                setDraggingTable(null);
-            };
-
-            const handleEditGuestSubmit = (e) => {
-                e.preventDefault();
-                if (!editingGuest || !editingGuest.name.trim()) return;
-                setGuests(prev => prev.map(g => g.id === editingGuest.id ? editingGuest : g));
-                setEditingGuest(null);
-            };
-
+            // Actions
             const addGuest = (e) => {
                 e.preventDefault();
                 if (!newGuestName.trim()) return;
-                const newGuest = {
-                    id: `g-${Date.now()}`,
-                    name: newGuestName.trim(),
-                    tableId: null,
-                    seatIndex: null
-                };
-                setGuests([...guests, newGuest]);
+                setGuests([...guests, { id: `g-${Date.now()}`, name: newGuestName.trim(), tableId: null, seatIndex: null }]);
                 setNewGuestName("");
             };
-
             const removeGuest = (guestId) => {
-                if (confirm("Voulez-vous vraiment supprimer cet invité ?")) {
-                    setGuests(prev => prev.filter(g => g.id !== guestId));
-                }
+                if (confirm("Supprimer cet invité ?")) setGuests(prev => prev.filter(g => g.id !== guestId));
             };
-
-            const addRoundTable = () => {
-                const nextNum = tables.filter(t => t.type === 'round').length + 1;
-                const newTable = {
-                    id: `t-round-${Date.now()}`,
-                    type: 'round',
-                    name: `Table ${nextNum}`,
-                    capacity: 10,
-                    x: 300, // Position par défaut visible
-                    y: 300
-                };
+            
+            // Add Elements
+            const addTable = (type) => {
+                const newTable = { id: `t-${Date.now()}`, type, name: type === 'tent' ? 'Tente principale' : type === 'text' ? 'Texte libre' : 'Nouvelle Table', capacity: type === 'round' || type === 'rect' ? 10 : 0, x: window.scrollX + 400, y: window.scrollY + 300, rotation: 0, width: type === 'tent' ? 800 : 0, height: type === 'tent' ? 600 : 0 };
                 setTables([...tables, newTable]);
             };
 
-            const autoSeat = () => {
-                let currentUnassigned = [...unassignedGuests];
-                if (currentUnassigned.length === 0) return;
-
-                let nextGuests = [...guests];
-
-                tables.forEach(table => {
-                    for (let i = 0; i < table.capacity; i++) {
-                        // Check if seat empty
-                        const isOccupied = nextGuests.some(g => g.tableId === table.id && g.seatIndex === i);
-                        if (!isOccupied && currentUnassigned.length > 0) {
-                            const guestToSeat = currentUnassigned.shift();
-                            // Update guest in main array
-                            const gIndex = nextGuests.findIndex(g => g.id === guestToSeat.id);
-                            nextGuests[gIndex] = { ...guestToSeat, tableId: table.id, seatIndex: i };
-                        }
-                    }
-                });
-                setGuests(nextGuests);
+            const handleEditItemSubmit = (e) => {
+                e.preventDefault();
+                setTables(prev => prev.map(t => t.id === editingItem.id ? editingItem : t));
+                setEditingItem(null);
             };
 
-            const clearAllSeats = () => {
-                if(confirm("Êtes-vous sûr de vouloir vider toutes les tables ?")) {
-                    setGuests(guests.map(g => ({ ...g, tableId: null, seatIndex: null })));
+            const removeTable = (tableId) => {
+                if (confirm("Supprimer cet élément ? Tous les invités placés dessus seront remis dans la liste.")) {
+                    setGuests(prev => prev.map(g => g.tableId === tableId ? { ...g, tableId: null, seatIndex: null } : g));
+                    setTables(prev => prev.filter(t => t.id !== tableId));
+                    setEditingItem(null);
                 }
             };
 
-            if (isInitializing || !dataLoaded) {
-                return (
-                    <div className="h-full w-full flex items-center justify-center bg-slate-50">
-                        <div className="flex flex-col items-center gap-4">
-                            <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                            <p className="text-slate-500 font-medium">Chargement de votre plan de table...</p>
-                        </div>
-                    </div>
-                );
-            }
+            if (isInitializing || !dataLoaded) return <div className="h-full w-full flex items-center justify-center bg-slate-50"><div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div></div>;
 
             return (
                 <div className="flex h-full w-full bg-slate-50 relative">
-
-                    {/* Sidebar / Guest List */}
-                    <div className="w-80 bg-white border-r border-slate-200 shadow-xl flex flex-col z-10 no-print transition-all duration-300">
+                    {/* Sidebar */}
+                    <div className="w-80 bg-white border-r border-slate-200 shadow-xl flex flex-col z-10 no-print transition-all">
                         <div className="p-5 border-b border-slate-100 bg-slate-50">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                                        <Icons.Users /> Liste des invités
-                                    </h1>
-                                    <p className="text-sm text-slate-500 mt-1">
-                                        {seatedCount} sur {guests.length} Placés
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Capacity Warning */}
-                            {guests.length > totalCapacity && (
-                                <div className="mt-3 text-xs p-2 bg-red-50 text-red-600 rounded-md border border-red-100">
-                                    Attention : Pas assez de places ! Capacité : {totalCapacity}.
-                                </div>
-                            )}
-
-                            {/* Add Guest Form */}
+                            <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Icons.Users /> Liste des invités</h1>
+                            <p className="text-sm text-slate-500 mt-1">{seatedCount} sur {guests.length} Placés</p>
+                            {guests.length > totalCapacity && totalCapacity > 0 && <div className="mt-3 text-xs p-2 bg-red-50 text-red-600 rounded-md border border-red-100">Attention : Pas assez de places ! Capacité : {totalCapacity}.</div>}
                             <form onSubmit={addGuest} className="mt-4 flex gap-2">
-                                <input
-                                    type="text"
-                                    value={newGuestName}
-                                    onChange={(e) => setNewGuestName(e.target.value)}
-                                    placeholder="Nouveau nom..."
-                                    className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                                <button type="submit" className="p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition" title="Add Guest">
-                                    <Icons.Plus />
-                                </button>
+                                <input type="text" value={newGuestName} onChange={(e) => setNewGuestName(e.target.value)} placeholder="Nouveau nom..." className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                <button type="submit" className="p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"><Icons.Plus /></button>
                             </form>
                         </div>
 
-                        {/* Unassigned Guests Dropzone */}
-                        <div
-                            className="flex-1 overflow-y-auto p-4"
-                            onDrop={handleDropUnassigned}
-                            onDragOver={handleDragOver}
-                        >
-                            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">
-                                Non assignés ({unassignedGuests.length})
-                            </h2>
-
-                            {unassignedGuests.length === 0 ? (
-                                <div className="text-center p-6 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-sm">
-                                    Tous les invités sont placés !
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    {unassignedGuests.map(guest => (
-                                        <div
-                                            key={guest.id}
-                                            draggable
-                                            onDragStart={(e) => handleDragStart(e, guest.id)}
-                                            onDragEnd={handleDragEnd}
-                                            className="bg-white border border-slate-200 p-3 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:border-blue-300 hover:shadow-md transition-all flex items-center gap-3 group"
-                                        >
-                                            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
-                                                {guest.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                            </div>
-                                            <span className="font-medium text-slate-700 text-sm truncate max-w-[150px]">{guest.name}</span>
-                                            <div className="ml-auto opacity-0 group-hover:opacity-100 flex items-center gap-1">
-                                                <button
-                                                    onClick={() => setEditingGuest(guest)}
-                                                    className="p-1 text-slate-400 hover:text-blue-600 transition"
-                                                    title="Modifier le nom"
-                                                >
-                                                    <Icons.Pencil />
-                                                </button>
-                                                <button
-                                                    onClick={() => removeGuest(guest.id)}
-                                                    className="p-1 text-slate-400 hover:text-red-600 transition"
-                                                    title="Supprimer"
-                                                >
-                                                    <Icons.Trash />
-                                                </button>
-                                                <div className="text-slate-300 cursor-grab ml-1" title="Déplacer">
-                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
-                                                </div>
-                                            </div>
+                        <div className="flex-1 overflow-y-auto p-4" onDrop={handleDropUnassigned} onDragOver={(e) => e.preventDefault()}>
+                            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">Non assignés ({unassignedGuests.length})</h2>
+                            <div className="space-y-2">
+                                {unassignedGuests.map(guest => (
+                                    <div key={guest.id} draggable onDragStart={(e) => handleDragStart(e, guest.id)} onDragEnd={handleDragEnd} className="bg-white border border-slate-200 p-3 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:border-blue-300 transition-all flex items-center gap-3 group">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">{guest.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}</div>
+                                        <span className="font-medium text-slate-700 text-sm truncate">{guest.name}</span>
+                                        <div className="ml-auto opacity-0 group-hover:opacity-100 flex items-center gap-1">
+                                            <button onClick={() => setEditingGuest(guest)} className="p-1 text-slate-400 hover:text-blue-600"><Icons.Pencil /></button>
+                                            <button onClick={() => removeGuest(guest.id)} className="p-1 text-slate-400 hover:text-red-600"><Icons.Trash /></button>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Sidebar Footer Controls */}
-                        <div className="p-4 border-t border-slate-100 bg-slate-50 space-y-2">
-                            <button
-                                onClick={autoSeat}
-                                disabled={unassignedGuests.length === 0 || (guests.length > totalCapacity && totalCapacity === seatedCount)}
-                                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
-                            >
-                                <Icons.Wand /> Placement Automatique
-                            </button>
-                            <button
-                                onClick={clearAllSeats}
-                                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-700 rounded-lg text-sm font-medium transition-colors shadow-sm"
-                            >
-                                <Icons.Trash /> Vider les tables
-                            </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
+                    {/* Canvas */}
                     <div className="flex-1 overflow-auto print-canvas relative bg-slate-50">
-                        {/* Top Action Bar (hidden on print) */}
                         <div className="sticky top-0 left-0 right-0 p-4 flex justify-between items-center no-print z-20 pointer-events-none">
-                            {/* Save Status Indicator */}
                             <div className="bg-white px-3 py-1.5 rounded-full shadow-md border border-slate-200 flex items-center gap-2 pointer-events-auto">
                                 {saveStatus === "ready" && <span className="text-xs text-slate-500 flex items-center gap-1"><Icons.Save /> Sauvegardé</span>}
                                 {saveStatus === "saving" && <span className="text-xs text-blue-500 flex items-center gap-1"><div className="w-3 h-3 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div> Sauvegarde...</span>}
-                                {saveStatus === "success" && <span className="text-xs text-green-600 flex items-center gap-1"><svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Sauvegardé</span>}
                                 {saveStatus === "error" && <span className="text-xs text-red-500 flex items-center gap-1"><Icons.Trash /> Erreur de sauvegarde</span>}
                                 {APPS_SCRIPT_URL === "URL_APPS_SCRIPT_ICI" && <span className="text-xs text-amber-600">⚠️ Mode local (non sauvegardé)</span>}
                             </div>
 
-                            <div className="flex gap-3 pointer-events-auto">
-                                <button
-                                    onClick={addRoundTable}
-                                    className="flex items-center gap-2 px-4 py-2 bg-white shadow-md border border-slate-200 rounded-full text-sm font-medium text-slate-700 hover:text-blue-600 hover:border-blue-200 transition"
-                                >
-                                    <Icons.Plus /> Ajouter Table de 10
-                                </button>
-                                <button
-                                    onClick={() => window.print()}
-                                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 shadow-md text-white rounded-full text-sm font-medium hover:bg-slate-700 transition"
-                                >
-                                    <Icons.Printer /> Imprimer le Plan
-                                </button>
+                            <div className="flex gap-2 pointer-events-auto bg-white p-1 rounded-lg shadow-md border border-slate-200">
+                                <button onClick={() => addTable('round')} className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded flex gap-1 items-center" title="Table Ronde"><Icons.Plus /> ◯</button>
+                                <button onClick={() => addTable('rect')} className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded flex gap-1 items-center" title="Table Rectangulaire"><Icons.Plus /> ▭</button>
+                                <button onClick={() => addTable('tent')} className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded flex gap-1 items-center" title="Tente / Zone">Tente</button>
+                                <button onClick={() => addTable('text')} className="px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded flex gap-1 items-center" title="Texte libre">Texte</button>
+                                <button onClick={() => window.print()} className="ml-2 flex items-center gap-2 px-3 py-2 bg-slate-800 text-white rounded text-sm hover:bg-slate-700"><Icons.Printer /></button>
                             </div>
                         </div>
 
-                        {/* Draggable Floorplan Canvas */}
-                        <div
-                            className="absolute top-0 left-0 min-w-[2500px] min-h-[2500px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:30px_30px] overflow-hidden table-container"
-                            onMouseMove={handleCanvasMouseMove}
-                            onMouseUp={handleCanvasMouseUp}
-                            onMouseLeave={handleCanvasMouseUp}
-                        >
-                            <HeadTable
-                                table={tables.find(t => t.type === 'rect')}
-                                guests={guests}
-                                onDropGuest={handleDropOnSeat}
-                                onDragStart={handleDragStart}
-                                onDragEnd={handleDragEnd}
-                                onMouseDown={handleTableMouseDown}
-                                isDragging={draggingTable?.id === tables.find(t => t.type === 'rect')?.id}
-                                onEditGuest={setEditingGuest}
-                            />
-
-                            {tables.filter(t => t.type === 'round').map(table => (
-                                <RoundTable
-                                    key={table.id}
-                                    table={table}
-                                    guests={guests}
-                                    onDropGuest={handleDropOnSeat}
-                                    onDragStart={handleDragStart}
-                                    onDragEnd={handleDragEnd}
-                                    onMouseDown={handleTableMouseDown}
-                                    isDragging={draggingTable?.id === table.id}
-                                    onEditGuest={setEditingGuest}
-                                />
+                        <div className="absolute top-0 left-0 min-w-[3000px] min-h-[3000px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:30px_30px] overflow-hidden table-container" onMouseMove={handleCanvasMouseMove} onMouseUp={handleCanvasMouseUp} onMouseLeave={handleCanvasMouseUp}>
+                            {/* Render Tents First (lowest Z-index) */}
+                            {tables.filter(t => t.type === 'tent').map(t => (
+                                <Tent key={t.id} item={t} onMouseDown={handleTableMouseDown} isDragging={draggingTable?.id === t.id} onDoubleClick={() => setEditingItem(t)} />
                             ))}
+                            
+                            {/* Render Tables & Text */}
+                            {tables.filter(t => t.type !== 'tent').map(table => {
+                                if (table.type === 'rect') return <RectTable key={table.id} table={table} guests={guests} onDropGuest={handleDropOnSeat} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onMouseDown={handleTableMouseDown} isDragging={draggingTable?.id === table.id} onEditGuest={setEditingGuest} onDoubleClick={() => setEditingItem(table)} />
+                                if (table.type === 'round') return <RoundTable key={table.id} table={table} guests={guests} onDropGuest={handleDropOnSeat} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onMouseDown={handleTableMouseDown} isDragging={draggingTable?.id === table.id} onEditGuest={setEditingGuest} onDoubleClick={() => setEditingItem(table)} />
+                                if (table.type === 'text') return <TextItem key={table.id} item={table} onMouseDown={handleTableMouseDown} isDragging={draggingTable?.id === table.id} onDoubleClick={() => setEditingItem(table)} />
+                                return null;
+                            })}
                         </div>
                     </div>
 
-                    {/* Edit Guest Modal */}
+                    {/* Modals */}
                     {editingGuest && (
                         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md animate-[fadeIn_0.2s_ease-out]">
-                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <Icons.Pencil /> Modifier l'invité
-                                </h3>
-                                <form onSubmit={handleEditGuestSubmit}>
-                                    <div className="mb-4">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Nom affiché</label>
-                                        <input
-                                            type="text"
-                                            value={editingGuest.name}
-                                            onChange={(e) => setEditingGuest({...editingGuest, name: e.target.value})}
-                                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            autoFocus
-                                        />
-                                        <p className="text-xs text-slate-500 mt-2">
-                                            Astuce: Modifiez le nom pour ajuster les initiales (ex: "Gérard D." affichera "GD").
-                                        </p>
-                                    </div>
+                            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Icons.Pencil /> Modifier l'invité</h3>
+                                <form onSubmit={(e) => { e.preventDefault(); setGuests(prev => prev.map(g => g.id === editingGuest.id ? editingGuest : g)); setEditingGuest(null); }}>
+                                    <input type="text" value={editingGuest.name} onChange={(e) => setEditingGuest({...editingGuest, name: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg mb-4" autoFocus />
                                     <div className="flex justify-between">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                removeGuest(editingGuest.id);
-                                                setEditingGuest(null);
-                                            }}
-                                            className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium transition flex items-center gap-1"
-                                        >
-                                            <Icons.Trash /> Supprimer
-                                        </button>
-                                        <div className="flex gap-3">
-                                            <button
-                                                type="button"
-                                                onClick={() => setEditingGuest(null)}
-                                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition"
-                                            >
-                                                Annuler
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition"
-                                            >
-                                                Enregistrer
-                                            </button>
+                                        <button type="button" onClick={() => { removeGuest(editingGuest.id); setEditingGuest(null); }} className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium"><Icons.Trash /></button>
+                                        <div className="flex gap-2">
+                                            <button type="button" onClick={() => setEditingGuest(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium">Annuler</button>
+                                            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">Enregistrer</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {editingItem && (
+                        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Icons.Settings /> Paramètres de l'élément</h3>
+                                <form onSubmit={handleEditItemSubmit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700">Texte / Nom</label>
+                                        <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg mt-1" autoFocus />
+                                    </div>
+                                    
+                                    {(editingItem.type === 'round' || editingItem.type === 'rect') && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700">Nombre de chaises</label>
+                                            <input type="number" min="0" max="50" value={editingItem.capacity} onChange={(e) => setEditingItem({...editingItem, capacity: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 border border-slate-300 rounded-lg mt-1" />
+                                        </div>
+                                    )}
+
+                                    {editingItem.type === 'tent' && (
+                                        <div className="flex gap-4">
+                                            <div className="flex-1">
+                                                <label className="block text-sm font-medium text-slate-700">Largeur</label>
+                                                <input type="number" value={editingItem.width} onChange={(e) => setEditingItem({...editingItem, width: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 border border-slate-300 rounded-lg mt-1" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <label className="block text-sm font-medium text-slate-700">Hauteur</label>
+                                                <input type="number" value={editingItem.height} onChange={(e) => setEditingItem({...editingItem, height: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 border border-slate-300 rounded-lg mt-1" />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {editingItem.type !== 'round' && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700">Rotation</label>
+                                            <select value={editingItem.rotation} onChange={(e) => setEditingItem({...editingItem, rotation: parseInt(e.target.value)})} className="w-full px-3 py-2 border border-slate-300 rounded-lg mt-1">
+                                                <option value="0">0° (Horizontal)</option>
+                                                <option value="90">90° (Vertical)</option>
+                                                <option value="180">180° (Inversé)</option>
+                                                <option value="270">270° (Vertical inv.)</option>
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between pt-4 border-t border-slate-100">
+                                        <button type="button" onClick={() => removeTable(editingItem.id)} className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium flex gap-2 items-center"><Icons.Trash /> Supprimer</button>
+                                        <div className="flex gap-2">
+                                            <button type="button" onClick={() => setEditingItem(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium">Annuler</button>
+                                            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">Valider</button>
                                         </div>
                                     </div>
                                 </form>
@@ -704,177 +387,100 @@
             );
         }
 
-        function HeadTable({ table, guests, onDropGuest, onDragStart, onDragEnd, onMouseDown, isDragging, onEditGuest }) {
-            if (!table) return null;
+        // --- COMPONENTS ---
 
-            // Split capacity evenly for top and bottom rows
+        function RectTable({ table, guests, onDropGuest, onDragStart, onDragEnd, onMouseDown, isDragging, onEditGuest, onDoubleClick }) {
             const halfCapacity = Math.ceil(table.capacity / 2);
+            const seatWidth = 60;
+            const computedWidth = Math.max(150, halfCapacity * seatWidth + 40); // S'adapte au nombre de chaises
+            const rotation = table.rotation || 0;
 
             const renderSeats = (startIndex, endIndex) => (
-                <div className="flex justify-center gap-4 px-8 z-10">
+                <div className="flex justify-center gap-4 px-4 z-10" style={{ width: computedWidth }}>
                     {Array.from({ length: endIndex - startIndex }).map((_, idx) => {
                         const i = startIndex + idx;
                         const guest = guests.find(g => g.tableId === table.id && g.seatIndex === i);
-                        return (
-                            <Seat
-                                key={i}
-                                tableId={table.id}
-                                seatIndex={i}
-                                guest={guest}
-                                onDropGuest={onDropGuest}
-                                onDragStart={onDragStart}
-                                onDragEnd={onDragEnd}
-                                onEditGuest={onEditGuest}
-                            />
-                        );
+                        return <Seat key={i} tableId={table.id} seatIndex={i} guest={guest} onDropGuest={onDropGuest} onDragStart={onDragStart} onDragEnd={onDragEnd} onEditGuest={onEditGuest} rotation={rotation} />;
                     })}
                 </div>
             );
 
             return (
-                <div
-                    style={{ position: 'absolute', left: table.x, top: table.y }}
-                    className={`flex flex-col items-center transition-shadow ${isDragging ? 'z-50 cursor-grabbing drop-shadow-2xl' : 'z-10 cursor-grab drop-shadow-md'} hover:drop-shadow-xl`}
-                    onMouseDown={(e) => onMouseDown(e, table.id)}
-                >
-                    {/* Top Seats Row */}
-                    <div className="mb-3">
-                        {renderSeats(0, halfCapacity)}
-                    </div>
-
-                    {/* Physical Table */}
-                    <div className="w-[900px] max-w-[90vw] h-24 bg-gradient-to-b from-slate-200 to-slate-300 border-2 border-slate-300 rounded-md shadow-lg flex items-center justify-center relative">
-                        <span className="font-semibold text-slate-500 uppercase tracking-widest text-lg">{table.name}</span>
-                        {/* Table Decoration / Inner Line */}
+                <div style={{ position: 'absolute', left: table.x, top: table.y, transform: `rotate(${rotation}deg)` }} className={`flex flex-col items-center transition-shadow ${isDragging ? 'z-50 cursor-grabbing drop-shadow-2xl' : 'z-10 cursor-grab drop-shadow-md'} hover:drop-shadow-xl`} onMouseDown={(e) => onMouseDown(e, table.id)} onDoubleClick={onDoubleClick}>
+                    <div className="mb-2">{renderSeats(0, halfCapacity)}</div>
+                    <div style={{ width: computedWidth }} className="h-24 bg-gradient-to-b from-slate-200 to-slate-300 border-2 border-slate-300 rounded-md shadow-lg flex items-center justify-center relative cursor-pointer" title="Double-cliquez pour modifier">
+                        {/* Contre-rotation du texte pour le garder lisible */}
+                        <span style={{ transform: `rotate(${-rotation}deg)` }} className="font-semibold text-slate-500 uppercase tracking-widest text-lg px-4 text-center">{table.name}</span>
                         <div className="absolute inset-2 border border-slate-300/50 rounded pointer-events-none"></div>
                     </div>
-
-                    {/* Bottom Seats Row */}
-                    <div className="mt-3">
-                        {renderSeats(halfCapacity, table.capacity)}
-                    </div>
+                    <div className="mt-2">{renderSeats(halfCapacity, table.capacity)}</div>
                 </div>
             );
         }
 
-        function RoundTable({ table, guests, onDropGuest, onDragStart, onDragEnd, onMouseDown, isDragging, onEditGuest }) {
-            const tableDiameter = 180; // px
-            // The radius to the center of the seat should push it outside the table
-            const seatRadius = (tableDiameter / 2) + 35; // 90 + 35 = 125px
+        function RoundTable({ table, guests, onDropGuest, onDragStart, onDragEnd, onMouseDown, isDragging, onEditGuest, onDoubleClick }) {
+            const tableDiameter = Math.max(120, table.capacity * 16); 
+            const seatRadius = (tableDiameter / 2) + 35; 
 
             const seats = Array.from({ length: table.capacity }).map((_, i) => {
                 const guest = guests.find(g => g.tableId === table.id && g.seatIndex === i);
                 const angleDegree = (i * (360 / table.capacity));
-
-                // Using transform translation and counter-rotation keeps seats upright perfectly!
-                const seatStyle = {
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    // Center the seat perfectly at the origin before translating
-                    marginTop: '-24px', // half of h-12 (48px)
-                    marginLeft: '-24px', // half of w-12
-                    transform: `rotate(${angleDegree}deg) translateY(-${seatRadius}px) rotate(-${angleDegree}deg)`
-                };
-
+                const seatStyle = { position: 'absolute', top: '50%', left: '50%', marginTop: '-24px', marginLeft: '-24px', transform: `rotate(${angleDegree}deg) translateY(-${seatRadius}px) rotate(-${angleDegree}deg)` };
                 return (
                     <div key={i} style={seatStyle} className="z-10">
-                        <Seat
-                            tableId={table.id}
-                            seatIndex={i}
-                            guest={guest}
-                            onDropGuest={onDropGuest}
-                            onDragStart={onDragStart}
-                            onDragEnd={onDragEnd}
-                            onEditGuest={onEditGuest}
-                        />
+                        <Seat tableId={table.id} seatIndex={i} guest={guest} onDropGuest={onDropGuest} onDragStart={onDragStart} onDragEnd={onDragEnd} onEditGuest={onEditGuest} rotation={0} />
                     </div>
                 );
             });
 
             return (
-                <div
-                    style={{ position: 'absolute', left: table.x, top: table.y, width: tableDiameter, height: tableDiameter }}
-                    className={`transition-shadow ${isDragging ? 'z-50 cursor-grabbing drop-shadow-2xl' : 'z-10 cursor-grab drop-shadow-md'} hover:drop-shadow-xl`}
-                    onMouseDown={(e) => onMouseDown(e, table.id)}
-                >
-                    {/* The Physical Round Table */}
-                    <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 border-2 border-slate-300 rounded-full shadow-lg flex items-center justify-center absolute inset-0">
-                        <div className="text-center">
-                            <span className="font-bold text-slate-600 block">{table.name}</span>
-                            <span className="text-xs text-slate-400 font-medium">10 Places</span>
+                <div style={{ position: 'absolute', left: table.x, top: table.y, width: tableDiameter, height: tableDiameter }} className={`transition-shadow ${isDragging ? 'z-50 cursor-grabbing drop-shadow-2xl' : 'z-10 cursor-grab drop-shadow-md'} hover:drop-shadow-xl`} onMouseDown={(e) => onMouseDown(e, table.id)} onDoubleClick={onDoubleClick} title="Double-cliquez pour modifier">
+                    <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 border-2 border-slate-300 rounded-full shadow-lg flex items-center justify-center absolute inset-0 cursor-pointer">
+                        <div className="text-center px-4">
+                            <span className="font-bold text-slate-600 block text-sm">{table.name}</span>
+                            <span className="text-xs text-slate-400 font-medium">{table.capacity} Places</span>
                         </div>
-                        {/* Table Centerpiece Decoration */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 border border-slate-300/60 rounded-full pointer-events-none"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 border border-slate-300/60 rounded-full pointer-events-none"></div>
                     </div>
-                    {/* Seats container */}
                     {seats}
                 </div>
             );
         }
 
-        function Seat({ tableId, seatIndex, guest, onDropGuest, onDragStart, onDragEnd, onEditGuest }) {
+        function Tent({ item, onMouseDown, isDragging, onDoubleClick }) {
+            return (
+                <div style={{ position: 'absolute', left: item.x, top: item.y, width: item.width || 800, height: item.height || 600, transform: `rotate(${item.rotation || 0}deg)` }} className={`border-4 border-dashed border-slate-300/60 bg-slate-200/10 rounded-lg flex items-start justify-start p-6 ${isDragging ? 'z-0 cursor-grabbing' : 'z-0 cursor-grab'} hover:border-slate-400 hover:bg-slate-200/30 transition-colors`} onMouseDown={(e) => onMouseDown(e, item.id)} onDoubleClick={onDoubleClick} title="Double-cliquez pour modifier la tente">
+                    <span className="text-slate-400 font-semibold text-3xl uppercase tracking-widest pointer-events-none">{item.name}</span>
+                </div>
+            )
+        }
+
+        function TextItem({ item, onMouseDown, isDragging, onDoubleClick }) {
+            return (
+                <div style={{ position: 'absolute', left: item.x, top: item.y, transform: `rotate(${item.rotation || 0}deg)` }} className={`p-4 bg-white/50 backdrop-blur-sm rounded border border-transparent hover:border-slate-300 ${isDragging ? 'z-50 cursor-grabbing' : 'z-10 cursor-grab'}`} onMouseDown={(e) => onMouseDown(e, item.id)} onDoubleClick={onDoubleClick} title="Double-cliquez pour modifier">
+                    <span className="text-slate-800 font-bold text-2xl uppercase tracking-wider">{item.name}</span>
+                </div>
+            )
+        }
+
+        function Seat({ tableId, seatIndex, guest, onDropGuest, onDragStart, onDragEnd, onEditGuest, rotation }) {
             const [isOver, setIsOver] = useState(false);
-
-            const handleDragOver = (e) => {
-                e.preventDefault();
-                setIsOver(true);
-            };
-
-            const handleDragLeave = () => {
-                setIsOver(false);
-            };
-
-            const handleDrop = (e) => {
-                e.preventDefault();
-                setIsOver(false);
-                const guestId = e.dataTransfer.getData('guestId');
-                if (guestId) {
-                    onDropGuest(guestId, tableId, seatIndex);
-                }
-            };
-
-            const handleMouseDown = (e) => {
-                // Empêche le clic sur un siège de déplacer la table
-                e.stopPropagation();
-            };
+            const handleDrop = (e) => { e.preventDefault(); setIsOver(false); const id = e.dataTransfer.getData('guestId'); if (id) onDropGuest(id, tableId, seatIndex); };
 
             return (
-                <div
-                    className={`seat-droppable w-12 h-12 rounded-full flex items-center justify-center border-2
-                        ${isOver ? 'drag-over' : 'border-slate-300 bg-white shadow-sm'}
-                        ${!guest ? 'hover:border-blue-400 cursor-pointer' : ''}
-                    `}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onMouseDown={handleMouseDown}
-                >
+                <div className={`seat-droppable w-12 h-12 rounded-full flex items-center justify-center border-2 ${isOver ? 'drag-over' : 'border-slate-300 bg-white shadow-sm'} ${!guest ? 'hover:border-blue-400 cursor-pointer' : ''}`} onDragOver={(e) => { e.preventDefault(); setIsOver(true); }} onDragLeave={() => setIsOver(false)} onDrop={handleDrop} onMouseDown={(e) => e.stopPropagation()}>
                     {guest ? (
-                        <div
-                            draggable
-                            onDragStart={(e) => onDragStart(e, guest.id)}
-                            onDragEnd={onDragEnd}
-                            onDoubleClick={(e) => {
-                                e.stopPropagation();
-                                onEditGuest(guest);
-                            }}
-                            className="w-full h-full bg-indigo-600 text-white rounded-full flex flex-col items-center justify-center cursor-grab active:cursor-grabbing shadow-md hover:bg-indigo-700 transition relative group"
-                            title="Double-cliquez pour modifier"
-                        >
-                            {/* Initials */}
-                            <span className="font-bold text-sm tracking-tight pointer-events-none">
+                        <div draggable onDragStart={(e) => onDragStart(e, guest.id)} onDragEnd={onDragEnd} onDoubleClick={(e) => { e.stopPropagation(); onEditGuest(guest); }} className="w-full h-full bg-indigo-600 text-white rounded-full flex flex-col items-center justify-center cursor-grab active:cursor-grabbing shadow-md hover:bg-indigo-700 transition relative group">
+                            {/* Les initiales subissent une contre-rotation pour rester droites même si la table est tournée */}
+                            <span style={{ transform: `rotate(${-rotation}deg)` }} className="font-bold text-sm tracking-tight pointer-events-none">
                                 {guest.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                             </span>
-
-                            {/* Full Name Tooltip */}
-                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs py-1 px-3 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                            <div style={{ transform: `translateX(-50%) rotate(${-rotation}deg)` }} className="absolute -top-10 left-1/2 bg-slate-800 text-white text-xs py-1 px-3 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
                                 {guest.name}
-                                <div className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45"></div>
                             </div>
                         </div>
                     ) : (
-                        <span className="text-slate-300 text-xs font-semibold select-none">{seatIndex + 1}</span>
+                        <span style={{ transform: `rotate(${-rotation}deg)` }} className="text-slate-300 text-xs font-semibold select-none inline-block">{seatIndex + 1}</span>
                     )}
                 </div>
             );
