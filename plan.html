@@ -151,7 +151,7 @@
 
         // --- CONFIGURATION DE SAUVEGARDE ---
         // Remplacez cette URL par l'URL de l'application web de votre Google Apps Script
-        const APPS_SCRIPT_URL = "URL_APPS_SCRIPT_ICI";
+        const APPS_SCRIPT_URL ="https://script.google.com/macros/s/AKfycbxWq7lmm8gl2mQfYezJGTMrJmzJCztMJlPiIF9DCu9beFRFGfY70pF_h_CnnlXO9bSvFQ/exec";
 
         // Utility Icons
         const Icons = {
@@ -226,7 +226,7 @@
             useEffect(() => {
                 const loadData = async () => {
                     try {
-                        if (APPS_SCRIPT_URL === "URL_APPS_SCRIPT_ICI") {
+                        if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbxWq7lmm8gl2mQfYezJGTMrJmzJCztMJlPiIF9DCu9beFRFGfY70pF_h_CnnlXO9bSvFQ/exec") {
                             console.log("URL Apps Script non configurée, chargement des données par défaut.");
                             setGuests(generateInitialGuests());
                             setTables(initialTables);
@@ -279,7 +279,7 @@
             }, [guests, tables, dataLoaded]);
 
             const saveData = async () => {
-                if (APPS_SCRIPT_URL === "URL_APPS_SCRIPT_ICI") return;
+                if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbxWq7lmm8gl2mQfYezJGTMrJmzJCztMJlPiIF9DCu9beFRFGfY70pF_h_CnnlXO9bSvFQ/exec") return;
 
                 setSaveStatus("saving");
                 try {
@@ -595,7 +595,7 @@
                                 {saveStatus === "saving" && <span className="text-xs text-blue-500 flex items-center gap-1"><div className="w-3 h-3 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div> Sauvegarde...</span>}
                                 {saveStatus === "success" && <span className="text-xs text-green-600 flex items-center gap-1"><svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Sauvegardé</span>}
                                 {saveStatus === "error" && <span className="text-xs text-red-500 flex items-center gap-1"><Icons.Trash /> Erreur de sauvegarde</span>}
-                                {APPS_SCRIPT_URL === "URL_APPS_SCRIPT_ICI" && <span className="text-xs text-amber-600">⚠️ Mode local (non sauvegardé)</span>}
+                                {APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbxWq7lmm8gl2mQfYezJGTMrJmzJCztMJlPiIF9DCu9beFRFGfY70pF_h_CnnlXO9bSvFQ/exec" && <span className="text-xs text-amber-600">⚠️ Mode local (non sauvegardé)</span>}
                             </div>
 
                             <div className="flex gap-3 pointer-events-auto">
