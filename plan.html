@@ -172,6 +172,11 @@
             };
 
             const unassignedGuests = useMemo(() => guests.filter(g => g.tableId === null), [guests]);
+            const filteredUnassignedGuests = useMemo(() => {
+                if (!newGuestName.trim()) return unassignedGuests;
+                const searchLower = newGuestName.trim().toLowerCase();
+                return unassignedGuests.filter(g => g.name.toLowerCase().includes(searchLower));
+            }, [unassignedGuests, newGuestName]);
             const seatedCount = guests.length - unassignedGuests.length;
             const totalCapacity = tables.filter(t => t.type === 'round' || t.type === 'rect').reduce((sum, table) => sum + table.capacity, 0);
 
@@ -267,9 +272,9 @@
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-4" onDrop={handleDropUnassigned} onDragOver={(e) => e.preventDefault()}>
-                            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">Non assignés ({unassignedGuests.length})</h2>
+                            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">Non assignés ({filteredUnassignedGuests.length}{newGuestName.trim() ? ` / ${unassignedGuests.length}` : ''})</h2>
                             <div className="space-y-2">
-                                {unassignedGuests.map(guest => (
+                                {filteredUnassignedGuests.map(guest => (
                                     <div key={guest.id} draggable onDragStart={(e) => handleDragStart(e, guest.id)} onDragEnd={handleDragEnd} className="bg-white border border-slate-200 p-3 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:border-blue-300 transition-all flex items-center gap-3 group">
                                         <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">{guest.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}</div>
                                         <span className="font-medium text-slate-700 text-sm truncate">{guest.name}</span>
