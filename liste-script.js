@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Si c'est "Voyage de Noce", on ajoute la barre de progression globale
                 if (category === 'Voyage de Noce') {
                     // Calcul des totaux pour cette catégorie
-                    const categoryTotalGoal = gifts.reduce((sum, g) => sum + (g.isInfinite ? 0 : g.Prix), 0);
+                    const categoryTotalGoal = 12000;
 
                     // 1. Contributions directes aux cadeaux
                     let categoryTotalRaised = gifts.reduce((sum, g) => {
