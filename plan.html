@@ -76,7 +76,7 @@
     </script>
 
     <script type="text/babel">
-        const { useState, useMemo, useEffect } = React;
+        const { useState, useMemo, useEffect, useRef } = React;
 
         // L'URL de votre Google Apps Script a bien été intégrée ici
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwr0IOEauPNkajOtCLxnS6gvSqO42GzKVA9bu3_A5cFwIV1aFZZHTFgIIc1ONc32XWyEw/exec";
@@ -109,6 +109,10 @@
             const [editingGuest, setEditingGuest] = useState(null);
             const [editingItem, setEditingItem] = useState(null); // Pour modifier les tables/tentes
             const [draggingTable, setDraggingTable] = useState(null);
+
+            // État et référence pour le déplacement (panning) de la carte
+            const [panningState, setPanningState] = useState({ isPanning: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
+            const scrollContainerRef = useRef(null);
 
             // Nouvelles variables d'état pour les fonctionnalités Zoom et Noms complets
             const [showFullNames, setShowFullNames] = useState(false);
@@ -212,17 +216,47 @@
 
             // Drag Tables
             const handleTableMouseDown = (e, tableId) => {
+                e.stopPropagation(); // Empêcher le mousedown sur la table de déclencher le panning de la carte
                 if (e.button !== 0) return;
                 const table = tables.find(t => t.id === tableId);
                 setDraggingTable({ id: tableId, startX: e.pageX, startY: e.pageY, origX: table.x, origY: table.y });
             };
-            const handleCanvasMouseMove = (e) => {
-                if (!draggingTable) return;
-                const dx = (e.pageX - draggingTable.startX) / zoomLevel;
-                const dy = (e.pageY - draggingTable.startY) / zoomLevel;
-                setTables(prev => prev.map(t => t.id === draggingTable.id ? { ...t, x: Math.max(50, draggingTable.origX + dx), y: Math.max(50, draggingTable.origY + dy) } : t));
+
+            const handleCanvasMouseDown = (e) => {
+                if (e.button !== 0) return; // Uniquement le clic gauche
+                // Empêcher la sélection de texte accidentelle pendant le glisser
+                e.preventDefault();
+                if (scrollContainerRef.current) {
+                    setPanningState({
+                        isPanning: true,
+                        startX: e.pageX,
+                        startY: e.pageY,
+                        scrollLeft: scrollContainerRef.current.scrollLeft,
+                        scrollTop: scrollContainerRef.current.scrollTop
+                    });
+                }
             };
-            const handleCanvasMouseUp = () => setDraggingTable(null);
+
+            const handleCanvasMouseMove = (e) => {
+                if (draggingTable) {
+                    const dx = (e.pageX - draggingTable.startX) / zoomLevel;
+                    const dy = (e.pageY - draggingTable.startY) / zoomLevel;
+                    setTables(prev => prev.map(t => t.id === draggingTable.id ? { ...t, x: Math.max(50, draggingTable.origX + dx), y: Math.max(50, draggingTable.origY + dy) } : t));
+                } else if (panningState.isPanning) {
+                    if (!scrollContainerRef.current) return;
+                    const dx = e.pageX - panningState.startX;
+                    const dy = e.pageY - panningState.startY;
+                    scrollContainerRef.current.scrollLeft = panningState.scrollLeft - dx;
+                    scrollContainerRef.current.scrollTop = panningState.scrollTop - dy;
+                }
+            };
+
+            const handleCanvasMouseUp = () => {
+                setDraggingTable(null);
+                if (panningState.isPanning) {
+                    setPanningState(prev => ({ ...prev, isPanning: false }));
+                }
+            };
 
             // Actions
             const addGuest = (e) => {
@@ -289,7 +323,7 @@
                     </div>
 
                     {/* Canvas */}
-                    <div className="flex-1 overflow-auto print-canvas relative bg-slate-50">
+                    <div className={`flex-1 overflow-auto print-canvas relative bg-slate-50 ${panningState.isPanning ? 'cursor-grabbing' : 'cursor-grab'}`} ref={scrollContainerRef}>
                         <div className="sticky top-0 left-0 right-0 p-4 flex justify-between items-center no-print z-20 pointer-events-none">
                             <div className="bg-white px-3 py-1.5 rounded-full shadow-md border border-slate-200 flex items-center gap-2 pointer-events-auto">
                                 {saveStatus === "ready" && <span className="text-xs text-slate-500 flex items-center gap-1"><Icons.Save /> Sauvegardé</span>}
@@ -327,7 +361,7 @@
                                 width: `${Math.max(100, 3000 * zoomLevel)}px`,
                                 height: `${Math.max(100, 3000 * zoomLevel)}px`
                              }}
-                             onMouseMove={handleCanvasMouseMove} onMouseUp={handleCanvasMouseUp} onMouseLeave={handleCanvasMouseUp}
+                             onMouseDown={handleCanvasMouseDown} onMouseMove={handleCanvasMouseMove} onMouseUp={handleCanvasMouseUp} onMouseLeave={handleCanvasMouseUp}
                              onWheel={(e) => {
                                  if (e.ctrlKey || e.metaKey) {
                                      e.preventDefault();
@@ -336,7 +370,7 @@
                                  }
                              }}>
                             {/* Un conteneur interne pour appliquer le zoom scale aux éléments (les tables, tentes, etc.) */}
-                            <div style={{ transform: `scale(${zoomLevel})`, transformOrigin: '0 0', width: '100%', height: '100%' }}>
+                            <div className="canvas-background" style={{ transform: `scale(${zoomLevel})`, transformOrigin: '0 0', width: '100%', height: '100%' }}>
 
                             {/* Render Tents First (lowest Z-index) */}
                             {tables.filter(t => t.type === 'tent').map(t => (
