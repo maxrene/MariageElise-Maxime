@@ -287,7 +287,7 @@ img {
 
 /* --- Styles pour le bouton RSVP dans la Nav --- */
 /* 1. Style de base du bouton */
-.nav-rsvp-button {
+.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"] {
     background-color: var(--accent-color);
     padding: 8px 18px !important; /* !important RESTAURÉ pour garder la forme pilule */
     border-radius: 20px; /* Forme de pilule */
@@ -299,39 +299,39 @@ img {
 }
 
 /* 2. Couleur du texte (doit rester claire/blanche) */
-.main-nav ul li a.nav-rsvp-button,
-.main-nav.fixed-nav ul li a.nav-rsvp-button {
+.main-nav ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"],
+.main-nav.fixed-nav ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"] {
     color: var(--text-color-light) !important;
     text-shadow: none !important; /* On retire l'ombre du texte pour ce bouton */
 }
 
 /* 3. Style au survol (CORRIGÉ) */
-.main-nav ul li a.nav-rsvp-button:hover {
+.main-nav ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]:hover {
     background-color: #fff;
     color: var(--accent-color) !important; /* Le texte devient doré sur fond blanc */
     transform: scale(1.05);
 }
-.main-nav.fixed-nav ul li a.nav-rsvp-button:hover {
+.main-nav.fixed-nav ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]:hover {
     background-color: var(--text-color-headings); /* Fond sombre au survol en mode fixe */
     color: #fff !important;
 }
 
 /* 4. Gestion du trait de soulignement */
 /* On désactive le trait au survol UNIQUEMENT pour le bouton RSVP */
-.main-nav ul li a.nav-rsvp-button:hover::after {
+.main-nav ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]:hover::after {
     width: 0 !important;
 }
 /* On ajuste sa position verticale pour qu'il ne soit pas trop bas */
-.main-nav ul li a.nav-rsvp-button::after {
+.main-nav ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]::after {
     bottom: -5px !important; /* Force la position SOUS le bouton */
 }
 /* On garde le trait quand la section RSVP est ACTIVE SUR LE HERO */
-.main-nav ul li a.nav-rsvp-button.active-nav-link::after {
+.main-nav ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"].active-nav-link::after {
     background-color: var(--text-color-light); /* Le trait est blanc */
     width: 70%; /* On le rend visible en permanence */
 }
 /* On garde le trait quand la section RSVP est ACTIVE ET que le menu est FIXE */
-.main-nav.fixed-nav ul li a.nav-rsvp-button.active-nav-link::after {
+.main-nav.fixed-nav ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"].active-nav-link::after {
     background-color: var(--accent-color); /* Le trait redevient doré */
 }
 /* --- Fin Styles Bouton RSVP --- */
@@ -1861,23 +1861,23 @@ img {
     padding: 5px 10px; /* MODIFIÉ : Padding réduit */
 }
     /* Style spécifique pour le bouton RSVP dans le menu mobile ouvert */
-    .main-nav.is-open ul li a.nav-rsvp-button {
+    .main-nav.is-open ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"] {
         background-color: var(--accent-color);
         color: var(--text-color-light) !important; /* Force le texte blanc */
         border-radius: 25px; /* Plus arrondi pour mobile */
         padding: 12px 25px !important; /* Padding plus généreux */
         font-weight: 600; /* Un peu plus gras */
     }
-    .main-nav.is-open ul li a.nav-rsvp-button:hover {
+    .main-nav.is-open ul li a.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]:hover {
         background-color: var(--text-color-headings); /* Survol plus sombre */
         transform: scale(1.03); /* Léger grossissement au survol */
     }
 
     /* 8. On simplifie l'effet de survol/actif pour les liens NORMAUX */
-    .main-nav ul li a:not(.nav-rsvp-button):hover,
-    .main-nav ul li a:not(.nav-rsvp-button).active-nav-link,
-    .main-nav.fixed-nav ul li a:not(.nav-rsvp-button):hover,
-    .main-nav.fixed-nav ul li a:not(.nav-rsvp-button).active-nav-link {
+    .main-nav ul li a:not(.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]):hover,
+    .main-nav ul li a:not(.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]).active-nav-link,
+    .main-nav.fixed-nav ul li a:not(.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]):hover,
+    .main-nav.fixed-nav ul li a:not(.nav-rsvp-button, .main-nav ul li a[href="#souvenirs-section"]).active-nav-link {
         color: var(--accent-color);
     }
 
